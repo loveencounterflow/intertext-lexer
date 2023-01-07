@@ -1,14 +1,22 @@
 {
   "name": "intertext-lexer",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "A multimodal lexer based on sticky regexes",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "homepage": "https://github.com/loveencounterflow/intertext-lexer",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/loveencounterflow/intertext-lexer.git"
+  },
+  "scripts": {
+    "test": "echo see 'https://github.com/loveencounterflow/hengist/tree/master/dev/intertext-lexer'"
+  },
   "dependencies": {
     "guy": "^12.6.2",
     "intertype": "^0.111.0"
