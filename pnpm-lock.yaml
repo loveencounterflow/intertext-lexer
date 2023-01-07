@@ -1,10 +1,12 @@
 lockfileVersion: 5.4
 
 specifiers:
+  compose-regexp-commonjs: ^0.6.24
   guy: ^12.6.2
   intertype: ^0.111.0
 
 dependencies:
+  compose-regexp-commonjs: 0.6.24
   guy: 12.6.2
   intertype: 0.111.0
 
@@ -13,6 +15,10 @@ packages:
   /ansi-regex/5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
+    dev: false
+
+  /compose-regexp-commonjs/0.6.24:
+    resolution: {integrity: sha512-aPHoQ7VsPGg57+qQPJaLHkd5us32kFZimKNdJS25GWGnwrbAhf7cSJ4u1PUowBEEGpaEMzRc6Lr9SOI1JlvpKQ==}
     dev: false
 
   /emoji-regex/8.0.0:
