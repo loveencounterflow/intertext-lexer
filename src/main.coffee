@@ -63,7 +63,6 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   add_lexeme: ( mode, name, pattern ) ->
-    help '^31-1^', "#{mode}:#{name}", GUY.trm.white pattern
     @base_mode   ?= mode
     lexemes       = ( @registry[ mode ] ?= { lexemes: [], } ).lexemes
     lexemes.push XXX_CRX.namedCapture ( @_metachr + name ), pattern
