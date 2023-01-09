@@ -55,8 +55,10 @@ class Interlex
   constructor: ( cfg ) ->
     throw new Error "^interlex@1^ cfg not implemented" if cfg?
     @reset()
-    @base_mode  = null
-    @registry   = {}
+    @base_mode    = null
+    @registry     = {}
+    @_metachr     = '𝔛' # used for identifying group keys
+    @_metachrlen  = @_metachr.length
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ class Interlex
     help '^31-1^', "#{mode}:#{name}", GUY.trm.white pattern
     @base_mode   ?= mode
     lexemes       = ( @registry[ mode ] ?= { lexemes: [], } ).lexemes
-    lexemes.push XXX_CRX.namedCapture "$#{name}", pattern
+    lexemes.push XXX_CRX.namedCapture ( @_metachr + name ), pattern
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -88,8 +90,8 @@ class Interlex
     R = { mode, }
     for key, value of match.groups
       continue unless value?
-      if key.startsWith '$'
-        R.key     = key[ 1 .. ]
+      if key.startsWith @_metachr
+        R.key     = key[ @_metachrlen .. ]
         R.mk      = if mode? then "#{mode}:#{R.key}" else R.key
         R.value   = value
       else
