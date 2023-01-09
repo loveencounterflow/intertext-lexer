@@ -75,10 +75,11 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   reset: ->
-    @state              ?= {}
-    @state.stack         = []
-    @state.mode          = @base_mode
-    @state.prv_last_idx  = 0
+    @state                             ?= {}
+    @state.stack                        = []
+    @state.mode                         = @base_mode
+    @state.prv_last_idx                 = 0
+    @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     return null
 
   #---------------------------------------------------------------------------------------------------------
