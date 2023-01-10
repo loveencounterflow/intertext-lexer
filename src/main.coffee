@@ -152,13 +152,13 @@ class Interlex
       #.....................................................................................................
       if token.key.startsWith 'gosub_'
         @state.stack.push @state.mode
-        @state.mode              = token.key.replace 'gosub_', ''
+        @state.mode       = token.key.replace 'gosub_', ''
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
         pattern.lastIndex = old_last_idx
       #.....................................................................................................
       else if token.key is 'return'
-        @state.mode              = @state.stack.pop()
+        @state.mode       = @state.stack.pop()
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
         pattern.lastIndex = old_last_idx
@@ -167,6 +167,7 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
+
 
 #===========================================================================================================
 module.exports = { Interlex, }
