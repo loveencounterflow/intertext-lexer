@@ -92,7 +92,9 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _new_token: ( key, value, start, stop, x = null ) ->
+  _new_token: ( key, value, length, x = null ) ->
+    start = @state.prv_last_idx
+    stop  = start + length
     return { mode: @state.mode, key, mk: "#{@state.mode}:#{key}", value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
@@ -106,8 +108,7 @@ class Interlex
       else
         key                 = ( key.split @_metachr )[ 1 ]
         ( x ?= {} )[ key ]  = if value is '' then null else value
-    stop  = @state.prv_last_idx + match[ 0 ].length
-    return @_new_token token_key, token_value, @state.prv_last_idx, stop, x
+    return @_new_token token_key, token_value, match[ 0 ].length, x
 
   #---------------------------------------------------------------------------------------------------------
   run: ( source ) -> [ ( @walk source )..., ]
@@ -121,11 +122,11 @@ class Interlex
     loop
       if @state.prv_last_idx > max_index
         ### reached end ###
-        yield @_new_token '$eof', '', max_index + 1, max_index + 1
+        yield @_new_token '$eof', '', 0
         break
       match = source.match pattern
       unless match?
-        yield @_new_token '$error', '', @state.prv_last_idx, @state.prv_last_idx, { code: 'nomatch', }
+        yield @_new_token '$error', '', 0, { code: 'nomatch', }
         break
       if pattern.lastIndex is @state.prv_last_idx
         if match?
