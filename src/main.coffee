@@ -108,13 +108,15 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _new_token: ( tid, value, length, x = null ) ->
+  _new_token: ( tid, value, length, x = null, lexeme = null ) ->
     start = @state.prv_last_idx
     stop  = start + length
-    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", value, start, stop, x, }
+    push  = lexeme?.push ? null
+    pop   = lexeme?.pop ? null
+    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", push, pop, value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
-  _token_from_match: ( match ) ->
+  _token_and_lexeme_from_match: ( match ) ->
     x = null
     for key, value of match.groups
       continue unless value?
@@ -124,7 +126,9 @@ class Interlex
       else
         key                 = ( key.split @_metachr )[ 1 ]
         ( x ?= {} )[ key ]  = if value is '' then null else value
-    return @_new_token token_tid, token_value, match[ 0 ].length, x
+    lexeme  = @registry[ @state.mode ].lexemes[ token_tid ]
+    token   = @_new_token token_tid, token_value, match[ 0 ].length, x, lexeme
+    return { token, lexeme, }
 
   #---------------------------------------------------------------------------------------------------------
   run: ( source ) -> [ ( @walk source )..., ]
@@ -146,23 +150,22 @@ class Interlex
         break
       if pattern.lastIndex is @state.prv_last_idx
         if match?
-          warn '^31-7^', { match.groups..., }
-          warn '^31-8^', token  = @_token_from_match match
+          { token } = @_token_and_lexeme_from_match match
           ### TAINT uses code units, should use codepoints ###
-          center = token.stop
-          left   = Math.max 0, center - 11
-          right  = Math.min source.length, center + 11
-          before = source[ left ... center ]
-          after  = source[ center + 1 .. right ]
-          mid    = source[ center ]
+          center    = token.stop
+          left      = Math.max 0, center - 11
+          right     = Math.min source.length, center + 11
+          before    = source[ left ... center ]
+          after     = source[ center + 1 .. right ]
+          mid       = source[ center ]
           warn '^31-9^', { before, mid, after, }
           warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
         else
           warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
         break
       #.....................................................................................................
-      token   = @_token_from_match match
-      lexeme  = @registry[ @state.mode ].lexemes[ token.tid ]
+      { token
+        lexeme } = @_token_and_lexeme_from_match match
       yield token
       #.....................................................................................................
       if lexeme.push?
