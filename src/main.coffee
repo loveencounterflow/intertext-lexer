@@ -94,6 +94,7 @@ class Interlex
     @state.prv_last_idx                 = 0
     @state.pattern                      = null
     @state.source                       = null
+    @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     return null
 
@@ -142,19 +143,20 @@ class Interlex
     @state.source   = source
     #.......................................................................................................
     loop
-      debug '^23-1^'
-      break unless ( Y = @step() )?
-      yield Y
+      break if @state.finished
+      yield Y if ( Y = @step() )?
     return null
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
-    debug '^23-2^', @state.prv_last_idx, @state.source.length
     if @state.prv_last_idx >= @state.source.length
       ### reached end ###
+      @state.finished = true
       return @_new_token '$eof', '', 0
     match = @state.source.match @state.pattern
     unless match?
+      ### TAINT might want to advance and try again? ###
+      @state.finished = true
       return @_new_token '$error', '', 0, { code: 'nomatch', }
     if @state.pattern.lastIndex is @state.prv_last_idx
       if match?
@@ -166,11 +168,14 @@ class Interlex
         before    = @state.source[ left ... center ]
         after     = @state.source[ center + 1 .. right ]
         mid       = @state.source[ center ]
+        ### TAINT raise error or return error token ###
         warn '^31-9^', { before, mid, after, }
         warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
+        @state.finished = true
       else
         ### TAINT raise error or return error token ###
         warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
+        @state.finished = true
         return null
     #.....................................................................................................
     { token
