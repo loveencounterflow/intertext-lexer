@@ -20,6 +20,9 @@
 ## To Do
 
 * **[–]** documentation
+* **[–]** allow to configure `start`, `stop`, `error` tokens, implicit `finalize()`
+* **[–]** make calls to `finalize()` implicit
+* **[–]** implement `step()`
 
 
 ## Is Done
