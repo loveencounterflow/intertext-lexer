@@ -142,39 +142,44 @@ class Interlex
     @state.source   = source
     #.......................................................................................................
     loop
-      if @state.prv_last_idx >= @state.source.length
-        ### reached end ###
-        yield @_new_token '$eof', '', 0
-        break
-      match = @state.source.match @state.pattern
-      unless match?
-        yield @_new_token '$error', '', 0, { code: 'nomatch', }
-        break
-      if @state.pattern.lastIndex is @state.prv_last_idx
-        if match?
-          { token } = @_token_and_lexeme_from_match match
-          ### TAINT uses code units, should use codepoints ###
-          center    = token.stop
-          left      = Math.max 0, center - 11
-          right     = Math.min @state.source.length, center + 11
-          before    = @state.source[ left ... center ]
-          after     = @state.source[ center + 1 .. right ]
-          mid       = @state.source[ center ]
-          warn '^31-9^', { before, mid, after, }
-          warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
-        else
-          warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
-        break
-      #.....................................................................................................
-      { token
-        lexeme } = @_token_and_lexeme_from_match match
-      yield token
-      #.....................................................................................................
-      if      lexeme.jump is jump_symbol  then @_pop_mode()
-      else if lexeme.jump?                then @_push_mode lexeme
-      @state.prv_last_idx = @state.pattern.lastIndex
-    #.......................................................................................................
+      debug '^23-1^'
+      break unless ( Y = @step() )?
+      yield Y
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  step: ->
+    debug '^23-2^', @state.prv_last_idx, @state.source.length
+    if @state.prv_last_idx >= @state.source.length
+      ### reached end ###
+      return @_new_token '$eof', '', 0
+    match = @state.source.match @state.pattern
+    unless match?
+      return @_new_token '$error', '', 0, { code: 'nomatch', }
+    if @state.pattern.lastIndex is @state.prv_last_idx
+      if match?
+        { token } = @_token_and_lexeme_from_match match
+        ### TAINT uses code units, should use codepoints ###
+        center    = token.stop
+        left      = Math.max 0, center - 11
+        right     = Math.min @state.source.length, center + 11
+        before    = @state.source[ left ... center ]
+        after     = @state.source[ center + 1 .. right ]
+        mid       = @state.source[ center ]
+        warn '^31-9^', { before, mid, after, }
+        warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
+      else
+        ### TAINT raise error or return error token ###
+        warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
+        return null
+    #.....................................................................................................
+    { token
+      lexeme } = @_token_and_lexeme_from_match match
+    #.....................................................................................................
+    if      lexeme.jump is jump_symbol  then @_pop_mode()
+    else if lexeme.jump?                then @_push_mode lexeme
+    @state.prv_last_idx = @state.pattern.lastIndex
+    return token
 
   #---------------------------------------------------------------------------------------------------------
   _pop_mode: ->
@@ -192,9 +197,6 @@ class Interlex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
     return null
-
-  #---------------------------------------------------------------------------------------------------------
-  step: ->
 
 
 #===========================================================================================================
