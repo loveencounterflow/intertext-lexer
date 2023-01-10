@@ -21,6 +21,7 @@ GUY                       = require 'guy'
 { Intertype }             = require 'intertype'
 base_types                = null
 misfit                    = Symbol 'misfit'
+jump_symbol               = '^'
 # PATH                      = require 'node:path'
 
 
@@ -35,25 +36,25 @@ get_base_types = ->
   declare.ilx_mode    'nonempty.text'
   declare.ilx_tid     'nonempty.text'
   declare.ilx_pattern 'text.or.regex'
+  declare.ilx_pop     ( x ) -> x is jump_symbol
+  declare.ilx_jump    'ilx_mode.or.ilx_pop'
   declare.ilx_add_lexeme_cfg
     fields:
       mode:           'ilx_mode'
       tid:            'ilx_tid'
       pattern:        'ilx_pattern'
-      push:           'optional.ilx_mode'
-      pop:            'boolean'
+      jump:           'optional.ilx_jump'
     default:
       mode:           'plain'
       tid:            null
       pattern:        null
-      push:           null
-      pop:            false
+      jump:           null
   #.........................................................................................................
   return base_types
 
 
 #===========================================================================================================
-module.exports = { misfit, get_base_types, }
+module.exports = { misfit, jump_symbol, get_base_types, }
 
 
 

@@ -22,7 +22,9 @@ GUY                       = require 'guy'
 #...........................................................................................................
 { equals
   copy_regex }            = GUY.samesame
-{ get_base_types }        = require './types'
+{ misfit
+  jump_symbol
+  get_base_types }        = require './types'
 
 # { atomic
 #   bound
@@ -67,6 +69,7 @@ class Interlex
     @registry     = {}
     @_metachr     = '𝔛' # used for identifying group keys
     @_metachrlen  = @_metachr.length
+    @jump_symbol  = jump_symbol
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -93,9 +96,10 @@ class Interlex
       @registry[ mode ].pattern = XXX_sticky XXX_unicode XXX_dotall XXX_CRX.either patterns...
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
-        continue unless lexeme.push?
-        continue if @registry[ lexeme.push ]?
-        throw new Error "^interlex.finalize@1^ unknown push mode in lexeme #{rpr lexeme}"
+        continue unless lexeme.jump?
+        continue if lexeme.jump is jump_symbol
+        continue if @registry[ lexeme.jump ]?
+        throw new Error "^interlex.finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -111,9 +115,9 @@ class Interlex
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
     start = @state.prv_last_idx
     stop  = start + length
-    push  = lexeme?.push ? null
-    pop   = lexeme?.pop ? null
-    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", push, pop, value, start, stop, x, }
+    jump  = lexeme?.jump ? null
+    ### TAINT use `types.create.ilx_token {}` ###
+    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", jump, value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->
@@ -168,15 +172,15 @@ class Interlex
         lexeme } = @_token_and_lexeme_from_match match
       yield token
       #.....................................................................................................
-      if lexeme.push?
-        @state.stack.push @state.mode
-        @state.mode       = lexeme.push
+      if lexeme.jump is jump_symbol
+        @state.mode       = @state.stack.pop()
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
         pattern.lastIndex = old_last_idx
       #.....................................................................................................
-      else if lexeme.pop
-        @state.mode       = @state.stack.pop()
+      else if lexeme.jump?
+        @state.stack.push @state.mode
+        @state.mode       = lexeme.jump
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
         pattern.lastIndex = old_last_idx
