@@ -55,6 +55,12 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     throw new Error "^interlex@1^ cfg not implemented" if cfg?
+    ###
+    cfg =
+      autoreset:    true
+      end_token:    true
+      error_tokens: true
+    ###
     @types        = get_base_types()
     @reset()
     @base_mode    = null
@@ -102,10 +108,10 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _new_token: ( key, value, length, x = null ) ->
+  _new_token: ( tid, value, length, x = null ) ->
     start = @state.prv_last_idx
     stop  = start + length
-    return { mode: @state.mode, key, mk: "#{@state.mode}:#{key}", value, start, stop, x, }
+    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
   _token_from_match: ( match ) ->
@@ -113,12 +119,12 @@ class Interlex
     for key, value of match.groups
       continue unless value?
       if key.startsWith @_metachr
-        token_key           = key[ @_metachrlen .. ]
+        token_tid           = key[ @_metachrlen .. ]
         token_value         = value
       else
         key                 = ( key.split @_metachr )[ 1 ]
         ( x ?= {} )[ key ]  = if value is '' then null else value
-    return @_new_token token_key, token_value, match[ 0 ].length, x
+    return @_new_token token_tid, token_value, match[ 0 ].length, x
 
   #---------------------------------------------------------------------------------------------------------
   run: ( source ) -> [ ( @walk source )..., ]
@@ -150,13 +156,13 @@ class Interlex
           after  = source[ center + 1 .. right ]
           mid    = source[ center ]
           warn '^31-9^', { before, mid, after, }
-          warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.key} matched empty string; stopping"
+          warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
         else
           warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
         break
       #.....................................................................................................
       token   = @_token_from_match match
-      lexeme  = @registry[ @state.mode ].lexemes[ token.key ]
+      lexeme  = @registry[ @state.mode ].lexemes[ token.tid ]
       yield token
       #.....................................................................................................
       if lexeme.push?
