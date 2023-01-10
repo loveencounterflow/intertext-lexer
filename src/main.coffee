@@ -169,21 +169,28 @@ class Interlex
         lexeme } = @_token_and_lexeme_from_match match
       yield token
       #.....................................................................................................
-      ### TAINT encapsulate these ###
-      if lexeme.jump is jump_symbol
-        @state.mode               = @state.stack.pop()
-        old_last_idx              = @state.pattern.lastIndex
-        @state.pattern            = @registry[ @state.mode ].pattern
-        @state.pattern.lastIndex  = old_last_idx
-      #.....................................................................................................
-      else if lexeme.jump?
-        @state.stack.push @state.mode
-        @state.mode               = lexeme.jump
-        old_last_idx              = @state.pattern.lastIndex
-        @state.pattern            = @registry[ @state.mode ].pattern
-        @state.pattern.lastIndex  = old_last_idx
-      #.....................................................................................................
+      if      lexeme.jump is jump_symbol  then @_pop_mode()
+      else if lexeme.jump?                then @_push_mode lexeme
       @state.prv_last_idx = @state.pattern.lastIndex
+    #.......................................................................................................
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _pop_mode: ->
+    @state.mode               = @state.stack.pop()
+    old_last_idx              = @state.pattern.lastIndex
+    @state.pattern            = @registry[ @state.mode ].pattern
+    @state.pattern.lastIndex  = old_last_idx
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _push_mode: ( lexeme ) ->
+    @state.stack.push @state.mode
+    @state.mode               = lexeme.jump
+    old_last_idx              = @state.pattern.lastIndex
+    @state.pattern            = @registry[ @state.mode ].pattern
+    @state.pattern.lastIndex  = old_last_idx
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
