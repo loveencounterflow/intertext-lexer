@@ -64,11 +64,12 @@ class Interlex
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  add_lexeme: ( mode, name, pattern ) ->
-    @base_mode   ?= mode
-    lexemes       = ( @registry[ mode ] ?= { lexemes: [], } ).lexemes
-    pattern       = @_rename_groups name, pattern if @types.isa.regex pattern
-    lexemes.push XXX_CRX.namedCapture ( @_metachr + name ), pattern
+  add_lexeme: ( cfg ) ->
+    cfg           = @types.create.ilx_add_lexeme_cfg cfg
+    @base_mode   ?= cfg.mode
+    lexemes       = ( @registry[ cfg.mode ] ?= { lexemes: [], } ).lexemes
+    pattern       =  if @types.isa.text pattern then cfg.pattern else @_rename_groups cfg.tid, cfg.pattern
+    lexemes.push XXX_CRX.namedCapture ( @_metachr + cfg.tid ), pattern
     return null
 
   #---------------------------------------------------------------------------------------------------------

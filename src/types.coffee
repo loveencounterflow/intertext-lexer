@@ -32,7 +32,18 @@ get_base_types = ->
   { declare }               = base_types
   #.........................................................................................................
   # declare.ilx_pattern     override: true, isa: ( x ) -> x instanceof Document
+  declare.ilx_mode    'nonempty.text'
+  declare.ilx_tid     'nonempty.text'
   declare.ilx_pattern 'text.or.regex'
+  declare.ilx_add_lexeme_cfg
+    fields:
+      mode:           'ilx_mode'
+      tid:            'ilx_tid'
+      pattern:        'ilx_pattern'
+    default:
+      mode:           'plain'
+      tid:            null
+      pattern:        null
   #.........................................................................................................
   return base_types
 
