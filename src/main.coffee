@@ -25,31 +25,14 @@ GUY                       = require 'guy'
 { misfit
   jump_symbol
   get_base_types }        = require './types'
-
-# { atomic
-#   bound
-#   capture
-#   charSet
-#   either
-#   flags
-#   lookAhead
-#   lookBehind
-#   maybe
-#   namedCapture
-#   noBound
-#   notAhead
-#   notBehind
-#   ref
-#   sequence
-#   suffix                } = require 'compose-regexp-commonjs'
-XXX_CRX = require 'compose-regexp-commonjs'
-#-----------------------------------------------------------------------------------------------------------
-XXX_unicode = ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { unicode: true, } else flags.add 'u', x
-XXX_sticky  = ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { sticky: true,  } else flags.add 'y', x
-XXX_dotall  = ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { dotAll: true,  } else flags.add 's', x
-XXX_dotAll  = XXX_dotall
-
-
+#...........................................................................................................
+_CRX  = require 'compose-regexp-commonjs'
+_X    =
+  unicode:  ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { unicode: true, } else flags.add 'u', x
+  sticky:   ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { sticky: true,  } else flags.add 'y', x
+  dotall:   ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { dotAll: true,  } else flags.add 's', x
+_X.dotAll = _X.dotall
+compose   = C = { _CRX..., _X..., }
 
 #===========================================================================================================
 class Interlex
@@ -80,7 +63,7 @@ class Interlex
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., }
     lexeme.pattern            = if @types.isa.regex lexeme.pattern then @_rename_groups lexeme.tid, lexeme.pattern
-    lexeme.pattern            = XXX_CRX.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
+    lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -93,7 +76,7 @@ class Interlex
     for mode, entry of @registry
       ### TAINT use API ###
       patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
-      @registry[ mode ].pattern = XXX_sticky XXX_unicode XXX_dotall XXX_CRX.either patterns...
+      @registry[ mode ].pattern = C.sticky C.unicode C.dotall C.either patterns...
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
         continue unless lexeme.jump?
@@ -192,5 +175,5 @@ class Interlex
 
 
 #===========================================================================================================
-module.exports = { Interlex, }
+module.exports = { Interlex, compose, }
 
