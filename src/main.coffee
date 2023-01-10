@@ -109,6 +109,64 @@ class Interlex
     R.x     = x
     return R
 
+  #---------------------------------------------------------------------------------------------------------
+  run: ( source ) -> [ ( @walk source )..., ]
+
+  #---------------------------------------------------------------------------------------------------------
+  walk: ( source ) ->
+    @reset() # if @cfg.autoreset
+    pattern   = @registry[ @state.mode ].pattern
+    max_index = source.length - 1
+    #.......................................................................................................
+    loop
+      if @state.prv_last_idx > max_index
+        ### reached end ###
+        yield { mode: @state.mode, key: '$eof', mk: "#{@state.mode}:$eof", \
+          value: '', start: max_index + 1, stop: max_index + 1, x: null, }
+        break
+      match = source.match pattern
+      unless match?
+        ### TAINT complain if not at end or issue error token ###
+        yield { mode: @state.mode, key: '$error', mk: "#{@state.mode}:$error", \
+          value: '', start: @state.prv_last_idx, stop: @state.prv_last_idx, x: { code: 'nomatch', }, }
+        break
+      if pattern.lastIndex is @state.prv_last_idx
+        if match?
+          warn '^31-7^', { match.groups..., }
+          warn '^31-8^', token  = @_token_from_match @state.prv_last_idx, match, @state.mode
+          ### TAINT uses code units, should use codepoints ###
+          center = token.stop
+          left   = Math.max 0, center - 11
+          right  = Math.min source.length, center + 11
+          before = source[ left ... center ]
+          after  = source[ center + 1 .. right ]
+          mid    = source[ center ]
+          warn '^31-9^', { before, mid, after, }
+          warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.key} matched empty string; stopping"
+        else
+          warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
+        break
+      token = @_token_from_match @state.prv_last_idx, match, @state.mode
+      yield token
+      # info '^31-12^', pattern.lastIndex, token
+      #.....................................................................................................
+      if token.key.startsWith 'gosub_'
+        @state.stack.push @state.mode
+        @state.mode              = token.key.replace 'gosub_', ''
+        old_last_idx      = pattern.lastIndex
+        pattern           = @registry[ @state.mode ].pattern
+        pattern.lastIndex = old_last_idx
+      #.....................................................................................................
+      else if token.key is 'return'
+        @state.mode              = @state.stack.pop()
+        old_last_idx      = pattern.lastIndex
+        pattern           = @registry[ @state.mode ].pattern
+        pattern.lastIndex = old_last_idx
+      #.....................................................................................................
+      @state.prv_last_idx = pattern.lastIndex
+
+  #---------------------------------------------------------------------------------------------------------
+  step: ->
 
 #===========================================================================================================
 module.exports = { Interlex, }
