@@ -23,6 +23,7 @@
 * **[–]** allow to configure `start`, `stop`, `error` tokens, implicit `finalize()`
 * **[–]** make calls to `finalize()` implicit
 * **[–]** implement `step()`
+* **[–]** introduce aliases for names of `compose` that don't use snake case &c
 
 
 ## Is Done
