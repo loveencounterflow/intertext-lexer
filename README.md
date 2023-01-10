@@ -20,8 +20,6 @@
 ## To Do
 
 * **[–]** documentation
-* **[–]** allow multiple `gosub_*`, `return` tokens in a single lexer mode; use API rather than naming
-  convention for these
 
 
 ## Is Done
@@ -31,4 +29,8 @@
   and
   [`hengist/blob/master/dev/intertext-lexer/src/first-demo.coffee`](https://github.com/loveencounterflow/hengist/blob/master/dev/intertext-lexer/src/first-demo.coffee)
 * **[+]** prefix named groups for parameters with rule name (token key) to enable re-use of parameter names
+* **[+]** allow multiple `gosub_*`, `return` tokens in a single lexer mode; use API rather than naming
+  convention for these
+* **[+]** implement `cfg`-based API for `add_lexeme()` that provides `jump` argument to replace
+  `gosub_`/`return` naming convention
 
