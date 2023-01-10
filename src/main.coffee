@@ -95,6 +95,18 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  rpr_token: ( token ) ->
+    # @types.validate.ilx_token token
+    t = token
+    j = token.jump
+    R = []
+    R.push t.mk + if j? then ( if j is jump_symbol then j else ">#{j}") else ''
+    R.push "(#{t.start}:#{t.stop})"
+    R.push "=#{rpr t.value}"
+    R.push "#{k}:#{rpr v}" for k, v of t.x ? {}
+    return "[#{R.join ','}]"
+
+  #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
     start = @state.prv_last_idx
     stop  = start + length
