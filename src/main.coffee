@@ -22,6 +22,7 @@ GUY                       = require 'guy'
 #...........................................................................................................
 { equals
   copy_regex }            = GUY.samesame
+{ get_base_types }        = require './types'
 
 # { atomic
 #   bound
@@ -54,6 +55,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     throw new Error "^interlex@1^ cfg not implemented" if cfg?
+    @types        = get_base_types()
     @reset()
     @base_mode    = null
     @registry     = {}
