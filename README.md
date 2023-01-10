@@ -24,6 +24,7 @@
 * **[–]** make calls to `finalize()` implicit
 * **[–]** implement `step()`
 * **[–]** introduce aliases for names of `compose` that don't use snake case &c
+* **[–]** implement `line`, `col` coordinates for tokens
 
 
 ## Is Done
