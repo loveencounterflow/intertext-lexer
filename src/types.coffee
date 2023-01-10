@@ -40,14 +40,19 @@ get_base_types = ->
       mode:           'ilx_mode'
       tid:            'ilx_tid'
       pattern:        'ilx_pattern'
+      push:           'optional.ilx_mode'
+      pop:            'boolean'
     default:
       mode:           'plain'
       tid:            null
       pattern:        null
+      push:           null
+      pop:            false
   #.........................................................................................................
   return base_types
 
 
+#===========================================================================================================
 module.exports = { misfit, get_base_types, }
 
 

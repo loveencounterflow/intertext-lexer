@@ -65,11 +65,13 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   add_lexeme: ( cfg ) ->
-    cfg           = @types.create.ilx_add_lexeme_cfg cfg
-    @base_mode   ?= cfg.mode
-    lexemes       = ( @registry[ cfg.mode ] ?= { lexemes: [], } ).lexemes
-    pattern       =  if @types.isa.text pattern then cfg.pattern else @_rename_groups cfg.tid, cfg.pattern
-    lexemes.push XXX_CRX.namedCapture ( @_metachr + cfg.tid ), pattern
+    cfg                       = @types.create.ilx_add_lexeme_cfg cfg
+    @base_mode               ?= cfg.mode
+    ### TAINT use API ###
+    entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
+    entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., }
+    lexeme.pattern            = if @types.isa.regex lexeme.pattern then @_rename_groups lexeme.tid, lexeme.pattern
+    lexeme.pattern            = XXX_CRX.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -80,7 +82,14 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   finalize: ->
     for mode, entry of @registry
-      @registry[ mode ].pattern = XXX_sticky XXX_unicode XXX_dotall XXX_CRX.either entry.lexemes...
+      ### TAINT use API ###
+      patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
+      @registry[ mode ].pattern = XXX_sticky XXX_unicode XXX_dotall XXX_CRX.either patterns...
+    for mode, entry of @registry
+      for tid, lexeme of entry.lexemes
+        continue unless lexeme.push?
+        continue if @registry[ lexeme.push ]?
+        throw new Error "^interlex.finalize@1^ unknown push mode in lexeme #{rpr lexeme}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -146,17 +155,18 @@ class Interlex
           warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
         break
       #.....................................................................................................
-      token = @_token_from_match match
+      token   = @_token_from_match match
+      lexeme  = @registry[ @state.mode ].lexemes[ token.key ]
       yield token
       #.....................................................................................................
-      if token.key.startsWith 'gosub_'
+      if lexeme.push?
         @state.stack.push @state.mode
-        @state.mode       = token.key.replace 'gosub_', ''
+        @state.mode       = lexeme.push
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
         pattern.lastIndex = old_last_idx
       #.....................................................................................................
-      else if token.key is 'return'
+      else if lexeme.pop
         @state.mode       = @state.stack.pop()
         old_last_idx      = pattern.lastIndex
         pattern           = @registry[ @state.mode ].pattern
