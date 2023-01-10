@@ -93,6 +93,7 @@ class Interlex
     @state.mode                         = @base_mode
     @state.prv_last_idx                 = 0
     @state.pattern                      = null
+    @state.source                       = null
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     return null
 
@@ -138,14 +139,14 @@ class Interlex
   walk: ( source ) ->
     @reset() # if @cfg.autoreset
     @state.pattern  = @registry[ @state.mode ].pattern
-    max_index       = source.length - 1
+    @state.source   = source
     #.......................................................................................................
     loop
-      if @state.prv_last_idx > max_index
+      if @state.prv_last_idx >= @state.source.length
         ### reached end ###
         yield @_new_token '$eof', '', 0
         break
-      match = source.match @state.pattern
+      match = @state.source.match @state.pattern
       unless match?
         yield @_new_token '$error', '', 0, { code: 'nomatch', }
         break
@@ -155,10 +156,10 @@ class Interlex
           ### TAINT uses code units, should use codepoints ###
           center    = token.stop
           left      = Math.max 0, center - 11
-          right     = Math.min source.length, center + 11
-          before    = source[ left ... center ]
-          after     = source[ center + 1 .. right ]
-          mid       = source[ center ]
+          right     = Math.min @state.source.length, center + 11
+          before    = @state.source[ left ... center ]
+          after     = @state.source[ center + 1 .. right ]
+          mid       = @state.source[ center ]
           warn '^31-9^', { before, mid, after, }
           warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
         else
