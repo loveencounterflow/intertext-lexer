@@ -67,8 +67,14 @@ class Interlex
   add_lexeme: ( mode, name, pattern ) ->
     @base_mode   ?= mode
     lexemes       = ( @registry[ mode ] ?= { lexemes: [], } ).lexemes
+    pattern       = @_rename_groups name, pattern if @types.isa.regex pattern
     lexemes.push XXX_CRX.namedCapture ( @_metachr + name ), pattern
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _rename_groups: ( name, re ) ->
+    source = re.source.replace /(?<!\\)\(\?<([^>]+)>/gu, "(?<#{name}#{@_metachr}$1>"
+    return new RegExp source, re.flags
 
   #---------------------------------------------------------------------------------------------------------
   finalize: ->
@@ -96,6 +102,7 @@ class Interlex
         R.mk      = if mode? then "#{mode}:#{R.key}" else R.key
         R.value   = value
       else
+        key                 = ( key.split @_metachr )[ 1 ]
         ( x ?= {} )[ key ]  = if value is '' then null else value
     R.start = prv_last_idx
     R.stop  = prv_last_idx + match[ 0 ].length
