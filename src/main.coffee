@@ -87,10 +87,12 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   reset: ->
+    ### TAINT use `@types.create.ilx_state()` ###
     @state                             ?= {}
     @state.stack                        = []
     @state.mode                         = @base_mode
     @state.prv_last_idx                 = 0
+    @state.pattern                      = null
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     return null
 
@@ -135,19 +137,19 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   walk: ( source ) ->
     @reset() # if @cfg.autoreset
-    pattern   = @registry[ @state.mode ].pattern
-    max_index = source.length - 1
+    @state.pattern  = @registry[ @state.mode ].pattern
+    max_index       = source.length - 1
     #.......................................................................................................
     loop
       if @state.prv_last_idx > max_index
         ### reached end ###
         yield @_new_token '$eof', '', 0
         break
-      match = source.match pattern
+      match = source.match @state.pattern
       unless match?
         yield @_new_token '$error', '', 0, { code: 'nomatch', }
         break
-      if pattern.lastIndex is @state.prv_last_idx
+      if @state.pattern.lastIndex is @state.prv_last_idx
         if match?
           { token } = @_token_and_lexeme_from_match match
           ### TAINT uses code units, should use codepoints ###
@@ -167,20 +169,21 @@ class Interlex
         lexeme } = @_token_and_lexeme_from_match match
       yield token
       #.....................................................................................................
+      ### TAINT encapsulate these ###
       if lexeme.jump is jump_symbol
-        @state.mode       = @state.stack.pop()
-        old_last_idx      = pattern.lastIndex
-        pattern           = @registry[ @state.mode ].pattern
-        pattern.lastIndex = old_last_idx
+        @state.mode               = @state.stack.pop()
+        old_last_idx              = @state.pattern.lastIndex
+        @state.pattern            = @registry[ @state.mode ].pattern
+        @state.pattern.lastIndex  = old_last_idx
       #.....................................................................................................
       else if lexeme.jump?
         @state.stack.push @state.mode
-        @state.mode       = lexeme.jump
-        old_last_idx      = pattern.lastIndex
-        pattern           = @registry[ @state.mode ].pattern
-        pattern.lastIndex = old_last_idx
+        @state.mode               = lexeme.jump
+        old_last_idx              = @state.pattern.lastIndex
+        @state.pattern            = @registry[ @state.mode ].pattern
+        @state.pattern.lastIndex  = old_last_idx
       #.....................................................................................................
-      @state.prv_last_idx = pattern.lastIndex
+      @state.prv_last_idx = @state.pattern.lastIndex
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
