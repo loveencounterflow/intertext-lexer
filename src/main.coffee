@@ -92,22 +92,22 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _token_from_match: ( prv_last_idx, match, mode = null ) ->
+  _new_token: ( key, value, start, stop, x = null ) ->
+    return { mode: @state.mode, key, mk: "#{@state.mode}:#{key}", value, start, stop, x, }
+
+  #---------------------------------------------------------------------------------------------------------
+  _token_from_match: ( match ) ->
     x = null
-    R = { mode, }
     for key, value of match.groups
       continue unless value?
       if key.startsWith @_metachr
-        R.key     = key[ @_metachrlen .. ]
-        R.mk      = if mode? then "#{mode}:#{R.key}" else R.key
-        R.value   = value
+        token_key           = key[ @_metachrlen .. ]
+        token_value         = value
       else
         key                 = ( key.split @_metachr )[ 1 ]
         ( x ?= {} )[ key ]  = if value is '' then null else value
-    R.start = prv_last_idx
-    R.stop  = prv_last_idx + match[ 0 ].length
-    R.x     = x
-    return R
+    stop  = @state.prv_last_idx + match[ 0 ].length
+    return @_new_token token_key, token_value, @state.prv_last_idx, stop, x
 
   #---------------------------------------------------------------------------------------------------------
   run: ( source ) -> [ ( @walk source )..., ]
@@ -121,19 +121,16 @@ class Interlex
     loop
       if @state.prv_last_idx > max_index
         ### reached end ###
-        yield { mode: @state.mode, key: '$eof', mk: "#{@state.mode}:$eof", \
-          value: '', start: max_index + 1, stop: max_index + 1, x: null, }
+        yield @_new_token '$eof', '', max_index + 1, max_index + 1
         break
       match = source.match pattern
       unless match?
-        ### TAINT complain if not at end or issue error token ###
-        yield { mode: @state.mode, key: '$error', mk: "#{@state.mode}:$error", \
-          value: '', start: @state.prv_last_idx, stop: @state.prv_last_idx, x: { code: 'nomatch', }, }
+        yield @_new_token '$error', '', @state.prv_last_idx, @state.prv_last_idx, { code: 'nomatch', }
         break
       if pattern.lastIndex is @state.prv_last_idx
         if match?
           warn '^31-7^', { match.groups..., }
-          warn '^31-8^', token  = @_token_from_match @state.prv_last_idx, match, @state.mode
+          warn '^31-8^', token  = @_token_from_match match
           ### TAINT uses code units, should use codepoints ###
           center = token.stop
           left   = Math.max 0, center - 11
@@ -146,9 +143,9 @@ class Interlex
         else
           warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
         break
-      token = @_token_from_match @state.prv_last_idx, match, @state.mode
+      #.....................................................................................................
+      token = @_token_from_match match
       yield token
-      # info '^31-12^', pattern.lastIndex, token
       #.....................................................................................................
       if token.key.startsWith 'gosub_'
         @state.stack.push @state.mode
