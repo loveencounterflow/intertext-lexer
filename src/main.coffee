@@ -81,8 +81,12 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   start: ( source = null ) ->
-    ### TAINT use `@types.create.ilx_state()` ###
     @types.validate.optional.text source
+    return @_start source
+
+  #---------------------------------------------------------------------------------------------------------
+  _start: ( source = null ) ->
+    ### TAINT use `@types.create.ilx_state()` ###
     @state                             ?= {}
     @state.stack                        = []
     @state.prv_last_idx                 = 0
@@ -96,7 +100,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   feed: ( source ) ->
     @types.validate.text source
-    return @start source if @cfg.autostart
+    return @_start source if @cfg.autostart
     @state.source = source
     return null
 
