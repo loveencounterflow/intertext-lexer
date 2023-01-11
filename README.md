@@ -22,9 +22,10 @@
 * **[–]** documentation
 * **[–]** allow to configure `start`, `stop`, `error` tokens, implicit `finalize()`
 * **[–]** make calls to `finalize()` implicit
-* **[–]** implement `step()`
 * **[–]** introduce aliases for names of `compose` that don't use snake case &c
 * **[–]** implement `line`, `col` coordinates for tokens
+* **[–]** implement `feed()` to add new source; will call `reset()` with `cfg.autostart`
+* **[–]** with `cfg.autostart`, `feed()` and `reset()` behave identically
 
 
 ## Is Done
@@ -38,4 +39,6 @@
   convention for these
 * **[+]** implement `cfg`-based API for `add_lexeme()` that provides `jump` argument to replace
   `gosub_`/`return` naming convention
+* **[+]** implement `step()`
+* **[+]** rename `autoreset`, `reset()` -> `autostart`, `start()`
 
