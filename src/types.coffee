@@ -38,6 +38,7 @@ get_base_types = ->
   declare.ilx_pattern 'text.or.regex'
   declare.ilx_pop     ( x ) -> x is jump_symbol
   declare.ilx_jump    'ilx_mode.or.ilx_pop'
+  #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
       mode:           'ilx_mode'
@@ -49,6 +50,18 @@ get_base_types = ->
       tid:            null
       pattern:        null
       jump:           null
+  #.........................................................................................................
+  declare.ilx_constructor_cfg
+    fields:
+      autostart:      'boolean'
+      start_token:    'boolean'
+      end_token:      'boolean'
+      error_tokens:   'boolean'
+    default:
+      autostart:      true
+      start_token:    false
+      end_token:      true
+      error_tokens:   true
   #.........................................................................................................
   return base_types
 

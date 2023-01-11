@@ -39,15 +39,8 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    throw new Error "^interlex@1^ cfg not implemented" if cfg?
-    ###
-    cfg =
-      autoreset:    true
-      end_token:    true
-      error_tokens: true
-    ###
     @types        = get_base_types()
-    @reset()
+    @cfg          = Object.freeze @types.create.ilx_constructor_cfg cfg
     @base_mode    = null
     @registry     = {}
     @_metachr     = '𝔛' # used for identifying group keys
