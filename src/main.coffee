@@ -82,14 +82,22 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   start: ( source = null ) ->
     ### TAINT use `@types.create.ilx_state()` ###
+    @types.validate.optional.text source
     @state                             ?= {}
     @state.stack                        = []
-    @state.mode                         = @base_mode
     @state.prv_last_idx                 = 0
-    @state.pattern                      = null
-    @state.source                       = null
+    @state.mode                         = @base_mode ? null
+    @state.pattern                      = @registry?[ @state.mode ]?.pattern ? null
+    @state.source                       = source
     @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  feed: ( source ) ->
+    @types.validate.text source
+    return @start source if @cfg.autostart
+    @state.source = source
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -132,9 +140,7 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   walk: ( source ) ->
-    @reset() # if @cfg.autoreset
-    @state.pattern  = @registry[ @state.mode ].pattern
-    @state.source   = source
+    @feed source
     #.......................................................................................................
     loop
       break if @state.finished
