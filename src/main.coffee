@@ -52,6 +52,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   add_lexeme: ( cfg ) ->
     cfg                       = @types.create.ilx_add_lexeme_cfg cfg
+    @state.finalized          = false
     @base_mode               ?= cfg.mode
     ### TAINT use API ###
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
@@ -66,7 +67,8 @@ class Interlex
     return new RegExp source, re.flags
 
   #---------------------------------------------------------------------------------------------------------
-  finalize: ->
+  _finalize: ->
+    return unless @state?
     for mode, entry of @registry
       ### TAINT use API ###
       patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
@@ -76,7 +78,8 @@ class Interlex
         continue unless lexeme.jump?
         continue if lexeme.jump is jump_symbol
         continue if @registry[ lexeme.jump ]?
-        throw new Error "^interlex.finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
+        throw new Error "^interlex._finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
+    @state.finalized = true
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -87,7 +90,9 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   _start: ( source = null ) ->
     ### TAINT use `@types.create.ilx_state()` ###
+    @_finalize() if @state? and not @state.finalized
     @state                             ?= {}
+    @state.finalized                   ?= false
     @state.stack                        = []
     @state.prv_last_idx                 = 0
     @state.mode                         = @base_mode ? null
