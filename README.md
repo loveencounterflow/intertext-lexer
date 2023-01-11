@@ -23,6 +23,9 @@
 * **[–]** allow to configure `start`, `stop`, `error` tokens, implicit `finalize()`
 * **[–]** introduce aliases for names of `compose` that don't use snake case &c
 * **[–]** implement `line`, `col` coordinates for tokens
+* **[–]** group renaming has a fault in that it will wrongly accept things looking like a named group inside
+  a squra-bracket character class, as in `/[?<abc>)]`
+* **[–]** we cannot mix regexes with and without `s` / `dotall` flag; configure that per mode, per instance?
 
 
 ## Is Done
