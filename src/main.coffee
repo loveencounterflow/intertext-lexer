@@ -41,6 +41,7 @@ class Interlex
   constructor: ( cfg ) ->
     @types        = get_base_types()
     @cfg          = Object.freeze @types.create.ilx_constructor_cfg cfg
+    @start()
     @base_mode    = null
     @registry     = {}
     @_metachr     = '𝔛' # used for identifying group keys
@@ -79,7 +80,7 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  reset: ->
+  start: ( source = null ) ->
     ### TAINT use `@types.create.ilx_state()` ###
     @state                             ?= {}
     @state.stack                        = []
