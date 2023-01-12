@@ -57,11 +57,18 @@ get_base_types = ->
       start_token:    'boolean'
       end_token:      'boolean'
       error_tokens:   'boolean'
+      # # dgimsuy
+      multiline:      'boolean'
+      dotall:         'boolean'
+      # global ???
+      # ignorecase  # ignoreCase
     default:
       autostart:      true
       start_token:    false
       end_token:      true
       error_tokens:   true
+      multiline:      false
+      dotall:         false
   #.........................................................................................................
   return base_types
 

@@ -28,9 +28,10 @@ GUY                       = require 'guy'
 #...........................................................................................................
 _CRX  = require 'compose-regexp-commonjs'
 _X    =
-  unicode:  ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { unicode: true, } else flags.add 'u', x
-  sticky:   ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { sticky: true,  } else flags.add 'y', x
-  dotall:   ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { dotAll: true,  } else flags.add 's', x
+  unicode:    ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { unicode: true,   } else flags.add 'u', x
+  sticky:     ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { sticky: true,    } else flags.add 'y', x
+  dotall:     ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { dotAll: true,    } else flags.add 's', x
+  multiline:  ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { multiline: true, } else flags.add 'm', x
 _X.dotAll = _X.dotall
 compose   = C = { _CRX..., _X..., }
 
@@ -72,7 +73,11 @@ class Interlex
     for mode, entry of @registry
       ### TAINT use API ###
       patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
-      @registry[ mode ].pattern = C.sticky C.unicode C.dotall C.either patterns...
+      pattern                   = C.either patterns...
+      ### TAINT could / should set all flags in single step ###
+      pattern                   = C.dotall    pattern if @cfg.dotall
+      pattern                   = C.multiline pattern if @cfg.multiline
+      @registry[ mode ].pattern = C.sticky C.unicode pattern
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
         continue unless lexeme.jump?
