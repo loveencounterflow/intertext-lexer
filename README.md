@@ -26,6 +26,7 @@
 * **[–]** group renaming has a fault in that it will wrongly accept things looking like a named group inside
   a squra-bracket character class, as in `/[?<abc>)]`
 * **[–]** we cannot mix regexes with and without `s` / `dotall` flag; configure that per mode, per instance?
+* **[–]** allow to add lexemes w/out explicit mode, will provide default / add to base mode
 
 
 ## Is Done
