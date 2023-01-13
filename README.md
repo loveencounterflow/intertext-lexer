@@ -27,6 +27,9 @@
   a squra-bracket character class, as in `/[?<abc>)]`
 * **[–]** we cannot mix regexes with and without `s` / `dotall` flag; configure that per mode, per instance?
 * **[–]** allow to add lexemes w/out explicit mode, will provide default / add to base mode
+* **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
+* **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
+  MarkDown star lexer
 
 
 ## Is Done
