@@ -2,11 +2,13 @@ lockfileVersion: 5.4
 
 specifiers:
   compose-regexp-commonjs: ^0.6.24
+  datom: ^11.0.0
   guy: ^12.7.0
   intertype: ^0.111.0
 
 dependencies:
   compose-regexp-commonjs: 0.6.24
+  datom: 11.0.0
   guy: 12.7.0
   intertype: 0.111.0
 
@@ -19,6 +21,21 @@ packages:
 
   /compose-regexp-commonjs/0.6.24:
     resolution: {integrity: sha512-aPHoQ7VsPGg57+qQPJaLHkd5us32kFZimKNdJS25GWGnwrbAhf7cSJ4u1PUowBEEGpaEMzRc6Lr9SOI1JlvpKQ==}
+    dev: false
+
+  /datom/11.0.0:
+    resolution: {integrity: sha512-ACvExvSaRDDCxs4D6+uu83SSak5LHk4lnZmQKdHZlkKiVkH6U5FuQ0dlCcr2BzHj5EWpkzoBRBiWDfYY7zbdEw==}
+    dependencies:
+      guy: 12.7.0
+      intertype: 0.111.0
+      letsfreezethat: 3.1.0
+    transitivePeerDependencies:
+      - acorn
+      - acorn-loose
+      - acorn-walk
+      - astring
+      - dayjs
+      - tmp
     dev: false
 
   /emoji-regex/8.0.0:
