@@ -34,6 +34,11 @@ _X    =
   multiline:  ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { multiline: true, } else flags.add 'm', x
 _X.dotAll = _X.dotall
 compose   = C = { _CRX..., _X..., }
+#...........................................................................................................
+{ DATOM }                 = require 'datom'
+{ new_datom
+  lets      }             = DATOM
+
 
 #===========================================================================================================
 class Interlex
@@ -128,11 +133,13 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
-    start = @state.prv_last_idx
-    stop  = start + length
-    jump  = lexeme?.jump ? null
+    start     = @state.prv_last_idx
+    stop      = start + length
+    jump      = lexeme?.jump ? null
+    { mode  } = @state
     ### TAINT use `types.create.ilx_token {}` ###
-    return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", jump, value, start, stop, x, }
+    return new_datom "^#{mode}", { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, }
+    # return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", jump, value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->
