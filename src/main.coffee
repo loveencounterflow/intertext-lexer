@@ -94,7 +94,7 @@ class Interlex
       @registry[ mode ].pattern = C.sticky C.unicode pattern
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
-        continue if lexeme.type_of_jump isnt 'push'
+        continue if lexeme.type_of_jump isnt 'pushmode'
         continue if @registry[ lexeme.jump ]?
         throw new Error "^interlex._finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
     @state.finalized = true
@@ -208,14 +208,24 @@ class Interlex
         return null
     #.....................................................................................................
     { token
-      lexeme } = @_token_and_lexeme_from_match match
-    #.....................................................................................................
+      lexeme  } = @_token_and_lexeme_from_match match
+    token       = @_xxx { token, lexeme, match, }
+    @state.prv_last_idx = @state.pattern.lastIndex
+    return token
+
+  #---------------------------------------------------------------------------------------------------------
+  _call_jump_handler: ( R ) ->
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
+  _xxx: ( { token, lexeme, match, }, level = 0 ) ->
     switch lexeme.type_of_jump
-      when 'null' then null
-      when 'push' then @_push_mode lexeme.jump
-      when 'pop'  then @_pop_mode()
-      when 'function'
-        if @types.isa.text ( divert = lexeme.jump { token, lexeme, match, lexer: @, } )
+      when 'nojump' then null
+      when 'pushmode' then @_push_mode lexeme.jump
+      when 'popmode'  then @_pop_mode()
+      when 'callme'
+        divert = @_call_jump_handler lexeme.jump { token, lexeme, match, lexer: @, }
+        if @types.isa.text ( divert )
           ### TAINT here we're recursively doing the same logic as in the above ###
           if divert is jump_symbol then @_pop_mode()
           else @_push_mode divert
@@ -229,9 +239,33 @@ class Interlex
             else @_push_mode jump
       else
         throw new Error "^interlex.step@1^ internal error: unknown type_of_jump in lexeme #{rpr lexeme}"
-    #.....................................................................................................
-    @state.prv_last_idx = @state.pattern.lastIndex
     return token
+
+  # #---------------------------------------------------------------------------------------------------------
+  # _xxx: ( { token, lexeme, match, }, level = 0 ) ->
+  #   switch lexeme.type_of_jump
+  #     when 'nojump' then null
+  #     when 'pushmode' then @_push_mode lexeme.jump
+  #     when 'popmode'  then @_pop_mode()
+  #     when 'callme'
+  #       divert = lexeme.jump { token, lexeme, match, lexer: @, }
+  #       switch @_get_type_of_jump divert
+  #         when 'nojump' then null
+  #         when 'pushmode' then @_push_mode divert
+  #         when 'popmode'  then @_pop_mode()
+  #         when 'callme'
+  #           throw new Error "^interlex._xxx@1^ not allowed to return function from `jump()`"
+  #       else
+  #         if divert?
+  #           token = replacement_token if ( replacement_token = divert.token )?
+  #           jump  = divert.jump ? null
+  #         if jump?
+  #           ### TAINT here we're recursively doing the same logic as in the above ###
+  #           if jump is jump_symbol then @_pop_mode()
+  #           else @_push_mode jump
+  #     else
+  #       throw new Error "^interlex._xxx@1^ internal error: unknown type_of_jump in lexeme #{rpr lexeme}"
+  #   return token
 
   #---------------------------------------------------------------------------------------------------------
   _pop_mode: ->
