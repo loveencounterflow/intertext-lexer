@@ -62,7 +62,12 @@ class Interlex
     @base_mode               ?= cfg.mode
     ### TAINT use API ###
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
-    entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., }
+    if cfg.jump?
+      type_of_jump = if @types.isa.function cfg.jump then 'function'
+      else if cfg.jump is jump_symbol then 'pop' else 'push'
+    else
+      type_of_jump = 'null'
+    entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern            = if @types.isa.regex lexeme.pattern then @_rename_groups lexeme.tid, lexeme.pattern
     lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     return null
@@ -85,8 +90,7 @@ class Interlex
       @registry[ mode ].pattern = C.sticky C.unicode pattern
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
-        continue unless lexeme.jump?
-        continue if lexeme.jump is jump_symbol
+        continue if lexeme.type_of_jump isnt 'push'
         continue if @registry[ lexeme.jump ]?
         throw new Error "^interlex._finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
     @state.finalized = true
@@ -202,8 +206,26 @@ class Interlex
     { token
       lexeme } = @_token_and_lexeme_from_match match
     #.....................................................................................................
-    if      lexeme.jump is jump_symbol  then @_pop_mode()
-    else if lexeme.jump?                then @_push_mode lexeme
+    switch lexeme.type_of_jump
+      when 'null' then null
+      when 'push' then @_push_mode lexeme.jump
+      when 'pop'  then @_pop_mode()
+      when 'function'
+        if @types.isa.text ( divert = lexeme.jump { token, lexeme, match, lexer: @, } )
+          ### TAINT here we're recursively doing the same logic as in the above ###
+          if divert is jump_symbol then @_pop_mode()
+          else @_push_mode divert
+        else
+          if divert?
+            token = replacement_token if ( replacement_token = divert.token )?
+            jump  = divert.jump ? null
+          if jump?
+            ### TAINT here we're recursively doing the same logic as in the above ###
+            if jump is jump_symbol then @_pop_mode()
+            else @_push_mode jump
+      else
+        throw new Error "^interlex.step@1^ internal error: unknown type_of_jump in lexeme #{rpr lexeme}"
+    #.....................................................................................................
     @state.prv_last_idx = @state.pattern.lastIndex
     return token
 
@@ -216,9 +238,9 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _push_mode: ( lexeme ) ->
+  _push_mode: ( jump ) ->
     @state.stack.push @state.mode
-    @state.mode               = lexeme.jump
+    @state.mode               = jump
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx

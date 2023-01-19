@@ -37,7 +37,7 @@ get_base_types = ->
   declare.ilx_tid     'nonempty.text'
   declare.ilx_pattern 'text.or.regex'
   declare.ilx_pop     ( x ) -> x is jump_symbol
-  declare.ilx_jump    'ilx_mode.or.ilx_pop'
+  declare.ilx_jump    'ilx_mode.or.ilx_pop.or.function'
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
