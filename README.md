@@ -30,6 +30,10 @@
 * **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
 * **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
   MarkDown star lexer
+* **[–]** allow lexemes to announce 'reserved characters' (such as `<` that signals start of an HTML tag)
+  that can later be used to formulate a fallback pattern to capture otherwise unmatched text portions
+* **[–]** disallow lexemes to be accidentally overwritten
+* **[–]** implement functions for `jump`
 
 
 ## Is Done
