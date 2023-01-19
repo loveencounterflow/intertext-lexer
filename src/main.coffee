@@ -25,6 +25,7 @@ GUY                       = require 'guy'
 { misfit
   jump_symbol
   get_base_types }        = require './types'
+E                         = require './errors'
 #...........................................................................................................
 _CRX  = require 'compose-regexp-commonjs'
 _X    =
@@ -75,6 +76,8 @@ class Interlex
     return 'callme'   if @types.isa.function jump
     return 'pushmode' if @types.isa.nonempty.text jump
     @types.validate.ilx_jump jump
+    throw new E.Interlex_internal_error '^interlex._get_type_of_jump@1^', \
+      "jump (#{@types.type_of jump}) #{rpr jump} should have caused validation error but didn't"
 
   #---------------------------------------------------------------------------------------------------------
   _rename_groups: ( name, re ) ->
@@ -220,7 +223,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   _xxx: ( { token, lexeme, match, }, level = 0 ) ->
     switch lexeme.type_of_jump
-      when 'nojump' then null
+      when 'nojump'   then null
       when 'pushmode' then @_push_mode lexeme.jump
       when 'popmode'  then @_pop_mode()
       when 'callme'
@@ -238,7 +241,7 @@ class Interlex
             if jump is jump_symbol then @_pop_mode()
             else @_push_mode jump
       else
-        throw new Error "^interlex.step@1^ internal error: unknown type_of_jump in lexeme #{rpr lexeme}"
+        throw new E.Interlex_internal_error '^interlex.step@1^', "unknown type_of_jump in lexeme #{rpr lexeme}"
     return token
 
   # #---------------------------------------------------------------------------------------------------------
