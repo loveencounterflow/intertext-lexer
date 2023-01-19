@@ -211,8 +211,8 @@ class Interlex
         return null
     #.....................................................................................................
     { token
-      lexeme  } = @_token_and_lexeme_from_match match
-    token       = @_xxx { token, lexeme, match, }
+      lexeme          } = @_token_and_lexeme_from_match match
+    token               = @_get_next_token lexeme, token, match
     @state.prv_last_idx = @state.pattern.lastIndex
     return token
 
@@ -232,7 +232,7 @@ class Interlex
     return { token, jump, type_of_jump, }
 
   #---------------------------------------------------------------------------------------------------------
-  _xxx: ( { token, lexeme, match, }, level = 0 ) ->
+  _get_next_token: ( lexeme, token, match ) ->
     switch lexeme.type_of_jump
       when 'nojump'   then null
       when 'pushmode' then @_push_mode lexeme.jump
@@ -246,38 +246,12 @@ class Interlex
           when 'pushmode' then @_push_mode jump
           when 'popmode'  then @_pop_mode()
           else
-            throw new E.Interlex_internal_error '^interlex._xxx@1^', \
+            throw new E.Interlex_internal_error '^interlex._get_next_token@1^', \
               "unknown type_of_jump #{rpr type_of_jump} in lexeme #{rpr lexeme}"
       else
-        throw new E.Interlex_internal_error '^interlex._xxx@2^', \
+        throw new E.Interlex_internal_error '^interlex._get_next_token@2^', \
           "unknown type_of_jump in lexeme #{rpr lexeme}"
     return token
-
-  # #---------------------------------------------------------------------------------------------------------
-  # _xxx: ( { token, lexeme, match, }, level = 0 ) ->
-  #   switch lexeme.type_of_jump
-  #     when 'nojump' then null
-  #     when 'pushmode' then @_push_mode lexeme.jump
-  #     when 'popmode'  then @_pop_mode()
-  #     when 'callme'
-  #       divert = lexeme.jump { token, lexeme, match, lexer: @, }
-  #       switch @_get_type_of_jump divert
-  #         when 'nojump' then null
-  #         when 'pushmode' then @_push_mode divert
-  #         when 'popmode'  then @_pop_mode()
-  #         when 'callme'
-  #           throw new Error "^interlex._xxx@1^ not allowed to return function from `jump()`"
-  #       else
-  #         if divert?
-  #           token = replacement_token if ( replacement_token = divert.token )?
-  #           jump  = divert.jump ? null
-  #         if jump?
-  #           ### TAINT here we're recursively doing the same logic as in the above ###
-  #           if jump is jump_symbol then @_pop_mode()
-  #           else @_push_mode jump
-  #     else
-  #       throw new Error "^interlex._xxx@1^ internal error: unknown type_of_jump in lexeme #{rpr lexeme}"
-  #   return token
 
   #---------------------------------------------------------------------------------------------------------
   _pop_mode: ->
