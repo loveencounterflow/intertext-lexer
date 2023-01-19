@@ -227,7 +227,7 @@ class Interlex
       when 'pushmode' then @_push_mode lexeme.jump
       when 'popmode'  then @_pop_mode()
       when 'callme'
-        divert = @_call_jump_handler lexeme.jump { token, lexeme, match, lexer: @, }
+        divert = @_call_jump_handler lexeme.jump { token, match, lexer: @, }
         if @types.isa.text ( divert )
           ### TAINT here we're recursively doing the same logic as in the above ###
           if divert is jump_symbol then @_pop_mode()
