@@ -99,7 +99,7 @@ class Interlex
       for tid, lexeme of entry.lexemes
         continue if lexeme.type_of_jump isnt 'pushmode'
         continue if @registry[ lexeme.jump ]?
-        throw new Error "^interlex._finalize@1^ unknown jump target in lexeme #{rpr lexeme}"
+        throw new E.Interlex_TBDUNCLASSIFIED '^interlex._finalize@1^', "unknown jump target in lexeme #{rpr lexeme}"
     @state.finalized = true
     return null
 
