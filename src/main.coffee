@@ -62,15 +62,19 @@ class Interlex
     @base_mode               ?= cfg.mode
     ### TAINT use API ###
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
-    if cfg.jump?
-      type_of_jump = if @types.isa.function cfg.jump then 'function'
-      else if cfg.jump is jump_symbol then 'pop' else 'push'
-    else
-      type_of_jump = 'null'
+    type_of_jump              = @_get_type_of_jump cfg.jump
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern            = if @types.isa.regex lexeme.pattern then @_rename_groups lexeme.tid, lexeme.pattern
     lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _get_type_of_jump: ( jump ) ->
+    return 'nojump'   if not jump?
+    return 'popmode'  if jump is jump_symbol
+    return 'callme'   if @types.isa.function jump
+    return 'pushmode' if @types.isa.nonempty.text jump
+    @types.validate.ilx_jump jump
 
   #---------------------------------------------------------------------------------------------------------
   _rename_groups: ( name, re ) ->
