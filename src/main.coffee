@@ -255,6 +255,9 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _pop_mode: ->
+    unless @state.stack.length > 0
+      throw new E.Interlex_mode_stack_exhausted '^interlex._pop_mode@2^', \
+        "unable to jump back from initial state"
     @state.mode               = @state.stack.pop()
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
