@@ -65,7 +65,7 @@ class Interlex
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
     type_of_jump              = @_get_type_of_jump cfg.jump
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
-    lexeme.pattern            = if @types.isa.regex lexeme.pattern then @_rename_groups lexeme.tid, lexeme.pattern
+    lexeme.pattern            = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
     lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     return null
 
