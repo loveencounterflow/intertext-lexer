@@ -44,7 +44,7 @@
 
 Here is a minimal lexer that understands a tiny fraction of the MarkDown grammar, namely, single stars `*`
 for emphasis and single backticks <code>`</code> for code spans. The single star will be passed through
-as-is inside code spans: `````
+as-is inside code spans: `\``
 
 ```coffee
 { Interlex
