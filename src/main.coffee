@@ -39,6 +39,7 @@ compose   = C = { _CRX..., _X..., }
 { DATOM }                 = require 'datom'
 { new_datom
   lets      }             = DATOM
+{ Ltsort }                = require 'ltsort'
 
 
 #===========================================================================================================
@@ -61,8 +62,9 @@ class Interlex
     cfg                       = @types.create.ilx_add_lexeme_cfg cfg
     @state.finalized          = false
     @base_mode               ?= cfg.mode
-    ### TAINT use API ###
-    entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, }
+    ### TAINT use API, types ###
+    entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, toposort: false, }
+    entry.toposort          or= cfg.after? or cfg.before?
     type_of_jump              = @_get_type_of_jump cfg.jump
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern            = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
@@ -85,9 +87,26 @@ class Interlex
     return new RegExp source, re.flags
 
   #---------------------------------------------------------------------------------------------------------
+  _toposort_patterns: ( entry ) ->
+    ### TAINT avoid re-running ###
+    return entry unless entry.toposort
+    g   = new Ltsort()
+    tmp = Object.assign {}, entry.lexemes ### NOTE avoiding shorthand for clarity ###
+    for tid, lexeme of entry.lexemes
+      tmp[ tid ]  = lexeme
+      delete entry.lexemes[ tid ]
+      after       = lexeme.after  ? []
+      before      = lexeme.before ? []
+      g.add { name: tid, after, before, }
+    for tid in g.linearize()
+      entry.lexemes[ tid ] = tmp[ tid ]
+    return entry
+
+  #---------------------------------------------------------------------------------------------------------
   _finalize: ->
     return unless @state?
     for mode, entry of @registry
+      entry                     = @_toposort_patterns entry
       ### TAINT use API ###
       patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
       pattern                   = C.either patterns...
@@ -184,7 +203,8 @@ class Interlex
     if @state.prv_last_idx >= @state.source.length
       ### reached end ###
       @state.finished = true
-      return @_new_token '$eof', '', 0
+      return @_new_token '$eof', '', 0 if @cfg.end_token
+      return null
     match = @state.source.match @state.pattern
     unless match?
       ### TAINT might want to advance and try again? ###
