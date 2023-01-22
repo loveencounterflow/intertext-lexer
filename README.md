@@ -8,8 +8,10 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [InterText Lexer `Interlex`](#intertext-lexer-interlex)
+  - [Notes](#notes)
   - [Adding Lexemes](#adding-lexemes)
   - [Example](#example)
+  - [Topological Sorting](#topological-sorting)
   - [To Do](#to-do)
   - [Is Done](#is-done)
 
@@ -18,6 +20,13 @@
 
 # InterText Lexer `Interlex`
 
+
+## Notes
+
+* An 'empty lexer' (i.e. a lexer without any lexemes) will match the empty string and nothing else;
+  depending on the lexer's configuration, the former may contain `$start` and / or `$end` tokens, and the
+  latter, in addition, may either contain a single `$error` token or else throw an error, as the case may
+  be.
 
 ## Adding Lexemes
 
@@ -39,6 +48,8 @@
       right after the present token
     * if `cfg.jump` is the caret `^`, this means 'jump back', i.e. resume the previous mode. This causes a
       runtime error in case a jump back from the initial mode is attempted
+  * names of modes and lexemes will be used to construct regex group names; therefore, they must all be
+    [valid JS identifiers](https://mathiasbynens.be/notes/javascript-identifiers-es6)
 
 ## Example
 
@@ -63,6 +74,18 @@ new_toy_md_lexer = ( mode = 'plain' ) ->
   lexer.add_lexeme { mode: 'literal', tid: 'text',      jump: null,       pattern:  /(?:\\`|[^`])+/u,   }
 ```
 
+## Topological Sorting
+
+Interlex optionally uses topological sorting (provided by
+[`ltsort`](https://github.com/loveencounterflow/ltsort), q.v.) of lexemes. This is triggered by adding a
+`before` or `after` attribute when calling `leyer.add_lexeme()`. Either attribute may be a TID (which
+identifies a lexeme in the same mode) or a list (array) of TIDs. Both values may also be a star `*` meaning
+'before' or 'after everything else'. These dependency indicators don't have to be exhaustive; where left
+unspecified, the relative ordering of addition of the lexemes is kept.
+
+Observe that ordering is only defined for lexemes *within the same lexer mode*; there's no notion of
+relative ordering between lexer modes or lexemes across modes.
+
 ## To Do
 
 * **[–]** documentation
@@ -79,10 +102,11 @@ new_toy_md_lexer = ( mode = 'plain' ) ->
 * **[–]** allow lexemes to announce 'reserved characters' (such as `<` that signals start of an HTML tag)
   that can later be used to formulate a fallback pattern to capture otherwise unmatched text portions
 * **[–]** disallow lexemes to be accidentally overwritten
-* **[–]** implement functions for `jump`
 * **[–]** clarify whether to use 'lexeme ID' or 'token ID'; whould really be the former because a lexeme is
   the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `tid`
   may repeat while there can only be at most one lexeme with a given `tid` in a given namespace / mode
+* **[–]** implement readable representation / RPR for lexers, maybe as table
+* **[–]** safeguard against undefined lexemes mentioned by `before`, `after`
 
 
 ## Is Done
@@ -101,4 +125,6 @@ new_toy_md_lexer = ( mode = 'plain' ) ->
 * **[+]** make calls to `finalize()` implicit
 * **[+]** with `cfg.autostart`, `feed()` and `reset()` behave identically
 * **[+]** implement `feed()` to add new source
+* **[+]** implement functions for `jump`
+* **[+]** implement topological sorting of lexemes
 
