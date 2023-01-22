@@ -18,6 +18,7 @@
     "compose-regexp-commonjs": "^0.6.24",
     "datom": "^11.0.0",
     "guy": "^12.7.0",
-    "intertype": "^0.111.0"
+    "intertype": "^0.111.0",
+    "ltsort": "^2.1.0"
   }
 }

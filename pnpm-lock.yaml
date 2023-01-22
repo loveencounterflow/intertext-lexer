@@ -5,18 +5,25 @@ specifiers:
   datom: ^11.0.0
   guy: ^12.7.0
   intertype: ^0.111.0
+  ltsort: ^2.1.0
 
 dependencies:
   compose-regexp-commonjs: 0.6.24
   datom: 11.0.0
   guy: 12.7.0
   intertype: 0.111.0
+  ltsort: 2.1.0
 
 packages:
 
   /ansi-regex/5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
+    dev: false
+
+  /cnd/9.2.1:
+    resolution: {integrity: sha512-JszZtSlOCxkIvNPKpw1PmIcQUjYO+pBqVoKVH2STHLtG4JHHJ1NHowv39lhyxzlPxUTZk7pZ3qO7CfrfJ8ZSKw==}
+    hasBin: true
     dev: false
 
   /compose-regexp-commonjs/0.6.24:
@@ -97,6 +104,19 @@ packages:
 
   /letsfreezethat/3.1.0:
     resolution: {integrity: sha512-jJ1nvvQi6unW0WifjNPMIb64Byom0EXzSKWFYA++EpyjK3qv1J2pqeSoEJ61tGJoNG0GoNjPoeLYhxW16riZaA==}
+    dev: false
+
+  /ltsort/2.1.0:
+    resolution: {integrity: sha512-uDJXTopU+9exYpHWB4/Kj1AUNYcJVLHAHNzyBIRJc2mQ2dJQWKKROepYcb+0V7R822NPWfG2xL2wqJFk1UWosA==}
+    dependencies:
+      cnd: 9.2.1
+      intertype: 0.111.0
+    transitivePeerDependencies:
+      - acorn
+      - acorn-loose
+      - acorn-walk
+      - astring
+      - tmp
     dev: false
 
   /multimix/5.0.0:
