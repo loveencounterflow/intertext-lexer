@@ -21,6 +21,8 @@
 # InterText Lexer `Interlex`
 
 
+<!-- A collection of *lexemes* defines a *syntax* -->
+
 ## Notes
 
 * An 'empty lexer' (i.e. a lexer without any lexemes) will match the empty string and nothing else;
