@@ -6,8 +6,8 @@
     "../src/main.coffee"
   ],
   "names": [],
-  "mappings": "AAAA;EAAA,MAAM,CAAC,OAAP,GAAiB,OAAA,CAAQ,iBAAR;AAAjB",
+  "mappings": "AAAA;EAAA,MAAM,CAAC,OAAP,GAAiB,CAAE,GAAA,CAAE,OAAA,CAAQ,YAAR,CAAF,CAAF,EAA+B,GAAA,CAAE,OAAA,CAAQ,UAAR,CAAF,CAA/B;AAAjB",
   "sourcesContent": [
-    "module.exports = require './interlex-base'"
+    "module.exports = { ( require './interlex' )..., ( require './syntax' )..., }"
   ]
 }
