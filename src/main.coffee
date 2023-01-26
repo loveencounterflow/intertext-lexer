@@ -1,1 +1,1 @@
-module.exports = require './interlex-base'
+module.exports = { ( require './interlex' )..., ( require './syntax' )..., }
