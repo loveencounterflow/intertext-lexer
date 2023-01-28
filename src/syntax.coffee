@@ -18,6 +18,8 @@ GUY                       = require 'guy'
   echo
   log     }               = GUY.trm
 { get_base_types }        = require './types'
+E                         = require './errors'
+
 
 #===========================================================================================================
 #
