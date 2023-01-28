@@ -83,7 +83,7 @@ class Syntax
       number                = if number is 'lx_' then 'singular' else 'plural'
       lexeme                = @constructor[ xtid ]
       lx_type               = @types.type_of lexeme
-      urge '^324^', { xtid, tid, number, lexeme, }
+      urge '^32-4^', { xtid, tid, number, lexeme, }
       try
         if is_function
           null
@@ -98,7 +98,8 @@ class Syntax
         throw error unless error.constructor.name is 'Intertype_validation_error'
         # error.message
         throw error
-      debug '^2124^', lexeme
+      debug '^32-5^', lexeme
+      @[ xtid ] = lexeme
       # #.....................................................................................................
       # switch type = @types.type_of lexeme
       #   when 'object' then @[ tid ] = { @cfg..., lexeme..., }
