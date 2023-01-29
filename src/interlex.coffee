@@ -64,7 +64,7 @@ class Interlex
     @base_mode               ?= cfg.mode
     ### TAINT use API, types ###
     entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, toposort: false, }
-    entry.toposort          or= cfg.after? or cfg.before?
+    entry.toposort          or= cfg.needs? or cfg.precedes?
     type_of_jump              = @_get_type_of_jump cfg.jump
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern            = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
@@ -95,9 +95,9 @@ class Interlex
     for tid, lexeme of entry.lexemes
       tmp[ tid ]  = lexeme
       delete entry.lexemes[ tid ]
-      after       = lexeme.after  ? []
-      before      = lexeme.before ? []
-      g.add { name: tid, after, before, }
+      needs       = lexeme.needs  ? []
+      precedes      = lexeme.precedes ? []
+      g.add { name: tid, needs, precedes, }
     for tid in g.linearize()
       entry.lexemes[ tid ] = tmp[ tid ]
     return entry
