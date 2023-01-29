@@ -5,14 +5,14 @@ specifiers:
   datom: ^11.0.0
   guy: ^12.7.0
   intertype: ^0.111.0
-  ltsort: ^3.0.0
+  ltsort: ^4.0.0
 
 dependencies:
   compose-regexp-commonjs: 0.6.24
   datom: 11.0.0
   guy: 12.7.0
   intertype: 0.111.0
-  ltsort: 3.0.0
+  ltsort: 4.0.0
 
 packages:
 
@@ -106,16 +106,18 @@ packages:
     resolution: {integrity: sha512-jJ1nvvQi6unW0WifjNPMIb64Byom0EXzSKWFYA++EpyjK3qv1J2pqeSoEJ61tGJoNG0GoNjPoeLYhxW16riZaA==}
     dev: false
 
-  /ltsort/3.0.0:
-    resolution: {integrity: sha512-3/tfAIFQ4TtZgkARsza+qnhbwJ4gca3doMC3fl9bs55Zj0op2Qpt0lO6r721noB8sIWhkqNg5SEX7nU6Osmx3w==}
+  /ltsort/4.0.0:
+    resolution: {integrity: sha512-m+x31OrULRN/ygEtrviudpyxxohvpciisSBeck25ex52LzxrC7sIqEhZAoDB8zQckTASySKFpp2rPBDJYYOfrw==}
     dependencies:
       cnd: 9.2.1
+      guy: 12.7.0
       intertype: 0.111.0
     transitivePeerDependencies:
       - acorn
       - acorn-loose
       - acorn-walk
       - astring
+      - dayjs
       - tmp
     dev: false
 
