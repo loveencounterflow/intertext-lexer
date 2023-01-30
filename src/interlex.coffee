@@ -268,6 +268,7 @@ class Interlex
           else
             throw new E.Interlex_internal_error '^interlex._get_next_token@1^', \
               "unknown type_of_jump #{rpr type_of_jump} in lexeme #{rpr lexeme}"
+        token = lets token, ( token ) => token.jump = @state.mode
       else
         throw new E.Interlex_internal_error '^interlex._get_next_token@2^', \
           "unknown type_of_jump in lexeme #{rpr lexeme}"
