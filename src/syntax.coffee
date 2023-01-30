@@ -62,14 +62,25 @@ class Syntax
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     GUY.props.hide @, 'types', get_base_types()
-    ### TAINT must separate `cfg` items for the instance from defaults for the lexeme ###
-    @cfg                  = { mode: 'std', cfg..., }
+    ### TAINT allow renaming of lexemes ###
+    mode                  = @constructor.mode ? 'std'
+    ### TAINT use types ###
+    @cfg                  = { mode, cfg..., }
     @_lexeme_default      = { @types.registry.ilx_add_lexeme_cfg.default..., }
     lexeme_keys           = new Set Object.keys @_lexeme_default
     @_lexeme_default[ k ] = v for k, v of @cfg when lexeme_keys.has k
-    @_compile_lexemes()
+    # @_compile_lexemes { target: @, }
     return undefined
 
+  #---------------------------------------------------------------------------------------------------------
+  push_lexemes: ( target ) ->
+    @types.validate.syntax_target target
+    @_compile_lexemes { target, }
+    return target
+
+
+  #=========================================================================================================
+  #
   #---------------------------------------------------------------------------------------------------------
   _compile_list_of_lexemes: ( tid, list_of_lexemes ) ->
     return ( ( @_compile_lexeme ( "#{tid}_#{idx + 1}" ), lexeme ) for lexeme, idx in list_of_lexemes )
@@ -82,44 +93,33 @@ class Syntax
     return lexeme
 
   #---------------------------------------------------------------------------------------------------------
-  _compile_lexemes: ->
+  _compile_lexemes: ({ target, }) ->
+    target       ?= @
+    use_push      = @types.isa.list target
+    #.......................................................................................................
     for xtid in Object.getOwnPropertyNames @constructor
-      continue unless ( match = xtid.match /^(?<get>get_|)(?<number>lxs?_)(?<tid>.+)$/ )?
-      { get, number, tid, } = match.groups
-      is_function           = get isnt ''
-      number                = if number is 'lx_' then 'singular' else 'plural'
-      lexeme                = @constructor[ xtid ]
-      lx_type               = @types.type_of lexeme
-      urge '^32-4^', { xtid, tid, number, lexeme, }
-      try
-        if is_function
-          null
-        else
-          if number is 'singular'
-            if lx_type is 'list'
-              throw new Error "^238947^ must use prefix 'lxs_' for list of lexemes; got #{rpr xtid}"
-            lexeme = @_compile_lexeme tid, lexeme
-          else
-            lexeme = @_compile_list_of_lexemes tid, lexeme
-      catch error
-        throw error unless error.constructor.name is 'Intertype_validation_error'
-        # error.message
-        throw error
-      debug '^32-5^', lexeme
-      @[ xtid ] = lexeme
-      # #.....................................................................................................
-      # switch type = @types.type_of lexeme
-      #   when 'object' then @[ tid ] = { @cfg..., lexeme..., }
-      #   when 'list'   then @[ tid ] = ( { @cfg..., lx..., } for lx in lexeme )
-      #   #...................................................................................................
-      #   when 'function'
-      #     lexeme = lexeme.call @
-      #     switch subtype = type_of lexeme
-      #       when 'object' then  @[ tid ] = lexeme ### NOTE lexemes returned by functions should be complete ###
-      #       when 'list'   then  @[ tid ] = lexeme ### NOTE lexemes returned by functions should be complete ###
-      #       else throw new Error "^849687388^ expected an object or a list of objects, found a #{type}"
-      #   #...................................................................................................
-      #   else throw new Error "^849687349^ expected an object or a function, found a #{type}"
+      continue unless ( match = xtid.match /^lx_(?<tid>.+)$/ )?
+      debug '^95-2^', rpr xtid
+      { tid, }      = match.groups
+      lexeme        = @constructor[ xtid ]
+      lx_type       = @types.type_of lexeme
+      #.....................................................................................................
+      if lx_type is 'function'
+        lexeme        = lexeme.call @
+        lx_type       = @types.type_of lexeme
+      ### TAINT validate proto-lexeme ###
+      #.....................................................................................................
+      if lx_type is 'list' then lexeme = @_compile_list_of_lexemes tid, lexeme
+      else                      lexeme = @_compile_lexeme tid, lexeme
+      #.....................................................................................................
+      if use_push
+        if lx_type is 'list' then ( target.push lx for lx in lexeme )
+        else                      ( target.push lexeme )
+      #.....................................................................................................
+      else
+        if lx_type is 'list' then ( target[ "#{lx.mode}_#{lx.tid}" ] = lx for lx in lexeme )
+        else                      ( target[ "#{lexeme.mode}_#{lexeme.tid}" ] = lexeme )
+    #.......................................................................................................
     return null
 
 
