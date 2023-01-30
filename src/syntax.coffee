@@ -27,13 +27,20 @@ E                         = require './errors'
 class Syntax
 
   ###
-  * lexemes declared as *static* members (i.e. as class attributes) will be compiled
-  * lexemes declared as *instance* members will be left as-is
-  * use prefix
-    `@lx_*` for string, regex, or object
-    `@lxs_*` for list of objects
-    `@get_lx_*()` for function that returns an object
-    `@get_lxs_*()` for function that returns list of objects
+  * lexemes to be declared as *static* members (i.e. as class attributes) will be compiled
+  * lexeme factories that need additional parameters should use the prefix `new_` and be put on the
+    instance
+  * lexeme factories that are defined on the class will be called with the implicit `this`/`@` being the
+    *instance*, not the class
+
+  * specials:
+    `@mode` indicates the (name of the) (base) mode; this can be overridden at instantiation time
+    `@mode_*` indicate the (names of the) other modes; these can be overridden at instantiation time
+
+  * use prefix `@lx_*` for string, regex, object, or a list thereof; alternatively a function returning one
+    of the aforementioned
+  * use prefix `new_*` for lexeme-factories that need additional parameters
+
   * TID (the lexeme's name) will default to the part after the prefix
 
   ```coffee
