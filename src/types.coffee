@@ -33,11 +33,14 @@ get_base_types = ->
   { declare }               = base_types
   #.........................................................................................................
   # declare.ilx_pattern     override: true, isa: ( x ) -> x instanceof Document
-  declare.ilx_mode    'nonempty.text'
-  declare.ilx_tid     'nonempty.text'
-  declare.ilx_pattern 'text.or.regex'
-  declare.ilx_pop     ( x ) -> x is jump_symbol
-  declare.ilx_jump    'ilx_mode.or.ilx_pop.or.function'
+  declare.syntax_target 'list.or.object'
+  ### TAINT legal mode names, lexeme IDs should be confined to JS identifiers ###
+  ### TAINT legal mode names should exclude `lx`, `new` to avoid name clashes ###
+  declare.ilx_mode      'nonempty.text'
+  declare.ilx_tid       'nonempty.text'
+  declare.ilx_pattern   'text.or.regex'
+  declare.ilx_pop       ( x ) -> x is jump_symbol
+  declare.ilx_jump      'ilx_mode.or.ilx_pop.or.function'
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
