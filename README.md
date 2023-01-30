@@ -115,6 +115,7 @@ relative ordering between lexer modes or lexemes across modes.
   * (proper) lexemes (which are lexemes in the registry lexer that is ready to be used; these may be
     stateful), and
   * tokens (the results of certain lexemes having matched at some point in the source text)
+* **[–]** allow symbolic mode, jump values as in `'$codespan_mode'` that refer to values in `@cfg`?
 
 
 ## Is Done
