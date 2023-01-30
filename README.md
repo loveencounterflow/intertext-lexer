@@ -109,6 +109,12 @@ relative ordering between lexer modes or lexemes across modes.
   may repeat while there can only be at most one lexeme with a given `tid` in a given namespace / mode
 * **[–]** implement readable representation / RPR for lexers, maybe as table
 * **[–]** safeguard against undefined lexemes mentioned by `before`, `after`
+* **[–]** distinguish between
+  * proto-lexemes (which are lexeme definitions may be incomplete and have not yet been compiled; they are
+    'dormant' and stateless),
+  * (proper) lexemes (which are lexemes in the registry lexer that is ready to be used; these may be
+    stateful), and
+  * tokens (the results of certain lexemes having matched at some point in the source text)
 
 
 ## Is Done
