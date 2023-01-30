@@ -256,7 +256,9 @@ class Interlex
     switch lexeme.type_of_jump
       when 'nojump'   then null
       when 'pushmode' then @_push_mode lexeme.jump
-      when 'popmode'  then @_pop_mode()
+      when 'popmode'
+        @_pop_mode()
+        token = lets token, ( token ) => token.jump = @state.mode
       when 'callme'
         { token
           jump
@@ -269,7 +271,7 @@ class Interlex
           else
             throw new E.Interlex_internal_error '^interlex._get_next_token@1^', \
               "unknown type_of_jump #{rpr type_of_jump} in lexeme #{rpr lexeme}"
-        token = lets token, ( token ) => token.jump = @state.mode
+        token = lets token, ( token ) => token.jump = if type_of_jump is 'nojump' then null else @state.mode
       else
         throw new E.Interlex_internal_error '^interlex._get_next_token@2^', \
           "unknown type_of_jump in lexeme #{rpr lexeme}"
