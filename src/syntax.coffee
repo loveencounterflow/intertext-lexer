@@ -100,7 +100,6 @@ class Syntax
     #.......................................................................................................
     for xtid in Object.getOwnPropertyNames @constructor
       continue unless ( match = xtid.match /^lx_(?<tid>.+)$/ )?
-      debug '^95-2^', rpr xtid
       { tid, }      = match.groups
       lexeme        = @constructor[ xtid ]
       lx_type       = @types.type_of lexeme

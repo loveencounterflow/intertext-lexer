@@ -261,6 +261,7 @@ class Interlex
         { token
           jump
           type_of_jump } = @_call_jump_handler lexeme, token, match
+        # debug '^2343^', ( rpr jump ), token
         switch type_of_jump
           when 'nojump'   then null
           when 'pushmode' then @_push_mode jump
