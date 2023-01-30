@@ -73,10 +73,11 @@ class Syntax
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  push_lexemes: ( target ) ->
+  add_lexemes: ( target = null ) ->
+    target ?= @
     @types.validate.syntax_target target
     @_compile_lexemes { target, }
-    return target
+    return null
 
 
   #=========================================================================================================
