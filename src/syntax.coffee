@@ -66,6 +66,13 @@ class Syntax
     mode                  = @constructor.mode ? 'std'
     ### TAINT use types ###
     @cfg                  = { mode, cfg..., }
+    #.......................................................................................................
+    ### TAINT make configurable ###
+    @cfg.prefix           = 'lx_'
+    @cfg.import_prefix    = @cfg.prefix
+    @cfg.export_prefix    = @cfg.prefix
+    @cfg._import_matcher  = /^lx_(?<tid>.+)$/
+    #.......................................................................................................
     @_lexeme_default      = { @types.registry.ilx_add_lexeme_cfg.default..., }
     lexeme_keys           = new Set Object.keys @_lexeme_default
     @_lexeme_default[ k ] = v for k, v of @cfg when lexeme_keys.has k
@@ -99,7 +106,7 @@ class Syntax
     use_push      = @types.isa.list target
     #.......................................................................................................
     for xtid in Object.getOwnPropertyNames @constructor
-      continue unless ( match = xtid.match /^lx_(?<tid>.+)$/ )?
+      continue unless ( match = xtid.match @cfg._import_matcher )?
       { tid, }      = match.groups
       lexeme        = @constructor[ xtid ]
       lx_type       = @types.type_of lexeme
