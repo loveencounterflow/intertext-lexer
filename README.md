@@ -116,6 +116,8 @@ relative ordering between lexer modes or lexemes across modes.
     stateful), and
   * tokens (the results of certain lexemes having matched at some point in the source text)
 * **[–]** allow symbolic mode, jump values as in `'$codespan_mode'` that refer to values in `@cfg`?
+* **[–]** allow to set prefixes for input (as class members) and output (as instance members, object
+  properties, or list elements)
 
 
 ## Is Done
