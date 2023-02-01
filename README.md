@@ -118,6 +118,7 @@ relative ordering between lexer modes or lexemes across modes.
 * **[–]** allow symbolic mode, jump values as in `'$codespan_mode'` that refer to values in `@cfg`?
 * **[–]** allow to set prefixes for input (as class members) and output (as instance members, object
   properties, or list elements)
+* **[–]** implement `add_lexemes()` for adding single and multiple lexemes
 
 
 ## Is Done
