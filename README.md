@@ -119,6 +119,7 @@ relative ordering between lexer modes or lexemes across modes.
 * **[–]** allow to set prefixes for input (as class members) and output (as instance members, object
   properties, or list elements)
 * **[–]** implement `add_lexemes()` for adding single and multiple lexemes
+* **[–]** make use of mode names in `lx_*` properties mandatory to avoid name conflicts
 
 
 ## Is Done
