@@ -121,6 +121,22 @@ relative ordering between lexer modes or lexemes across modes.
 * **[–]** implement `add_lexemes()` for adding single and multiple lexemes
 * **[–]** make use of mode names in `lx_*` properties mandatory to avoid name conflicts
 
+* **[–]** offer text normalization that includes removing trailing whitespace, different line endings
+  ```coffee
+  echo '–––'; echo "a1 xyz123\nb1"
+  echo '–––'; echo "a2 xyz123\n\rb2"
+  echo '–––'; echo "a3 xyz123\r\nb3"
+  echo '–––'; echo "a4 xyz123\n\nb4"
+  echo '–––'; echo "a5 xyz123\n\r\n\rb5"
+  echo '–––'; echo "a6 xyz123\n\n\r\rb6"
+  echo '–––'; echo "a7 xyz123\r\n\r\nb7"
+  echo '–––'; echo "a8 xyz123\r\n\n\rb8"
+  /(\n\r|\r\n|\n)/ -> '\n'
+  /\r/ -> ''
+  ```
+
+  * pay attention to the excellent SO answer https://stackoverflow.com/a/3469155/7568091 who suggests using
+    `/[^\S\r\n]/` with double negative (`[^]` plus `\S`) to match linear whitespace only
 
 ## Is Done
 
