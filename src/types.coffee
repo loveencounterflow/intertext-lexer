@@ -68,7 +68,7 @@ get_base_types = ->
     default:
       autostart:      true
       start_token:    false
-      end_token:      true
+      end_token:      false
       error_tokens:   true
       multiline:      false
       dotall:         false
