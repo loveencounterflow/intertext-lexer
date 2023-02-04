@@ -101,8 +101,6 @@ relative ordering between lexer modes or lexemes across modes.
 * **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
 * **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
   MarkDown star lexer
-* **[–]** allow lexemes to announce 'reserved characters' (such as `<` that signals start of an HTML tag)
-  that can later be used to formulate a fallback pattern to capture otherwise unmatched text portions
 * **[–]** disallow lexemes to be accidentally overwritten
 * **[–]** clarify whether to use 'lexeme ID' or 'token ID'; whould really be the former because a lexeme is
   the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `tid`
@@ -137,6 +135,13 @@ relative ordering between lexer modes or lexemes across modes.
 
   * pay attention to the excellent SO answer https://stackoverflow.com/a/3469155/7568091 who suggests using
     `/[^\S\r\n]/` with double negative (`[^]` plus `\S`) to match linear whitespace only
+* **[–]** export `GUY.*.walk_lines()` to promote easy use of line-wise lexing
+* **[–]** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
+  start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
+  unmatched text portions
+  * **[–]** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
+    that matches anything *except* reserved characters
+
 
 ## Is Done
 
