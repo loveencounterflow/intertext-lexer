@@ -91,18 +91,39 @@ relative ordering between lexer modes or lexemes across modes.
 
 ## Reserved and Catchall Lexemes
 
-Each lexeme can add so-called 'reserved' characters or words; these are for now restricted to strings and
+Each lexeme can announce so-called 'reserved' characters or words; these are for now restricted to strings and
 lists of strings, but could support regexes in the future as well. The idea is to collect those characters
 and character sequences that are 'triggers' for a given lexeme and, when the mode has been defined, to
-automatically construct lexemes that will capture
+automatically construct two lexemes that will capture
 
-* all the remaining sequences of non-reserved characters; this is called a *catchall* lexemes (whose TID is
-  incidentally set to `$catchall`)
-* all the remaining reserved characters
+* all the remaining sequences of non-reserved characters; this is called a *catchall* lexeme (whose TID is
+  incidentally set to `$catchall`). The catchall lexeme's function lies in explicitly capturing any part of
+  the input that has not been covered by any other lexemer higher up in the chain of patterns, thereby
+  avoiding a more unhelpful `$error` token that would just say 'no match at position so-and-so' and
+  terminate lexing.
+
+* all the remaining *reserved* characters (TID: `$reserved`); these could conceivably be used to produce a
+  list of fishy parts in the source, and / or to highlight such places in the output, or, if one feels so
+  inclined, terminate parsing with an error message. For example, when one wants to translate MarkDown-like
+  markup syntax to HTML, one could decide that double stars start and end bold type
+  (`<strong>...</strong>`), or, when a single asterisk is used at the start of a line, indicate unordered
+  list items (`<ul>...<li>...</ul>`), and are considered illegal in any other position except inside code
+  stretches and when escaped with a backslash. Such a mechanism can help to uncover problems with the source
+  text instead of just glancing over dubious markup and 'just do something', possibly leading to subtle
+  errors.
+
+Whether the catchall and the reserved lexemes should match single occurrences or contiguous stretches of
+occurrences of reserved items can be set for all modes with the lexer instantiation settings
+`catchall_concat` and `reserved_concat`. In the below lexer these have been left to their defaults (no
+concatenation called for), but in the last tabular output below the result for a string of 'foreign' and
+'reserved' characters with `{ catchall_concat: true, reserved_concat: true, }` is shown.
+
+
 
 ```coffee
 { Interlex, } = require '../../../apps/intertext-lexer'
-lexer = new Interlex()
+### NOTE these are the default settings, shown here for clarity ###
+lexer = new Interlex { catchall_concat: false, reserved_concat: false, }
 #.........................................................................................................
 mode    = 'plain'
 lexer.add_lexeme { mode, tid: 'escchr',           pattern:  /\\(?<chr>.)/u, reserved: '\\', }
@@ -135,7 +156,7 @@ The lexer's `plain` mode now has a `$catchall` and a `reserved` lexeme:
 │plain  │number_symbol  │/(?<𝔛number_symbol>#(?=\p{Number}))/u    │●     │●         │nojump        │
 │plain  │number         │/(?<𝔛number>\p{Number}+)/u               │●     │●         │nojump        │
 │plain  │ws             │/(?<𝔛ws>\s+)/u                           │●     │●         │nojump        │
-│plain  │$catchall      │/(?<𝔛$catchall>(?:(?!\\|\*|#)[^])+)/     │●     │●         │nojump        │
+│plain  │$catchall      │/(?<𝔛$catchall>(?!\\|\*|#)[^])/          │●     │●         │nojump        │
 │plain  │$reserved      │/(?<𝔛$reserved>\\|\*|#)/                 │●     │●         │nojump        │
 └───────┴───────────────┴─────────────────────────────────────────┴──────┴──────────┴──────────────┘
 ```
@@ -212,6 +233,33 @@ Results:
 │plain  │$catchall      │plain:$catchall      │●     │:         │25     │27    │●               │^plain  │
 │plain  │escchr         │plain:escchr         │●     │\#        │27     │29    │{ chr: '#' }    │^plain  │
 └───────┴───────────────┴─────────────────────┴──────┴──────────┴───────┴──────┴────────────────┴────────┘
+```
+
+Result with `lexer = new Interlex { catchall_concat: false, reserved_concat: false, }`:
+
+```
+ ':.;*#'
+┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
+│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
+│plain  │$catchall  │plain:$catchall  │●     │:      │0      │1     │●   │^plain  │
+│plain  │$catchall  │plain:$catchall  │●     │.      │1      │2     │●   │^plain  │
+│plain  │$catchall  │plain:$catchall  │●     │;      │2      │3     │●   │^plain  │
+│plain  │$reserved  │plain:$reserved  │●     │*      │3      │4     │●   │^plain  │
+│plain  │$reserved  │plain:$reserved  │●     │#      │4      │5     │●   │^plain  │
+└───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
+```
+
+Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true, }`:
+
+```
+ ':.;*#'
+┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
+│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
+│plain  │$catchall  │plain:$catchall  │●     │:.;    │0      │3     │●   │^plain  │
+│plain  │$reserved  │plain:$reserved  │●     │*#     │3      │5     │●   │^plain  │
+└───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
 ## To Do
