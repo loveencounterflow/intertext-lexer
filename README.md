@@ -310,11 +310,6 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   * pay attention to the excellent SO answer https://stackoverflow.com/a/3469155/7568091 who suggests using
     `/[^\S\r\n]/` with double negative (`[^]` plus `\S`) to match linear whitespace only
 * **[–]** export `GUY.*.walk_lines()` to promote easy use of line-wise lexing
-* **[–]** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
-  start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
-  unmatched text portions
-  * **[–]** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
-    that matches anything *except* reserved characters
 
 
 ## Is Done
@@ -335,4 +330,9 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[+]** implement `feed()` to add new source
 * **[+]** implement functions for `jump`
 * **[+]** implement topological sorting of lexemes
+* **[+]** allow lexemes to announce 'reserved' / 'forbidden' / 'active' characters (such as `<` that signals
+  start of an HTML tag) that can later be used to formulate a fallback pattern to capture otherwise
+  unmatched text portions
+  * **[+]** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
+    that matches anything *except* reserved characters
 
