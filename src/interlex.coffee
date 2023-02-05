@@ -200,16 +200,29 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
+    #.......................................................................................................
+    ### Affordance for lexemes matching only end-of-input (pattern `/$/y`): ###
+    if ( @state.prv_last_idx is @state.source.length ) and ( match = @state.source.match @state.pattern )?
+      ### TAINT code duplication ###
+      { token
+        lexeme          } = @_token_and_lexeme_from_match match
+      token               = @_get_next_token lexeme, token, match
+      @state.prv_last_idx = @state.pattern.lastIndex + 1
+      return token
+    #.......................................................................................................
     if @state.prv_last_idx >= @state.source.length
       ### reached end ###
       @state.finished = true
       return @_new_token '$eof', '', 0 if @cfg.end_token
       return null
+    #.......................................................................................................
     match = @state.source.match @state.pattern
+    #.......................................................................................................
     unless match?
       ### TAINT might want to advance and try again? ###
       @state.finished = true
       return @_new_token '$error', '', 0, { code: 'nomatch', }
+    #.......................................................................................................
     if @state.pattern.lastIndex is @state.prv_last_idx
       if match?
         { token } = @_token_and_lexeme_from_match match
@@ -229,7 +242,7 @@ class Interlex
         warn '^31-11^', GUY.trm.reverse "nothing matched; detected loop, stopping"
         @state.finished = true
         return null
-    #.....................................................................................................
+    #.......................................................................................................
     { token
       lexeme          } = @_token_and_lexeme_from_match match
     token               = @_get_next_token lexeme, token, match
