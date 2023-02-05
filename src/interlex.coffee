@@ -63,12 +63,14 @@ class Interlex
     @state.finalized          = false
     @base_mode               ?= cfg.mode
     ### TAINT use API, types ###
-    entry                     = @registry[ cfg.mode ] ?= { lexemes: {}, pattern: null, toposort: false, }
+    entry                     = @registry[ cfg.mode ] ?= { \
+      lexemes: {}, pattern: null, toposort: false, reserved: new Set(), }
     entry.toposort          or= cfg.needs? or cfg.precedes?
     type_of_jump              = @_get_type_of_jump cfg.jump
     entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern            = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
     lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
+    @_add_reserved cfg.mode, cfg.reserved if cfg.reserved?
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -103,12 +105,19 @@ class Interlex
     return entry
 
   #---------------------------------------------------------------------------------------------------------
+  _set_u_flag: ( patterns ) ->
+    for pattern, idx in patterns
+      continue if ( not @types.isa.regex pattern ) or ( pattern.unicode )
+      patterns[ idx ] = compose.unicode pattern
+    return patterns
+
+  #---------------------------------------------------------------------------------------------------------
   _finalize: ->
     return unless @state?
     for mode, entry of @registry
       entry                     = @_toposort_patterns entry
       ### TAINT use API ###
-      patterns                  = ( lexeme.pattern for tid, lexeme of entry.lexemes )
+      patterns                  = @_set_u_flag ( lexeme.pattern for tid, lexeme of entry.lexemes )
       pattern                   = C.either patterns...
       ### TAINT could / should set all flags in single step ###
       pattern                   = C.dotall    pattern if @cfg.dotall
@@ -308,6 +317,43 @@ class Interlex
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
+    return null
+
+
+  #=========================================================================================================
+  # RESERVED ITEMS
+  #---------------------------------------------------------------------------------------------------------
+  _add_reserved: ( mode, reserved ) ->
+    unless ( entry = @registry[ mode ] )?
+      throw new E.Interlex_internal_error '^interlex._add_reserved@1^', "no such mode: #{rpr mode}"
+    if @types.isa.list reserved
+      @_add_reserved mode, x for x in reserved
+      return null
+    ### NOTE may accept regexes in the future ###
+    @types.validate.nonempty.text reserved
+    entry.reserved.add reserved
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _get_catchall_regex: ( mode, entry ) -> compose.charSet.complement @_get_reserved_regex mode, entry
+  _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved...
+
+  #---------------------------------------------------------------------------------------------------------
+  add_catchall_lexeme: ({ mode, }) ->
+    unless ( entry = @registry[ mode ] )?
+      throw new E.Interlex_mode_unknown '^interlex.add_catchall_lexeme@1^', mode
+    pattern = @_get_catchall_regex mode, entry
+    pattern = compose.suffix '+', pattern if @cfg.catchall_concat
+    @add_lexeme { mode, tid: '$catchall', pattern, }
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  add_reserved_lexeme: ({ mode, }) ->
+    unless ( entry = @registry[ mode ] )?
+      throw new E.Interlex_mode_unknown '^interlex.add_reserved_lexeme@1^', mode
+    pattern = @_get_reserved_regex mode, entry
+    pattern = compose.suffix '+', pattern if @cfg.reserved_concat
+    @add_lexeme { mode, tid: '$reserved', pattern, }
     return null
 
 

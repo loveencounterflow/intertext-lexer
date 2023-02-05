@@ -36,11 +36,14 @@ get_base_types = ->
   declare.syntax_target 'list.or.object'
   ### TAINT legal mode names, lexeme IDs should be confined to JS identifiers ###
   ### TAINT legal mode names should exclude `lx`, `new` to avoid name clashes ###
-  declare.ilx_mode      'nonempty.text'
-  declare.ilx_tid       'nonempty.text'
-  declare.ilx_pattern   'text.or.regex'
-  declare.ilx_pop       ( x ) -> x is jump_symbol
-  declare.ilx_jump      'ilx_mode.or.ilx_pop.or.function'
+  declare.ilx_mode            'nonempty.text'
+  declare.ilx_tid             'nonempty.text'
+  declare.ilx_pattern         'text.or.regex'
+  declare.ilx_pop             ( x ) -> x is jump_symbol
+  declare.ilx_jump            'ilx_mode.or.ilx_pop.or.function'
+  declare.ilx_reserved        'optional.ilx_reserved_list.or.ilx_reserved_text'
+  declare.ilx_reserved_list   'list.of.nonempty.text'
+  declare.ilx_reserved_text   'nonempty.text'
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
@@ -48,30 +51,35 @@ get_base_types = ->
       tid:            'ilx_tid'
       pattern:        'ilx_pattern'
       jump:           'optional.ilx_jump'
+      reserved:       'optional.ilx_reserved'
     default:
       mode:           'plain'
       tid:            null
       pattern:        null
       jump:           null
+      reserved:       null
   #.........................................................................................................
   declare.ilx_constructor_cfg
     fields:
-      autostart:      'boolean'
-      start_token:    'boolean'
-      end_token:      'boolean'
-      error_tokens:   'boolean'
-      # # dgimsuy
-      multiline:      'boolean'
-      dotall:         'boolean'
+      autostart:        'boolean'
+      start_token:      'boolean'
+      end_token:        'boolean'
+      error_tokens:     'boolean'
+      multiline:        'boolean'
+      dotall:           'boolean'
+      catchall_concat:  'boolean'
+      reserved_concat:  'boolean'
       # global ???
       # ignorecase  # ignoreCase
     default:
-      autostart:      true
-      start_token:    false
-      end_token:      false
-      error_tokens:   true
-      multiline:      false
-      dotall:         false
+      autostart:        true
+      start_token:      false
+      end_token:        false
+      error_tokens:     true
+      multiline:        false
+      dotall:           false
+      catchall_concat:  false
+      reserved_concat:  false
   #.........................................................................................................
   return base_types
 
