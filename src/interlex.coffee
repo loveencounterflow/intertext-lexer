@@ -27,7 +27,7 @@ GUY                       = require 'guy'
   get_base_types }        = require './types'
 E                         = require './errors'
 #...........................................................................................................
-_CRX  = require 'compose-regexp-commonjs'
+_CRX  = require 'compose-regexp'
 _X    =
   unicode:    ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { unicode: true,   } else flags.add 'u', x
   sticky:     ( x ) -> if ( x instanceof RegExp ) then copy_regex x, { sticky: true,    } else flags.add 'y', x

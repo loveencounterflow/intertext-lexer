@@ -15,7 +15,7 @@
     "url": "http://github.com/loveencounterflow/intertext-lexer.git"
   },
   "dependencies": {
-    "compose-regexp-commonjs": "^0.6.24",
+    "compose-regexp": "^0.6.30",
     "datom": "^11.0.0",
     "guy": "^12.10.0",
     "intertype": "^0.111.0",

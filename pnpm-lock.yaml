@@ -1,14 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
-  compose-regexp-commonjs: ^0.6.24
+  compose-regexp: ^0.6.30
   datom: ^11.0.0
   guy: ^12.10.0
   intertype: ^0.111.0
   ltsort: ^4.0.0
 
 dependencies:
-  compose-regexp-commonjs: 0.6.24
+  compose-regexp: 0.6.30
   datom: 11.0.0
   guy: 12.10.0
   intertype: 0.111.0
@@ -26,8 +26,8 @@ packages:
     hasBin: true
     dev: false
 
-  /compose-regexp-commonjs/0.6.24:
-    resolution: {integrity: sha512-aPHoQ7VsPGg57+qQPJaLHkd5us32kFZimKNdJS25GWGnwrbAhf7cSJ4u1PUowBEEGpaEMzRc6Lr9SOI1JlvpKQ==}
+  /compose-regexp/0.6.30:
+    resolution: {integrity: sha512-0FiuKUNqMI1rfit2yoeIQVrluLo0XLUsjTkQt2fiy0gs27d4TTukXHrhFr78MEQ6aq1AaKY5Spc6IcvXdUR5kg==}
     dev: false
 
   /datom/11.0.0:
