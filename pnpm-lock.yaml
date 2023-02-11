@@ -3,14 +3,14 @@ lockfileVersion: 5.4
 specifiers:
   compose-regexp-commonjs: ^0.6.24
   datom: ^11.0.0
-  guy: ^12.10.0
+  guy: ^13.0.0
   intertype: ^0.111.0
   ltsort: ^4.0.0
 
 dependencies:
   compose-regexp-commonjs: 0.6.24
   datom: 11.0.0
-  guy: 12.10.0
+  guy: 13.0.0
   intertype: 0.111.0
   ltsort: 4.0.0
 
@@ -64,6 +64,20 @@ packages:
 
   /guy/12.10.0:
     resolution: {integrity: sha512-k01buChYgYYrQs5TvMwE73tRHK/Pi/UT0jJQwTxxVEqCVRfdDtgB4rRPf9yIX2R7YQgNuFAjFEGjZW8HkBBOng==}
+    peerDependencies:
+      acorn: ^8.7.1
+      acorn-loose: ^8.3.0
+      acorn-walk: ^8.2.0
+      astring: ^1.8.3
+      dayjs: ^1.11.7
+      tmp: ^0.2.1
+    dependencies:
+      intertype-legacy: 7.7.1
+      letsfreezethat: 3.1.0
+    dev: false
+
+  /guy/13.0.0:
+    resolution: {integrity: sha512-HMzKb73K7SX/Y6isGWcjyfCs+LyJE6LiUw9oD9x/rItNnTCSaT278PhZDqo1P8H7t50Q7tO4FAt6+ywtV6Pczw==}
     peerDependencies:
       acorn: ^8.7.1
       acorn-loose: ^8.3.0
