@@ -87,6 +87,25 @@ get_base_types = ->
       lnr:              1
       offset:           0
   #.........................................................................................................
+  declare.ilx_walk_source_or_cfg
+    fields:
+      source:           'optional.text'
+      path:             'optional.nonempty.text'
+      _error:           'null'
+    default:
+      source:           null
+      path:             null
+      _error:           null
+    cast: ( x ) ->
+      return { @registry.ilx_walk_source_or_cfg.default..., source: x, } if @isa.text x
+      return x unless @isa.object x
+      R = { @registry.ilx_walk_source_or_cfg.default..., x..., }
+      if ( not x.source? and not x.path? )
+        R._error = "must set either `source` or `path`"
+      if ( x.source? and x.path? )
+        R._error = "cannot set both `source` and `path`"
+      return R
+  #.........................................................................................................
   return base_types
 
 

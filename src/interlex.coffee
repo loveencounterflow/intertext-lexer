@@ -203,15 +203,44 @@ class Interlex
     return { token, lexeme, }
 
   #---------------------------------------------------------------------------------------------------------
-  run: ( source ) -> [ ( @walk source )..., ]
+  run: ( source_or_cfg ) -> [ ( @walk source_or_cfg )..., ]
 
   #---------------------------------------------------------------------------------------------------------
-  walk: ( source ) ->
-    @feed source
+  walk: ( source_or_cfg ) ->
+    cfg = @types.cast.ilx_walk_source_or_cfg source_or_cfg
+    return @_walk_text        cfg if cfg.source?
+    return @_walk_file_lines  cfg
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_file_lines: ( cfg ) ->
+    ### TAINT should provide `lnr`, `eol` as well ###
+    ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
+    for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions cfg.path
+      yield from @_walk_text { cfg..., source: line, }
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_text: ( cfg ) ->
+    debug '^_walk_text@1^', rpr cfg
+    return @_walk_text_lines cfg if @cfg.linewise
+    return @_walk_text_whole cfg
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_text_whole: ( cfg ) ->
+    @feed cfg.source
     #.......................................................................................................
     loop
       break if @state.finished
       yield Y if ( Y = @step() )?
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _walk_text_lines: ( cfg ) ->
+    ### TAINT should provide `lnr`, `eol` as well ###
+    ### TAINT derive `cfg` for line iterator (`trim`) ###
+    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions cfg.source
+      debug '^_walk_text_lines@1^', rpr line
+      yield from @_walk_text_whole { cfg..., source: line, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
