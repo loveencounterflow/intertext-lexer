@@ -287,6 +287,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * initialize with `lexer = new Interlex { linewise: true, }`
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
+* observe that one can always call `lexer.walk { path, }`, then lexer will iterate over lines of the file
 
 
 ## To Do
@@ -337,6 +338,8 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   * pay attention to the excellent SO answer https://stackoverflow.com/a/3469155/7568091 who suggests using
     `/[^\S\r\n]/` with double negative (`[^]` plus `\S`) to match linear whitespace only
 * **[–]** export `GUY.*.walk_lines()` to promote easy use of line-wise lexing
+* **[–]** should we walk over entire file content when `lexer.cfg.linewise` is `false`? Needed to keep
+  parity with walking over texts
 
 
 ## Is Done
@@ -362,4 +365,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   unmatched text portions
   * **[+]** at any point, allow to construct a pattern that *only* matches reserved characters and a pattern
     that matches anything *except* reserved characters
+* **[+]** <del>**(?)** consider to reset `lexer.cfg.linewise` to `true` when `lexer.walk()` gets called with
+  `path` or else throw error (because results will likely be not as expected).</del> <ins>**Contra**:
+  legitimate to parse with local positions, no line numbers</ins>
 
