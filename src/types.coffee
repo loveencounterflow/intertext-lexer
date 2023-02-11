@@ -72,6 +72,7 @@ get_base_types = ->
       linewise:         'boolean'
       lnr:              'positive1.integer'
       offset:           'positive0.integer'
+      trim:             'boolean'
       # global ???
       # ignorecase  # ignoreCase
     default:
@@ -86,6 +87,7 @@ get_base_types = ->
       linewise:         false
       lnr:              1
       offset:           0
+      trim:             true
   #.........................................................................................................
   declare.ilx_walk_source_or_cfg
     fields:

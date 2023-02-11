@@ -152,10 +152,21 @@ class Interlex
     if @cfg.linewise
       @state.lnr     ?= @cfg.lnr - 1
       @state.offset  ?= @cfg.offset
+      @state.eol     ?= ''
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  feed: ( source ) ->
+  feed: ( source_or_cfg ) ->
+    return @_feed_source  source_or_cfg if @types.isa.text source_or_cfg
+    return @_feed_cfg     source_or_cfg
+
+  #---------------------------------------------------------------------------------------------------------
+  _feed_cfg: ( cfg ) ->
+    @state.eol  = ( cfg.eol ? '' ) if @cfg.linewise
+    return @_feed_source cfg.source
+
+  #---------------------------------------------------------------------------------------------------------
+  _feed_source: ( source ) ->
     @state.lnr++ if @cfg.linewise
     @types.validate.text source
     return @_start source if @cfg.autostart
@@ -215,19 +226,18 @@ class Interlex
   _walk_file_lines: ( cfg ) ->
     ### TAINT should provide `lnr`, `eol` as well ###
     ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
-    for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions cfg.path
+    for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
       yield from @_walk_text { cfg..., source: line, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text: ( cfg ) ->
-    debug '^_walk_text@1^', rpr cfg
     return @_walk_text_lines cfg if @cfg.linewise
     return @_walk_text_whole cfg
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text_whole: ( cfg ) ->
-    @feed cfg.source
+    @feed cfg
     #.......................................................................................................
     loop
       break if @state.finished
@@ -236,11 +246,8 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text_lines: ( cfg ) ->
-    ### TAINT should provide `lnr`, `eol` as well ###
-    ### TAINT derive `cfg` for line iterator (`trim`) ###
-    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions cfg.source
-      debug '^_walk_text_lines@1^', rpr line
-      yield from @_walk_text_whole { cfg..., source: line, }
+    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, { trim: @cfg.trim, }
+      yield from @_walk_text_whole { cfg..., lnr, source: line, eol, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -259,8 +266,7 @@ class Interlex
       ### reached end ###
       @state.finished     = true
       token               = @_new_token '$eof', '', 0 if @cfg.end_token
-      # debug '^52-1^', @state.offset
-      @state.offset      += @state.source?.length ? 0 if @cfg.linewise
+      @state.offset      += ( @state.source?.length ? 0 ) + ( @state.eol?.length ? 0 ) if @cfg.linewise
       return token
     #.......................................................................................................
     match = @state.source.match @state.pattern
