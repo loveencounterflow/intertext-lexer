@@ -13,6 +13,7 @@
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
+  - [Linewise Lexing](#linewise-lexing)
   - [To Do](#to-do)
   - [Is Done](#is-done)
 
