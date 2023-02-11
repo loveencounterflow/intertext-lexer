@@ -149,10 +149,12 @@ class Interlex
     @state.source                       = source
     @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
+    @state.lnr                         ?= 0 if @cfg.linewise
     return null
 
   #---------------------------------------------------------------------------------------------------------
   feed: ( source ) ->
+    @state.lnr++ if @cfg.linewise
     @types.validate.text source
     return @_start source if @cfg.autostart
     @state.source = source
@@ -177,8 +179,10 @@ class Interlex
     jump      = lexeme?.jump ? null
     { mode  } = @state
     ### TAINT use `types.create.ilx_token {}` ###
+    if @cfg.linewise
+      lnr = @state.lnr
+      return new_datom "^#{mode}", { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, }
     return new_datom "^#{mode}", { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, }
-    # return { mode: @state.mode, tid, mk: "#{@state.mode}:#{tid}", jump, value, start, stop, x, }
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->

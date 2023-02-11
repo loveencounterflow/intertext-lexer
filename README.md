@@ -262,6 +262,14 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 └───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
+## Linewise Lexing
+
+* advantages
+* initialize with `lexer = new Interlex { linewise: true, }`
+* each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
+* therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
+
+
 ## To Do
 
 * **[–]** documentation

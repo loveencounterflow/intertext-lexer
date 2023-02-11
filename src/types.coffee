@@ -69,6 +69,7 @@ get_base_types = ->
       dotall:           'boolean'
       catchall_concat:  'boolean'
       reserved_concat:  'boolean'
+      linewise:         'boolean'
       # global ???
       # ignorecase  # ignoreCase
     default:
@@ -80,6 +81,7 @@ get_base_types = ->
       dotall:           false
       catchall_concat:  false
       reserved_concat:  false
+      linewise:         false
   #.........................................................................................................
   return base_types
 
