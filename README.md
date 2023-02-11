@@ -296,7 +296,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** introduce aliases for names of `compose` that don't use snake case &c
 * **[–]** implement `line`, `col` coordinates for tokens
 * **[–]** group renaming has a fault in that it will wrongly accept things looking like a named group inside
-  a squra-bracket character class, as in `/[?<abc>)]`
+  a square-bracket character class, as in `/[?<abc>)]`
 * **[–]** we cannot mix regexes with and without `s` / `dotall` flag; configure that per mode, per instance?
 * **[–]** allow to add lexemes w/out explicit mode, will provide default / add to base mode
 * **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
