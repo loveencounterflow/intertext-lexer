@@ -13,7 +13,9 @@
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
-  - [Linewise Lexing](#linewise-lexing)
+  - [Piecemeal Lexing and Linewise Lexing](#piecemeal-lexing-and-linewise-lexing)
+    - [Piecemeal Lexing](#piecemeal-lexing)
+    - [Linewise Lexing](#linewise-lexing)
   - [To Do](#to-do)
   - [Is Done](#is-done)
 
@@ -263,9 +265,25 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 └───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
-## Linewise Lexing
+## Piecemeal Lexing and Linewise Lexing
+
+### Piecemeal Lexing
+
+### Linewise Lexing
 
 * advantages
+  * no more struggling with [different end-of-line (EOL) standards](https://en.wikipedia.org/wiki/Newline)
+  * lexeme definitions can simply assume `/^/` will match start-of-line and `/$/` will match end-of-line,
+    forget about the 'dot match all' flag (`/.../s`)
+  * oftentimes—rather than handling the content of an entire (arbitrarily huge) file, or abitrary chunks of
+    a file derived from a running offsets + some byte lengths (which always risks cutting through a
+    multibyte UTF-8-encoded character and needs some sort of careful state-keeping)—'lines of text' will be
+    reasonably small and handy chunks of data to work with, as certified by the success of decades of
+    Posix-style line-oriented data processing
+  * most of time, lexers will have no need to look at EOL characters; many languages do not care for
+    newlines (outside of string literals) at all and those that do care only (at least at the lexing level)
+    about whether something comes close to the start or the end of a given line, or that something like a
+    line comment will extend to the end of the present line
 * initialize with `lexer = new Interlex { linewise: true, }`
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
