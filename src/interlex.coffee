@@ -149,7 +149,9 @@ class Interlex
     @state.source                       = source
     @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
-    @state.lnr                         ?= 0 if @cfg.linewise
+    if @cfg.linewise
+      @state.lnr     ?= @cfg.lnr - 1
+      @state.offset  ?= @cfg.offset
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -174,7 +176,8 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
-    start     = @state.prv_last_idx
+    start     = if @cfg.linewise then @state.offset + @state.prv_last_idx else @state.prv_last_idx
+    # start     = @state.prv_last_idx
     stop      = start + length
     jump      = lexeme?.jump ? null
     { mode  } = @state
@@ -225,16 +228,21 @@ class Interlex
     #.......................................................................................................
     if @state.prv_last_idx >= @state.source.length
       ### reached end ###
-      @state.finished = true
-      return @_new_token '$eof', '', 0 if @cfg.end_token
-      return null
+      @state.finished     = true
+      token               = @_new_token '$eof', '', 0 if @cfg.end_token
+      # debug '^52-1^', @state.offset
+      @state.offset      += @state.source?.length ? 0 if @cfg.linewise
+      return token
     #.......................................................................................................
     match = @state.source.match @state.pattern
     #.......................................................................................................
     unless match?
       ### TAINT might want to advance and try again? ###
-      @state.finished = true
-      return @_new_token '$error', '', 0, { code: 'nomatch', }
+      @state.finished  = true
+      token            = @_new_token '$error', '', 0, { code: 'nomatch', }
+      ### ???????????????????????????????????????????????????????????????????????????? ###
+      # @state.offset   += @state.source.length
+      return token
     #.......................................................................................................
     if @state.pattern.lastIndex is @state.prv_last_idx
       if match?

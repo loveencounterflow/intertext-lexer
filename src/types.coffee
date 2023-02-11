@@ -70,6 +70,8 @@ get_base_types = ->
       catchall_concat:  'boolean'
       reserved_concat:  'boolean'
       linewise:         'boolean'
+      lnr:              'positive1.integer'
+      offset:           'positive0.integer'
       # global ???
       # ignorecase  # ignoreCase
     default:
@@ -82,6 +84,8 @@ get_base_types = ->
       catchall_concat:  false
       reserved_concat:  false
       linewise:         false
+      lnr:              1
+      offset:           0
   #.........................................................................................................
   return base_types
 
