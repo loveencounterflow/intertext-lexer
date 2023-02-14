@@ -288,7 +288,10 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
 * observe that one can always call `lexer.walk { path, }`, then lexer will iterate over lines of the file
-
+* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr, start, stop, x, source, }` as
+  with non-linewise lexing, but with `source` representing the current line (not the entire lexed text) and
+  `start` and `stop` indexing into that line (0-based [UTF-16 code unit
+  indexes](https://mathiasbynens.be/notes/javascript-encoding))
 
 ## To Do
 
