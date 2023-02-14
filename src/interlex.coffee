@@ -151,7 +151,6 @@ class Interlex
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     if @cfg.linewise
       @state.lnr     ?= @cfg.lnr - 1
-      @state.offset  ?= @cfg.offset
       @state.eol     ?= ''
     return null
 
@@ -187,16 +186,18 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
-    start     = if @cfg.linewise then @state.offset + @state.prv_last_idx else @state.prv_last_idx
-    # start     = @state.prv_last_idx
+    start     = @state.prv_last_idx
     stop      = start + length
     jump      = lexeme?.jump ? null
-    { mode  } = @state
+    { source
+      mode  } = @state
     ### TAINT use `types.create.ilx_token {}` ###
     if @cfg.linewise
-      lnr = @state.lnr
-      return new_datom "^#{mode}", { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, }
-    return new_datom "^#{mode}", { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, }
+      lnr     = @state.lnr
+      return new_datom "^#{mode}", \
+        { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, source, }
+    return new_datom "^#{mode}", \
+      { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, source, }
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->
@@ -266,7 +267,6 @@ class Interlex
       ### reached end ###
       @state.finished     = true
       token               = @_new_token '$eof', '', 0 if @cfg.end_token
-      @state.offset      += ( @state.source?.length ? 0 ) + ( @state.eol?.length ? 0 ) if @cfg.linewise
       return token
     #.......................................................................................................
     match = @state.source.match @state.pattern
@@ -275,8 +275,6 @@ class Interlex
       ### TAINT might want to advance and try again? ###
       @state.finished  = true
       token            = @_new_token '$error', '', 0, { code: 'nomatch', }
-      ### ???????????????????????????????????????????????????????????????????????????? ###
-      # @state.offset   += @state.source.length
       return token
     #.......................................................................................................
     if @state.pattern.lastIndex is @state.prv_last_idx
