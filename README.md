@@ -265,6 +265,9 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 └───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
+* it is possible to give `$catchall` and `$reserved` lexemes a custom TID by settting the `tid` parameter
+  when calling `lexer.add_catchall_lexeme()` and `lexer.add_reserved_lexeme()`
+
 ## Piecemeal Lexing and Linewise Lexing
 
 ### Piecemeal Lexing
