@@ -142,9 +142,9 @@ class Interlex
     @_finalize() if @state? and not @state.finalized
     @state                             ?= {}
     @state.finalized                   ?= false
-    @state.stack                        = []
+    @state.stack                       ?= []
     @state.prv_last_idx                 = 0
-    @state.mode                         = @base_mode ? null
+    @state.mode                        ?= @base_mode ? null
     @state.pattern                      = @registry?[ @state.mode ]?.pattern ? null
     @state.source                       = source
     @state.finished                     = false
