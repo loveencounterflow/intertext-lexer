@@ -343,6 +343,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** export `GUY.*.walk_lines()` to promote easy use of line-wise lexing
 * **[–]** should we walk over entire file content when `lexer.cfg.linewise` is `false`? Needed to keep
   parity with walking over texts
+* **[–]** implement `reset()` method that is equivalent to instantiating a new lexer with the same settings
 
 
 ## Is Done
