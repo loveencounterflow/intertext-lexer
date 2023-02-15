@@ -1,6 +1,6 @@
 {
   "name": "intertext-lexer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A multimodal lexer based on sticky regexes",
   "main": "lib/main.js",
   "scripts": {
