@@ -350,6 +350,8 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** should we walk over entire file content when `lexer.cfg.linewise` is `false`? Needed to keep
   parity with walking over texts
 * **[–]** implement `reset()` method that is equivalent to instantiating a new lexer with the same settings
+* **[–]** already possible to use `:` within mode names to indicate multi-level hierarchy (modes and
+  submodes); possible / necessary / useful to formalize this?
 
 
 ## Is Done
@@ -378,4 +380,5 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[+]** <del>**(?)** consider to reset `lexer.cfg.linewise` to `true` when `lexer.walk()` gets called with
   `path` or else throw error (because results will likely be not as expected).</del> <ins>**Contra**:
   legitimate to parse with local positions, no line numbers</ins>
+* **[+]** implement lexeme property `create`
 
