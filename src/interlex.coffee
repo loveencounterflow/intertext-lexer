@@ -384,21 +384,27 @@ class Interlex
   _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved...
 
   #---------------------------------------------------------------------------------------------------------
-  add_catchall_lexeme: ({ mode, }) ->
+  add_catchall_lexeme: ( cfg ) ->
+    { mode
+      tid } = @types.create.ilx_add_catchall_lexeme_cfg cfg
+    mode   ?= @base_mode
     unless ( entry = @registry[ mode ] )?
       throw new E.Interlex_mode_unknown '^interlex.add_catchall_lexeme@1^', mode
     pattern = @_get_catchall_regex mode, entry
     pattern = compose.suffix '+', pattern if @cfg.catchall_concat
-    @add_lexeme { mode, tid: '$catchall', pattern, }
+    @add_lexeme { mode, tid, pattern, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  add_reserved_lexeme: ({ mode, }) ->
+  add_reserved_lexeme: ( cfg ) ->
+    { mode
+      tid } = @types.create.ilx_add_reserved_lexeme_cfg cfg
+    mode   ?= @base_mode
     unless ( entry = @registry[ mode ] )?
       throw new E.Interlex_mode_unknown '^interlex.add_reserved_lexeme@1^', mode
     pattern = @_get_reserved_regex mode, entry
     pattern = compose.suffix '+', pattern if @cfg.reserved_concat
-    @add_lexeme { mode, tid: '$reserved', pattern, }
+    @add_lexeme { mode, tid, pattern, }
     return null
 
 

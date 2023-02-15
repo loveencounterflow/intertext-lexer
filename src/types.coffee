@@ -108,6 +108,20 @@ get_base_types = ->
         R._error = "cannot set both `source` and `path`"
       return R
   #.........................................................................................................
+  declare.ilx_add_catchall_lexeme_cfg
+    fields:
+      mode:           'ilx_mode'
+      tid:            'ilx_tid'
+    default:
+      mode:           null
+      tid:            '$catchall'
+  declare.ilx_add_reserved_lexeme_cfg
+    fields:
+      mode:           'ilx_mode'
+      tid:            'ilx_tid'
+    default:
+      mode:           null
+      tid:            '$reserved'
   return base_types
 
 
