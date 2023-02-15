@@ -191,13 +191,17 @@ class Interlex
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
+    #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
     if @cfg.linewise
-      lnr     = @state.lnr
-      return new_datom "^#{mode}", \
-        { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, source, }
-    return new_datom "^#{mode}", \
-      { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, source, }
+      lnr = @state.lnr
+      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, source, }
+    else
+      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, source, }
+    #.......................................................................................................
+    if lexeme?.create?
+      R = lexeme.create.call @, R
+    return new_datom "^#{mode}", R
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->

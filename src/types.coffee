@@ -52,12 +52,14 @@ get_base_types = ->
       pattern:        'ilx_pattern'
       jump:           'optional.ilx_jump'
       reserved:       'optional.ilx_reserved'
+      create:         'optional.function'
     default:
       mode:           'plain'
       tid:            null
       pattern:        null
       jump:           null
       reserved:       null
+      create:         null
   #.........................................................................................................
   declare.ilx_constructor_cfg
     fields:

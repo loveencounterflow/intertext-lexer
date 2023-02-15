@@ -56,6 +56,9 @@
       runtime error in case a jump back from the initial mode is attempted
   * names of modes and lexemes will be used to construct regex group names; therefore, they must all be
     [valid JS identifiers](https://mathiasbynens.be/notes/javascript-identifiers-es6)
+  * `cfg.create`: an optional function that will be called right after a token is created from the lexeme
+    (and right before it is frozen and yielded to the caller); whatever `create()` returns will become
+    the next token
 
 ## Example
 
