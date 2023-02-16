@@ -352,6 +352,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** implement `reset()` method that is equivalent to instantiating a new lexer with the same settings
 * **[–]** already possible to use `:` within mode names to indicate multi-level hierarchy (modes and
   submodes); possible / necessary / useful to formalize this?
+* **[–]** allow lexeme declarations to override `value` by setting it to constant or function
 
 
 ## Is Done
