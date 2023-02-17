@@ -353,6 +353,14 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** already possible to use `:` within mode names to indicate multi-level hierarchy (modes and
   submodes); possible / necessary / useful to formalize this?
 * **[–]** allow lexeme declarations to override `value` by setting it to constant or function
+* **[–]** change indexing shape from `lnr`, `start`, `stop` to `l1`, `x1`, `l2`, `x2`, since in the general
+  case, a token may start one one line and end on another. `x1`, `x2` are zero-based, exclusive, code unit
+  indexes (JS string indices), while `l1`, `l2` are one-based, inclusive line numbers. Observe that it can
+  be quite difficult to give correct column numbers when complex scripts are used; for Latin script sources
+  that do not use combining characters but may be intermingled e.g. with symbols and CJK characters from
+  SMP, SIP and TIP , `( Array.from 'string'[ ... x1 ] ).length` converts correctly from 0-based code units
+  to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
+  will be incorrect)
 
 
 ## Is Done
