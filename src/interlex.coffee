@@ -59,19 +59,22 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   add_lexeme: ( cfg ) ->
-    cfg                       = @types.create.ilx_add_lexeme_cfg cfg
-    @state.finalized          = false
-    @base_mode               ?= cfg.mode
+    cfg                         = @types.create.ilx_add_lexeme_cfg cfg
+    @state.finalized            = false
+    @base_mode                 ?= cfg.mode
     ### TAINT use API, types ###
-    entry                     = @registry[ cfg.mode ] ?= { \
-      lexemes: {}, pattern: null, toposort: false, reserved: new Set(), }
-    entry.toposort          or= cfg.needs? or cfg.precedes?
-    type_of_jump              = @_get_type_of_jump cfg.jump
+    entry                       = @registry[ cfg.mode ] ?= { \
+      lexemes: {}, pattern: null, toposort: false, reserved: new Set(), \
+      value: cfg.value, empty_value: cfg.empty_value, }
+    entry.toposort            or= cfg.needs? or cfg.precedes?
+    type_of_jump                = @_get_type_of_jump cfg.jump
     if entry.lexemes[ cfg.tid ]?
       throw new E.Interlex_lexeme_exists '^interlex.add_lexeme@1^', cfg.mode, cfg.tid
-    entry.lexemes[ cfg.tid ]  = lexeme = { cfg..., type_of_jump, }
-    lexeme.pattern            = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
-    lexeme.pattern            = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
+    entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., type_of_jump, }
+    lexeme.pattern              = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
+    lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
+    lexeme.type_of_value        = @types.type_of entry.value
+    lexeme.type_of_empty_value  = @types.type_of entry.empty_value
     @_add_reserved cfg.mode, cfg.reserved if cfg.reserved?
     return null
 
@@ -201,9 +204,27 @@ class Interlex
     else
       R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, source, }
     #.......................................................................................................
+    @_set_entry_value R, lexeme, value
+    #.......................................................................................................
     if lexeme?.create?
       R = lexeme.create.call @, R
     return new_datom "^#{mode}", R
+
+  #---------------------------------------------------------------------------------------------------------
+  _set_entry_value: ( entry, lexeme, value ) ->
+    if lexeme?.empty_value? and ( ( not entry.value? ) or ( entry.value is '' ) )
+      switch lexeme.type_of_empty_value
+        when 'text'     then entry.value  = lexeme.empty_value
+        when 'function' then entry.value  = lexeme.empty_value.call @, entry
+        else throw new E.Interlex_internal_error '^_new_token@1^', \
+          "unknown type of lexeme.empty_value: #{rpr lexeme.type_of_empty_value}"
+    else if lexeme?.value?
+      switch lexeme.type_of_value
+        when 'text'     then entry.value  = lexeme.value
+        when 'function' then entry.value  = lexeme.value.call       @, entry
+        else throw new E.Interlex_internal_error '^_new_token@2^', \
+          "unknown type of lexeme.value: #{rpr lexeme.type_of_value}"
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->

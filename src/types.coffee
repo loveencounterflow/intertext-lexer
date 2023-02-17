@@ -44,6 +44,7 @@ get_base_types = ->
   declare.ilx_reserved        'optional.ilx_reserved_list.or.ilx_reserved_text'
   declare.ilx_reserved_list   'list.of.nonempty.text'
   declare.ilx_reserved_text   'nonempty.text'
+  declare.ilx_lexeme_value    'function.or.text'
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
@@ -53,6 +54,8 @@ get_base_types = ->
       jump:           'optional.ilx_jump'
       reserved:       'optional.ilx_reserved'
       create:         'optional.function'
+      value:          'optional.ilx_lexeme_value'
+      empty_value:    'optional.ilx_lexeme_value'
     default:
       mode:           'plain'
       tid:            null
@@ -60,6 +63,8 @@ get_base_types = ->
       jump:           null
       reserved:       null
       create:         null
+      value:          null
+      empty_value:    null
   #.........................................................................................................
   declare.ilx_constructor_cfg
     fields:

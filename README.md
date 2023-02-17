@@ -59,6 +59,14 @@
   * `cfg.create`: an optional function that will be called right after a token is created from the lexeme
     (and right before it is frozen and yielded to the caller); whatever `create()` returns will become
     the next token
+  * `cfg.value` and `cfg.empty_value` allow to set the `value` property of a token; both can be either
+    `null` (the default), a text or a function whose return value will become `token.value`.
+    * when defined, `cfg.value` will always override the token value; `cfg.empty_value` will only be
+      considered then the token value would be an empty string
+    * when `cfg.value` or `cfg.empty_value` are functions, they will be called in the context of the lexer
+      and with the token as only argument
+    * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
+      applicable)
 
 ## Example
 
@@ -359,7 +367,6 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   SMP, SIP and TIP , `( Array.from 'string'[ ... x1 ] ).length` converts correctly from 0-based code units
   to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
   will be incorrect)
-* **[–]** allow lexeme declarations to override `value` by setting it to constant or function
 * **[–]** allow lexeme declarations to declare errors with a `code`
 
 
@@ -391,4 +398,6 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   legitimate to parse with local positions, no line numbers</ins>
 * **[+]** implement lexeme property `create`
 * **[+]** disallow lexemes to be accidentally overwritten
+* **[+]** allow lexeme declarations to override `value` by setting either `value` or `empty_value` to
+  constant or function
 
