@@ -312,7 +312,6 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
 * **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
   MarkDown star lexer
-* **[–]** disallow lexemes to be accidentally overwritten
 * **[–]** clarify whether to use 'lexeme ID' or 'token ID'; whould really be the former because a lexeme is
   the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `tid`
   may repeat while there can only be at most one lexeme with a given `tid` in a given namespace / mode
@@ -391,4 +390,5 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   `path` or else throw error (because results will likely be not as expected).</del> <ins>**Contra**:
   legitimate to parse with local positions, no line numbers</ins>
 * **[+]** implement lexeme property `create`
+* **[+]** disallow lexemes to be accidentally overwritten
 
