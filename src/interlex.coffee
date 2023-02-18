@@ -74,7 +74,7 @@ class Interlex
     lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     lexeme.type_of_value        = @types.type_of entry.value
     lexeme.type_of_empty_value  = @types.type_of entry.empty_value
-    @_add_reserved cfg.mode, cfg.reserved if cfg.reserved?
+    @_add_reserved_chrs cfg.mode, cfg.reserved if cfg.reserved?
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -408,22 +408,22 @@ class Interlex
 
 
   #=========================================================================================================
-  # RESERVED ITEMS
+  # CATCHALL & RESERVED
   #---------------------------------------------------------------------------------------------------------
-  _add_reserved: ( mode, reserved ) ->
+  _add_reserved_chrs: ( mode, reserved_chrs ) ->
     unless ( entry = @registry[ mode ] )?
-      throw new E.Interlex_internal_error '^interlex._add_reserved@1^', "no such mode: #{rpr mode}"
-    if @types.isa.list reserved
-      @_add_reserved mode, x for x in reserved
+      throw new E.Interlex_internal_error '^interlex._add_reserved_chrs@1^', "no such mode: #{rpr mode}"
+    if @types.isa.list reserved_chrs
+      @_add_reserved_chrs mode, x for x in reserved_chrs
       return null
     ### NOTE may accept regexes in the future ###
-    @types.validate.nonempty.text reserved
-    entry.reserved.add reserved
+    @types.validate.nonempty.text reserved_chrs
+    entry.reserved_chrs.add reserved_chrs
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _get_catchall_regex: ( mode, entry ) -> compose.charSet.complement @_get_reserved_regex mode, entry
-  _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved...
+  _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved_chrs...
 
   #---------------------------------------------------------------------------------------------------------
   add_catchall_lexeme: ( cfg ) ->
