@@ -62,10 +62,7 @@ class Interlex
     cfg                         = @types.create.ilx_add_lexeme_cfg cfg
     @state.finalized            = false
     @base_mode                 ?= cfg.mode
-    ### TAINT use API, types ###
-    entry                       = @registry[ cfg.mode ] ?= { \
-      lexemes: {}, pattern: null, toposort: false, reserved: new Set(), \
-      value: cfg.value, empty_value: cfg.empty_value, }
+    entry                       = @_get_mode_entry cfg
     entry.toposort            or= cfg.needs? or cfg.precedes?
     type_of_jump                = @_get_type_of_jump cfg.jump
     if entry.lexemes[ cfg.tid ]?
@@ -77,6 +74,22 @@ class Interlex
     lexeme.type_of_empty_value  = @types.type_of entry.empty_value
     @_add_reserved cfg.mode, cfg.reserved if cfg.reserved?
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _get_mode_entry: ( cfg ) ->
+    return R if ( R = @registry[ cfg.mode ] )?
+    ### TAINT use @types.create.ilx_registry_mode_entry ###
+    R =
+      lexemes:        {}
+      pattern:        null
+      toposort:       false
+      reserved_chrs:  new Set()
+      value:          cfg.value
+      empty_value:    cfg.empty_value
+      # catchall:       null
+      # reserved:       null
+    @registry[ cfg.mode ] = R
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   _get_type_of_jump: ( jump ) ->
