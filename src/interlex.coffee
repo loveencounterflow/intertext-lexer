@@ -135,11 +135,11 @@ class Interlex
   _finalize: ->
     return unless @state?
     for mode, entry of @registry
+      entry                     = @_toposort_patterns entry
       #.....................................................................................................
       @_add_catchall_lexeme mode, entry.catchall.tid, entry if entry.catchall?
       @_add_reserved_lexeme mode, entry.reserved.tid, entry if entry.reserved?
       #.....................................................................................................
-      entry                     = @_toposort_patterns entry
       ### TAINT use API ###
       patterns                  = @_set_u_flag ( lexeme.pattern for tid, lexeme of entry.lexemes )
       pattern                   = C.either patterns...
