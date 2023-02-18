@@ -24,6 +24,10 @@ class @Interlex_mode_unknown              extends @Interlex_error
   constructor: ( ref, mode )        -> super ref, "no such mode: #{rpr mode}"
 class @Interlex_lexeme_exists              extends @Interlex_error
   constructor: ( ref, mode, tid )   -> super ref, "lexeme #{mode}:#{tid} already exists"
+class @Interlex_catchall_exists            extends @Interlex_error
+  constructor: ( ref, mode, tid )   -> super ref, "catchall #{mode}:#{tid} already exists"
+class @Interlex_reserved_exists            extends @Interlex_error
+  constructor: ( ref, mode, tid )   -> super ref, "reserved #{mode}:#{tid} already exists"
 class @Interlex_TBDUNCLASSIFIED           extends @Interlex_error
   constructor: ( ref, message )     -> super ref, message
 

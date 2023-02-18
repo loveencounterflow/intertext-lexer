@@ -88,8 +88,8 @@ class Interlex
       reserved_chrs:  new Set()
       value:          cfg.value
       empty_value:    cfg.empty_value
-      # catchall:       null
-      # reserved:       null
+      catchall:       null
+      reserved:       null
     @registry[ cfg.mode ] = R
     return R
 
@@ -135,6 +135,10 @@ class Interlex
   _finalize: ->
     return unless @state?
     for mode, entry of @registry
+      #.....................................................................................................
+      @_add_catchall_lexeme mode, entry.catchall.tid, entry if entry.catchall?
+      @_add_reserved_lexeme mode, entry.reserved.tid, entry if entry.reserved?
+      #.....................................................................................................
       entry                     = @_toposort_patterns entry
       ### TAINT use API ###
       patterns                  = @_set_u_flag ( lexeme.pattern for tid, lexeme of entry.lexemes )
@@ -151,6 +155,9 @@ class Interlex
     @state.finalized = true
     return null
 
+
+  #=========================================================================================================
+  #
   #---------------------------------------------------------------------------------------------------------
   start: ( source = null ) ->
     @types.validate.optional.text source
@@ -426,27 +433,39 @@ class Interlex
   _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved_chrs...
 
   #---------------------------------------------------------------------------------------------------------
-  add_catchall_lexeme: ( cfg ) ->
-    { mode
-      tid } = @types.create.ilx_add_catchall_lexeme_cfg cfg
-    mode   ?= @base_mode
-    unless ( entry = @registry[ mode ] )?
-      throw new E.Interlex_mode_unknown '^interlex.add_catchall_lexeme@1^', mode
+  _add_catchall_lexeme: ( mode, tid, entry ) ->
     pattern = @_get_catchall_regex mode, entry
     pattern = compose.suffix '+', pattern if @cfg.catchall_concat
     @add_lexeme { mode, tid, pattern, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  add_reserved_lexeme: ( cfg ) ->
-    { mode
-      tid } = @types.create.ilx_add_reserved_lexeme_cfg cfg
-    mode   ?= @base_mode
-    unless ( entry = @registry[ mode ] )?
-      throw new E.Interlex_mode_unknown '^interlex.add_reserved_lexeme@1^', mode
+  _add_reserved_lexeme: ( mode, tid, entry ) ->
     pattern = @_get_reserved_regex mode, entry
     pattern = compose.suffix '+', pattern if @cfg.reserved_concat
     @add_lexeme { mode, tid, pattern, }
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  add_catchall_lexeme: ( cfg ) ->
+    cfg       = @types.create.ilx_add_catchall_lexeme_cfg cfg
+    cfg.mode ?= @base_mode
+    unless ( entry = @registry[ cfg.mode ] )?
+      throw new E.Interlex_mode_unknown '^interlex.add_catchall_lexeme@1^', cfg.mode
+    if entry.catchall?
+      throw new E.Interlex_catchall_exists '^interlex.add_catchall_lexeme@1^', cfg.mode, entry.catchall.tid
+    entry.catchall = cfg
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  add_reserved_lexeme: ( cfg ) ->
+    cfg       = @types.create.ilx_add_reserved_lexeme_cfg cfg
+    cfg.mode ?= @base_mode
+    unless ( entry = @registry[ cfg.mode ] )?
+      throw new E.Interlex_mode_unknown '^interlex.add_reserved_lexeme@1^', cfg.mode
+    if entry.reserved?
+      throw new E.Interlex_reserved_exists '^interlex.add_reserved_lexeme@1^', cfg.mode, entry.reserved.tid
+    entry.reserved = cfg
     return null
 
 
