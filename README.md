@@ -67,6 +67,7 @@
       and with the token as only argument
     * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
       applicable)
+    * defer creation of catchall, reserved tokens so they can participate in toposort
 
 ## Example
 
