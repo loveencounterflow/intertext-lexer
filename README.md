@@ -67,7 +67,6 @@
       and with the token as only argument
     * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
       applicable)
-    * defer creation of catchall, reserved tokens so they can participate in toposort
 
 ## Example
 
@@ -369,6 +368,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
   will be incorrect)
 * **[–]** allow lexeme declarations to declare errors with a `code`
+* **[–]** defer creation of catchall, reserved tokens so they can participate in toposort
 
 
 ## Is Done
