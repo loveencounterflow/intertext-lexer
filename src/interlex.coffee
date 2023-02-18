@@ -65,8 +65,10 @@ class Interlex
     entry                       = @_get_mode_entry cfg
     entry.toposort            or= cfg.needs? or cfg.precedes?
     type_of_jump                = @_get_type_of_jump cfg.jump
+    #.......................................................................................................
     if entry.lexemes[ cfg.tid ]?
       throw new E.Interlex_lexeme_exists '^interlex.add_lexeme@1^', cfg.mode, cfg.tid
+    #.......................................................................................................
     entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern              = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
     lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
