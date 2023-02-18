@@ -372,7 +372,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   * **[+]** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
     `_finalize()` is called
   * **[+]** catchall and reserved alway come last (in this order)
-  * **[–]** prevent re-ordering of catchall and reserved when doing topological sorting
+  * **[+]** prevent re-ordering of catchall and reserved when doing topological sorting
   * **[–]** the instantiation settings `catchall_concat` and `reserved_concat` can be overriden when
     either is declared
 * **[–]** optionally (but less importantly), could demand implicit catchall and reserved lexemes for all
