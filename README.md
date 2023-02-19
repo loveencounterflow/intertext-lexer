@@ -306,10 +306,17 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
 * observe that one can always call `lexer.walk { path, }`, then lexer will iterate over lines of the file
-* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr1, x1, x2, g, source, }` as
-  with non-linewise lexing, but with `source` representing the current line (not the entire lexed text) and
-  `x1` and `x2` indexing into that line (0-based [UTF-16 code unit
-  indexes](https://mathiasbynens.be/notes/javascript-encoding))
+* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr1, x1, lnr2, x2, g, source, }` as
+  with non-linewise lexing, but with `source` representing the current line (not the entire lexed text),
+  `lnr1` indicating the 1-based line number of the start of the match, `lnr2` the same for the end of the
+  match, and `x1` and `x2` indexing into those lines in terms of exclusive 0-based [UTF-16 code unit
+  indexes](https://mathiasbynens.be/notes/javascript-encoding)) (so if the first letter on the first line is
+  matched, its token will contain `{ lnr1: 1, x1: 0, lnr2: 1, x2: 1, }`)
+  * since `lnr1` and `lnr2` are only present in linewise lexing which implies that the lexer only gets to
+    see a single line at a time, `lnr1` and `lnr2` must always be equal (IOW there can be no tokens across
+    linebreaks in linewise mode). However, if those tokens are then fed to a parser, that parser may match
+    tokens across linebreaks, and in that case it will be convenient to derive the position of the resulting
+    region by `{ lnr1, x1, } = first_token; { lnr2, x2, } = last_token`
 
 ## To Do
 
