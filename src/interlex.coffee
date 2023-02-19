@@ -221,10 +221,10 @@ class Interlex
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
     if @cfg.linewise
-      lnr1 = @state.lnr1
-      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, x2, x, source, }
+      lnr1  = lnr2 = @state.lnr1
+      R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, x, source, }
     else
-      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, x1, x2, x, source, }
+      R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value,       x1,       x2, x, source, }
     #.......................................................................................................
     @_set_entry_value R, lexeme, value
     #.......................................................................................................
