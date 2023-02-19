@@ -377,6 +377,9 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
     either is declared
 * **[–]** optionally (but less importantly), could demand implicit catchall and reserved lexemes for all
   modes, then allow overrides per mode
+* **[–]** add public API `new_token()` (can be used as `new_token t` to produce copy of `t`, or `new_token {
+  t..., value: 'xxx', }` to derive from `t`, so don't need explicit arguments for that)
+* **[–]** review role of Datom, `$key` element
 
 
 ## Is Done
