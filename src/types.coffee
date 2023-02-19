@@ -77,7 +77,7 @@ get_base_types = ->
       catchall_concat:  'boolean'
       reserved_concat:  'boolean'
       linewise:         'boolean'
-      lnr:              'positive1.integer'
+      lnr1:             'positive1.integer'
       offset:           'positive0.integer'
       trim:             'boolean'
       # global ???
@@ -92,7 +92,7 @@ get_base_types = ->
       catchall_concat:  false
       reserved_concat:  false
       linewise:         false
-      lnr:              1
+      lnr1:             1
       offset:           0
       trim:             true
   #.........................................................................................................
