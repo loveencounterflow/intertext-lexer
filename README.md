@@ -48,6 +48,10 @@
   * `cfg.pattern`: a string or a regular expression to describe a constant or variable pattern. Strings will
     be converted to regexes, using proper escaping for all characters that are special in regexes (like `*`,
     `(` and so on);
+    * **named groups (captures)**: when a regular expression has named groups (as in
+      `/abc(?<letter>[a-z]+)/`), those matches will be put into an object named `g` of the token (so if the
+      above matches, `token.g.letter` will contain a string matching one or more of the basic 26 lower case
+      Latin letters)
   * `cfg.jump`: an optional string or function that describes whether to change the lexing mode and / or
     which token should result
     * if `cfg.jump` is a valid JS identifier, then it should be the name of the lexing mode that should be entered
@@ -180,7 +184,7 @@ Results:
 ```
  'helo'
 ┌───────┬──────┬────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid   │mk          │jump  │value  │start  │stop  │x   │$key    │
+│mode   │tid   │mk          │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼──────┼────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │word  │plain:word  │●     │helo   │0      │4     │●   │^plain  │
 └───────┴──────┴────────────┴──────┴───────┴───────┴──────┴────┴────────┘
@@ -189,7 +193,7 @@ Results:
 ```
  'helo*x'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │word       │plain:word       │●     │helo   │0      │4     │●   │^plain  │
 │plain  │$reserved  │plain:$reserved  │●     │*      │4      │5     │●   │^plain  │
@@ -200,7 +204,7 @@ Results:
 ```
  '*x'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$reserved  │plain:$reserved  │●     │*      │0      │1     │●   │^plain  │
 │plain  │word       │plain:word       │●     │x      │1      │2     │●   │^plain  │
@@ -210,7 +214,7 @@ Results:
 ```
  '## question #1 and a hash: #'
 ┌───────┬───────────────┬─────────────────────┬──────┬──────────┬───────┬──────┬────────────────┬────────┐
-│mode   │tid            │mk                   │jump  │value     │start  │stop  │x               │$key    │
+│mode   │tid            │mk                   │jump  │value     │x1     │x2    │g               │$key    │
 ├───────┼───────────────┼─────────────────────┼──────┼──────────┼───────┼──────┼────────────────┼────────┤
 │plain  │heading        │plain:heading        │●     │##        │0      │3     │{ hashes: '##' }│^plain  │
 │plain  │word           │plain:word           │●     │question  │3      │11    │●               │^plain  │
@@ -231,7 +235,7 @@ Results:
 ```
  '## question #1 and a hash: \\#'
 ┌───────┬───────────────┬─────────────────────┬──────┬──────────┬───────┬──────┬────────────────┬────────┐
-│mode   │tid            │mk                   │jump  │value     │start  │stop  │x               │$key    │
+│mode   │tid            │mk                   │jump  │value     │x1     │x2    │g               │$key    │
 ├───────┼───────────────┼─────────────────────┼──────┼──────────┼───────┼──────┼────────────────┼────────┤
 │plain  │heading        │plain:heading        │●     │##        │0      │3     │{ hashes: '##' }│^plain  │
 │plain  │word           │plain:word           │●     │question  │3      │11    │●               │^plain  │
@@ -254,7 +258,7 @@ Result with `lexer = new Interlex { catchall_concat: false, reserved_concat: fal
 ```
  ':.;*#'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$catchall  │plain:$catchall  │●     │:      │0      │1     │●   │^plain  │
 │plain  │$catchall  │plain:$catchall  │●     │.      │1      │2     │●   │^plain  │
@@ -269,7 +273,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 ```
  ':.;*#'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │start  │stop  │x   │$key    │
+│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$catchall  │plain:$catchall  │●     │:.;    │0      │3     │●   │^plain  │
 │plain  │$reserved  │plain:$reserved  │●     │*#     │3      │5     │●   │^plain  │
@@ -302,9 +306,9 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
 * observe that one can always call `lexer.walk { path, }`, then lexer will iterate over lines of the file
-* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr, start, stop, x, source, }` as
+* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr1, x1, x2, g, source, }` as
   with non-linewise lexing, but with `source` representing the current line (not the entire lexed text) and
-  `start` and `stop` indexing into that line (0-based [UTF-16 code unit
+  `x1` and `x2` indexing into that line (0-based [UTF-16 code unit
   indexes](https://mathiasbynens.be/notes/javascript-encoding))
 
 ## To Do
