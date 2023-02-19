@@ -206,15 +206,15 @@ class Interlex
     j = token.jump
     R = []
     R.push t.mk + if j? then ( if j is jump_symbol then j else ">#{j}") else ''
-    R.push "(#{t.start}:#{t.stop})"
+    R.push "(#{t.x1}:#{t.x2})"
     R.push "=#{rpr t.value}"
     R.push "#{k}:#{rpr v}" for k, v of t.x ? {}
     return "[#{R.join ','}]"
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, x = null, lexeme = null ) ->
-    start     = @state.prv_last_idx
-    stop      = start + length
+    x1        = @state.prv_last_idx
+    x2        = x1 + length
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
@@ -222,9 +222,9 @@ class Interlex
     ### TAINT use `types.create.ilx_token {}` ###
     if @cfg.linewise
       lnr = @state.lnr
-      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, start, stop, x, source, }
+      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, x1, x2, x, source, }
     else
-      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, start, stop, x, source, }
+      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, x1, x2, x, source, }
     #.......................................................................................................
     @_set_entry_value R, lexeme, value
     #.......................................................................................................
@@ -330,7 +330,7 @@ class Interlex
       if match?
         { token } = @_token_and_lexeme_from_match match
         ### TAINT uses code units, should use codepoints ###
-        center    = token.stop
+        center    = token.x2
         left      = Math.max 0, center - 11
         right     = Math.min @state.source.length, center + 11
         before    = @state.source[ left ... center ]
