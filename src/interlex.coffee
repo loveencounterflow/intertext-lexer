@@ -177,7 +177,7 @@ class Interlex
     @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     if @cfg.linewise
-      @state.lnr     ?= @cfg.lnr - 1
+      @state.lnr1    ?= @cfg.lnr1 - 1
       @state.eol     ?= ''
     return null
 
@@ -193,7 +193,7 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _feed_source: ( source ) ->
-    @state.lnr++ if @cfg.linewise
+    @state.lnr1++ if @cfg.linewise
     @types.validate.text source
     return @_start source if @cfg.autostart
     @state.source = source
@@ -221,8 +221,8 @@ class Interlex
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
     if @cfg.linewise
-      lnr = @state.lnr
-      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr, x1, x2, x, source, }
+      lnr1 = @state.lnr1
+      R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, x2, x, source, }
     else
       R   = { mode, tid, mk: "#{mode}:#{tid}", jump, value, x1, x2, x, source, }
     #.......................................................................................................
@@ -274,9 +274,9 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _walk_file_lines: ( cfg ) ->
-    ### TAINT should provide `lnr`, `eol` as well ###
+    ### TAINT should provide `lnr1`, `eol` as well ###
     ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
-    for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
+    for { line, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
       yield from @_walk_text { cfg..., source: line, }
     return null
 
@@ -296,8 +296,8 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text_lines: ( cfg ) ->
-    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, { trim: @cfg.trim, }
-      yield from @_walk_text_whole { cfg..., lnr, source: line, eol, }
+    for { lnr: lnr1, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, { trim: @cfg.trim, }
+      yield from @_walk_text_whole { cfg..., lnr1, source: line, eol, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
