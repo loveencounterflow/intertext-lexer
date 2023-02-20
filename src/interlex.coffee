@@ -52,6 +52,7 @@ class Interlex
     @start()
     @base_mode    = null
     @registry     = {}
+    @sorter       = ( require './sorter' ).sorter
     @_metachr     = '𝔛' # used for identifying group keys
     @_metachrlen  = @_metachr.length
     @jump_symbol  = jump_symbol
@@ -179,6 +180,8 @@ class Interlex
     if @cfg.linewise
       @state.lnr1    ?= @cfg.lnr1 - 1
       @state.eol     ?= ''
+    else
+      @state.lnr1                       = 1
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -206,8 +209,7 @@ class Interlex
     j = token.jump
     R = []
     R.push t.mk + if j? then ( if j is jump_symbol then j else ">#{j}") else ''
-    if @cfg.linewise then R.push "(#{t.lnr1}:#{t.x1})(#{t.lnr2}:#{t.x2})"
-    else                  R.push "(1:#{t.x1})(1:#{t.x2})"
+    R.push "(#{t.lnr1}:#{t.x1})(#{t.lnr2}:#{t.x2})"
     R.push "=#{rpr t.value}"
     R.push "#{k}:#{rpr v}" for k, v of t.x ? {}
     return "[#{R.join ','}]"
@@ -221,11 +223,8 @@ class Interlex
       mode  } = @state
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
-    if @cfg.linewise
-      lnr1  = lnr2 = @state.lnr1
-      R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, x, source, }
-    else
-      R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value,       x1,       x2, x, source, }
+    lnr1  = lnr2 = @state.lnr1
+    R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, x, source, }
     #.......................................................................................................
     @_set_entry_value R, lexeme, value
     #.......................................................................................................
