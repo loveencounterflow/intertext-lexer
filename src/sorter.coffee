@@ -31,20 +31,27 @@ class Sorter
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  sort: ( tokens ) ->
+  sort: ( tokens... ) ->
     @types.validate.list tokens
-    R = [ tokens..., ]
-    R.sort ( a, b ) =>
-      throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required lnr1: #{rpr a}" unless a.lnr1?
-      throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required lnr1: #{rpr b}" unless b.lnr1?
-      return +1 if a.lnr1 > b.lnr1
-      return -1 if a.lnr1 < b.lnr1
-      throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required x1: #{rpr a}" unless a.x1?
-      throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required x1: #{rpr b}" unless b.x1?
-      return +1 if a.x1 > b.x1
-      return -1 if a.x1 < b.x1
-      return  0
+    R = tokens.flat Infinity
+    R.sort @cmp
     return R
+
+  #---------------------------------------------------------------------------------------------------------
+  cmp: ( a, b ) =>
+    throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required lnr1: #{rpr a}" unless a.lnr1?
+    throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required lnr1: #{rpr b}" unless b.lnr1?
+    return +1 if a.lnr1 > b.lnr1
+    return -1 if a.lnr1 < b.lnr1
+    throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required x1: #{rpr a}" unless a.x1?
+    throw new E.Interlex_TBDUNCLASSIFIED '^Sorter.sort@1^', "missing required x1: #{rpr b}" unless b.x1?
+    return +1 if a.x1 > b.x1
+    return -1 if a.x1 < b.x1
+    return  0
+
+  #---------------------------------------------------------------------------------------------------------
+  ordering_is: ( a, b ) -> ( @cmp a, b ) is -1
+
 
 
 #===========================================================================================================
