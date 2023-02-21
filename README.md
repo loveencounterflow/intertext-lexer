@@ -16,6 +16,7 @@
   - [Piecemeal Lexing and Linewise Lexing](#piecemeal-lexing-and-linewise-lexing)
     - [Piecemeal Lexing](#piecemeal-lexing)
     - [Linewise Lexing](#linewise-lexing)
+  - [Comparing Token Positions](#comparing-token-positions)
   - [To Do](#to-do)
   - [Is Done](#is-done)
 
@@ -317,6 +318,20 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
     linebreaks in linewise mode). However, if those tokens are then fed to a parser, that parser may match
     tokens across linebreaks, and in that case it will be convenient to derive the position of the resulting
     region by `{ lnr1, x1, } = first_token; { lnr2, x2, } = last_token`
+
+## Comparing Token Positions
+
+* **`token.sorter.sort: ( tokens... ) ->`**—sort tokens according to their relative positions as given by
+  the attributes `lnr1`, `x1`
+* **`token.sorter.cmp: ( a, b ) =>`**—compare the positions of two tokens `a`, `b` according to their
+  attributes `lnr1`, `x1`; returns `-1` if `a` starts before `b`, `0` if `a` and `b` start at the same point
+  (not possible if `a ≠ b` and both tokens came out of the same lexer running over the same source), and
+  `+1` if `a` starts after `b`
+* **`token.sorter.ordering_is: ( a, b ) -> ( @cmp a, b ) is -1`**—returns `true` if the ordering of the two
+  tokens `a`, `b` is as given in the call, otherwise `false`. If JavaScript allowed for custom operators or
+  operator overrides, then maybe I would've implemented this as `a << b` or `a precedes b` instead of
+  `ordering_is a, b`
+
 
 ## To Do
 
