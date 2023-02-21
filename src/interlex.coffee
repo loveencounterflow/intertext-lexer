@@ -40,6 +40,7 @@ compose   = C = { _CRX..., _X..., }
 { new_datom
   lets      }             = DATOM
 { Ltsort }                = require 'ltsort'
+sorter                    = ( require './sorter' ).sorter
 
 
 #===========================================================================================================
@@ -52,7 +53,6 @@ class Interlex
     @start()
     @base_mode    = null
     @registry     = {}
-    @sorter       = ( require './sorter' ).sorter
     @_metachr     = '𝔛' # used for identifying group keys
     @_metachrlen  = @_metachr.length
     @jump_symbol  = jump_symbol
@@ -473,5 +473,5 @@ class Interlex
 
 
 #===========================================================================================================
-module.exports = { Interlex, compose, }
+module.exports = { Interlex, compose, sorter, }
 
