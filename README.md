@@ -308,11 +308,17 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
     * when `state` is `reset`: each time `lexer.walk()` is called
     * when `state` is `keep`: only when `lexer.walk()` is called for the first time after an implicit or
       explicit call to `lexer.reset()` (an implicit call only occurs once after a lexer has been
-      instantiated and is used for the first time)
+      instantiated and is used for the first time, or is triggered by a prior explicit call to
+      `lexer.end()`)
   * when end tokens are enabled, they will be sent
     * when `state` is `reset`: each time `lexer.walk()` is called and has exhausted the current source
-    * when `state` is `keep`: any time when `lexer.end()` is called (explicitly)
-
+    * when `state` is `keep`: any time when `lexer.end()` is called (explicitly). After `lexer.end()` has
+      been called, the next time a source is being iterated over with `lexer.walk()`, that call will be
+      treated like the very first call to `lexer.walk()` and hence trigger a start token to be sent (in case
+      `start_token` is `true`)
+  * there's the edge case that methods like `lexer.reset()` and `lexer.start()` are called, by application
+    code, *within* a `for token from lexer.walk source` loop; this is a question that will have to be dealt
+    with later
 
 ### Piecemeal Lexing
 
