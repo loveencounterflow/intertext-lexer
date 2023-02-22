@@ -49,7 +49,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     @types        = get_base_types()
-    @cfg          = Object.freeze @types.create.ilx_constructor_cfg cfg
+    @cfg          = Object.freeze @types.create.ilx_interlex_constructor_cfg cfg
     @start()
     @base_mode    = null
     @registry     = {}

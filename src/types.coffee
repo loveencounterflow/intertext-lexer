@@ -66,7 +66,7 @@ get_base_types = ->
       value:          null
       empty_value:    null
   #.........................................................................................................
-  declare.ilx_constructor_cfg
+  declare.ilx_interlex_constructor_cfg
     fields:
       autostart:        'boolean'
       start_token:      'boolean'
