@@ -13,7 +13,7 @@
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
-  - [Piecemeal Lexing and Linewise Lexing](#piecemeal-lexing-and-linewise-lexing)
+  - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
     - [Piecemeal Lexing](#piecemeal-lexing)
     - [Linewise Lexing](#linewise-lexing)
   - [Comparing Token Positions](#comparing-token-positions)
@@ -284,7 +284,35 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * it is possible to give `$catchall` and `$reserved` lexemes a custom TID by settting the `tid` parameter
   when calling `lexer.add_catchall_lexeme()` and `lexer.add_reserved_lexeme()`
 
-## Piecemeal Lexing and Linewise Lexing
+## Linewise and Stae-Keeping Lexing
+
+* `state`:
+  * `state: 'keep'`—do not call `lexer.reset()` implicitly (except once before the very first chunk of
+    source is passed to the lexer with `lexer.walk()` or `lexer.run()`)
+    * this is the default for both `split: 'lines'` and `split: false`, so modes (but not lexemes) may
+      stretch across line or chunk boundaries
+  * `state: 'reset'`—call `lexer.reset()` before processing each new chunk of source. This happens always
+    when `lexer.walk()` (or `lexer.run()`) is called, and, if `split: 'lines'` is set, before each new line
+    of input
+* `split`:
+  * `split: 'lines'`—the default; when `lexer.walk { source, }` (or `lexer.run { source, }`) is called, the
+    lexer will internally use `GUY.str.walk_lines source` to split the source into line-sized chunks (with
+    line endings such as `\n` removed)
+  * `split: false`—no splitting of `source` is attempted.
+    * when `lexer.walk { path, }` is used with `split: false` (not recommended), then *the entire content of
+      the corresponding file* are first (synchronously) read into memory and then lexed in its entirety.
+      This may be suboptimal when files get big in comparison to available RAM.
+* Behavior of automatic `$start` and `$end` tokens:
+  * only when enabled at instantiation with `start_token: true` and / or `end_token: true`
+  * when start tokens are enabled, they will be sent
+    * when `state` is `reset`: each time `lexer.walk()` is called
+    * when `state` is `keep`: only when `lexer.walk()` is called for the first time after an implicit or
+      explicit call to `lexer.reset()` (an implicit call only occurs once after a lexer has been
+      instantiated and is used for the first time)
+  * when end tokens are enabled, they will be sent
+    * when `state` is `reset`: each time `lexer.walk()` is called and has exhausted the current source
+    * when `state` is `keep`: any time when `lexer.end()` is called (explicitly)
+
 
 ### Piecemeal Lexing
 
