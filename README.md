@@ -294,6 +294,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   * `state: 'reset'`—call `lexer.reset()` before processing each new chunk of source. This happens always
     when `lexer.walk()` (or `lexer.run()`) is called, and, if `split: 'lines'` is set, before each new line
     of input
+
 * `split`:
   * `split: 'lines'`—the default; when `lexer.walk { source, }` (or `lexer.run { source, }`) is called, the
     lexer will internally use `GUY.str.walk_lines source` to split the source into line-sized chunks (with
@@ -302,6 +303,7 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
     * when `lexer.walk { path, }` is used with `split: false` (not recommended), then *the entire content of
       the corresponding file* are first (synchronously) read into memory and then lexed in its entirety.
       This may be suboptimal when files get big in comparison to available RAM.
+
 * Behavior of automatic `$start` and `$end` tokens:
   * only when enabled at instantiation with `start_token: true` and / or `end_token: true`
   * when start tokens are enabled, they will be sent
