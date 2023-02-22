@@ -178,10 +178,9 @@ class Interlex
     @state.finished                     = false
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     #.......................................................................................................
-    if @cfg.linewise
+    if @cfg.split is 'lines'
       @state.lnr1    ?= @cfg.lnr1 - 1
       @state.eol     ?= ''
-    #.......................................................................................................
     else
       @state.lnr1     = 0
     #.......................................................................................................
@@ -194,12 +193,12 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _feed_cfg: ( cfg ) ->
-    @state.eol  = ( cfg.eol ? '' ) if @cfg.linewise
+    @state.eol  = ( cfg.eol ? '' ) if ( @cfg.split is 'lines' )
     return @_feed_source cfg.source
 
   #---------------------------------------------------------------------------------------------------------
   _feed_source: ( source ) ->
-    @state.lnr1++ if @cfg.linewise
+    @state.lnr1++ if ( @cfg.split is 'lines' )
     @types.validate.text source
     return @_start source if @cfg.autostart
     @state.source = source
@@ -285,7 +284,7 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text: ( cfg ) ->
-    return @_walk_text_lines cfg if @cfg.linewise
+    return @_walk_text_lines cfg if ( @cfg.split is 'lines' )
     return @_walk_text_whole cfg
 
   #---------------------------------------------------------------------------------------------------------
