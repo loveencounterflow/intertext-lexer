@@ -45,6 +45,8 @@ get_base_types = ->
   declare.ilx_reserved_list   'list.of.nonempty.text'
   declare.ilx_reserved_text   'nonempty.text'
   declare.ilx_lexeme_value    'function.or.text'
+  declare.ilx_splitmode       ( x ) -> x in [ 'lines', false, ]
+  declare.ilx_statemode       ( x ) -> x in [ 'keep', 'restart', ]
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
@@ -76,7 +78,8 @@ get_base_types = ->
       dotall:           'boolean'
       catchall_concat:  'boolean'
       reserved_concat:  'boolean'
-      linewise:         'boolean'
+      split:            'ilx_splitmode'
+      state:            'ilx_statemode'
       lnr1:             'positive1.integer'
       offset:           'positive0.integer'
       trim:             'boolean'
@@ -91,7 +94,8 @@ get_base_types = ->
       dotall:           false
       catchall_concat:  false
       reserved_concat:  false
-      linewise:         false
+      split:            'lines'
+      state:            'keep'
       lnr1:             1
       offset:           0
       trim:             true
