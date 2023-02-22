@@ -81,7 +81,6 @@ get_base_types = ->
       split:            'ilx_splitmode'
       state:            'ilx_statemode'
       lnr1:             'positive1.integer'
-      offset:           'positive0.integer'
       trim:             'boolean'
       # global ???
       # ignorecase  # ignoreCase
@@ -97,7 +96,6 @@ get_base_types = ->
       split:            'lines'
       state:            'keep'
       lnr1:             1
-      offset:           0
       trim:             true
   #.........................................................................................................
   declare.ilx_walk_source_or_cfg
