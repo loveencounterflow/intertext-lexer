@@ -179,7 +179,7 @@ class Interlex
     @registry[ mode ].pattern.lastIndex = 0 for mode, entry of @registry
     #.......................................................................................................
     if @cfg.split is 'lines'
-      @state.lnr1    ?= @cfg.lnr1 - 1
+      @state.lnr1    ?= 0
       @state.eol     ?= ''
     else
       @state.lnr1     = 0

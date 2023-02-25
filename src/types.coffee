@@ -80,7 +80,6 @@ get_base_types = ->
       reserved_concat:  'boolean'
       split:            'ilx_splitmode'
       state:            'ilx_statemode'
-      lnr1:             'positive1.integer'
       trim:             'boolean'
       # global ???
       # ignorecase  # ignoreCase
@@ -95,7 +94,6 @@ get_base_types = ->
       reserved_concat:  false
       split:            'lines'
       state:            'keep'
-      lnr1:             1
       trim:             true
   #.........................................................................................................
   declare.ilx_walk_source_or_cfg
