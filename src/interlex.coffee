@@ -437,14 +437,14 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   _add_catchall_lexeme: ( mode, tid, entry ) ->
     pattern = @_get_catchall_regex mode, entry
-    pattern = compose.suffix '+', pattern if @cfg.catchall_concat
+    pattern = compose.suffix '+', pattern if entry.catchall.concat
     @add_lexeme { mode, tid, pattern, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _add_reserved_lexeme: ( mode, tid, entry ) ->
     pattern = @_get_reserved_regex mode, entry
-    pattern = compose.suffix '+', pattern if @cfg.reserved_concat
+    pattern = compose.suffix '+', pattern if entry.reserved.concat
     @add_lexeme { mode, tid, pattern, }
     return null
 

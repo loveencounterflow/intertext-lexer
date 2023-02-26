@@ -76,8 +76,6 @@ get_base_types = ->
       error_tokens:     'boolean'
       multiline:        'boolean'
       dotall:           'boolean'
-      catchall_concat:  'boolean'
-      reserved_concat:  'boolean'
       split:            'ilx_splitmode'
       state:            'ilx_statemode'
       trim:             'boolean'
@@ -90,8 +88,6 @@ get_base_types = ->
       error_tokens:     true
       multiline:        false
       dotall:           false
-      catchall_concat:  false
-      reserved_concat:  false
       split:            'lines'
       state:            'keep'
       trim:             true
@@ -119,16 +115,20 @@ get_base_types = ->
     fields:
       mode:           'ilx_mode'
       tid:            'ilx_tid'
+      concat:         'boolean'
     default:
       mode:           null
       tid:            '$catchall'
+      concat:         false
   declare.ilx_add_reserved_lexeme_cfg
     fields:
       mode:           'ilx_mode'
       tid:            'ilx_tid'
+      concat:         'boolean'
     default:
       mode:           null
       tid:            '$reserved'
+      concat:         false
   return base_types
 
 
