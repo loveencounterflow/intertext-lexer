@@ -406,6 +406,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   properties, or list elements)
 * **[–]** implement `add_lexemes()` for adding single and multiple lexemes
 * **[–]** make use of mode names in `lx_*` properties mandatory to avoid name conflicts
+* **[–]** implement `set_lnr()`
 
 * **[–]** offer text normalization that includes removing trailing whitespace, different line endings
   ```coffee
