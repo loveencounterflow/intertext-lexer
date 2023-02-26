@@ -70,7 +70,6 @@ get_base_types = ->
   #.........................................................................................................
   declare.ilx_interlex_constructor_cfg
     fields:
-      autostart:        'boolean'
       start_token:      'boolean'
       end_token:        'boolean'
       error_tokens:     'boolean'
@@ -82,7 +81,6 @@ get_base_types = ->
       # global ???
       # ignorecase  # ignoreCase
     default:
-      autostart:        true
       start_token:      false
       end_token:        false
       error_tokens:     true

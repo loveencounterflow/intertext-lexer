@@ -208,7 +208,7 @@ class Interlex
   _feed_source: ( source ) ->
     @state.lnr1++ if ( @cfg.split is 'lines' )
     @types.validate.text source
-    return @_start source if @cfg.autostart
+    return @_start source # if @cfg.autostart
     @state.source = source
     return null
 
