@@ -14,7 +14,6 @@
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
   - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
-    - [Piecemeal Lexing](#piecemeal-lexing)
     - [Linewise Lexing](#linewise-lexing)
   - [Comparing Token Positions](#comparing-token-positions)
   - [To Do](#to-do)
@@ -323,9 +322,16 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
     application code *within* a `for token from lexer.walk source` loop; this is a question that will have
     to be dealt with later
 
-### Piecemeal Lexing
+* using `{ state: 'reset', }` can be advantageous when lexing line-oriented code such as CSV because it
+  guarantees that at the start of each line, the lexer is reset to its base mode and hence things like an
+  erroneously forgotten closing quote will not affect the entire rest of the result; in other words, it
+  makes lexing a little more robust.
+
 
 ### Linewise Lexing
+
+***TO BE UPDATED***
+
 
 * advantages
   * no more struggling with [different end-of-line (EOL) standards](https://en.wikipedia.org/wiki/Newline)
