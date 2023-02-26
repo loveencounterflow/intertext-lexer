@@ -132,17 +132,16 @@ automatically construct two lexemes that will capture
   errors.
 
 Whether the catchall and the reserved lexemes should match single occurrences or contiguous stretches of
-occurrences of reserved items can be set for all modes with the lexer instantiation settings
-`catchall_concat` and `reserved_concat`. In the below lexer these have been left to their defaults (no
-concatenation called for), but in the last tabular output below the result for a string of 'foreign' and
-'reserved' characters with `{ catchall_concat: true, reserved_concat: true, }` is shown.
+occurrences of reserved items can be set with `concat: true` and `concat: false`. In the below lexer these
+have been left to their defaults (no concatenation called for), but in the last tabular output below the
+result for a string of 'foreign' and 'reserved' characters with `concat: true` is shown.
 
 
 
 ```coffee
 { Interlex, } = require '../../../apps/intertext-lexer'
 ### NOTE these are the default settings, shown here for clarity ###
-lexer = new Interlex { catchall_concat: false, reserved_concat: false, }
+lexer = new Interlex()
 #.........................................................................................................
 mode    = 'plain'
 lexer.add_lexeme { mode, tid: 'escchr',           pattern:  /\\(?<chr>.)/u, reserved: '\\', }
@@ -152,8 +151,8 @@ lexer.add_lexeme { mode, tid: 'word',             pattern: ( /\p{Letter}+/u ), }
 lexer.add_lexeme { mode, tid: 'number_symbol',    pattern: ( /#(?=\p{Number})/u ), }
 lexer.add_lexeme { mode, tid: 'number',           pattern: ( /\p{Number}+/u ), }
 lexer.add_lexeme { mode, tid: 'ws',               pattern: ( /\s+/u ), }
-lexer.add_catchall_lexeme { mode, }
-lexer.add_reserved_lexeme { mode, }
+lexer.add_catchall_lexeme { mode, concat: false, }
+lexer.add_reserved_lexeme { mode, concat: false, }
 #.........................................................................................................
 H.tabulate "lexer", ( x for _, x of lexer.registry.plain.lexemes )
 for probe in [ 'helo', 'helo*x', '*x', "## question #1 and a hash: #", "## question #1 and a hash: \\#", ]
@@ -254,7 +253,7 @@ Results:
 └───────┴───────────────┴─────────────────────┴──────┴──────────┴───────┴──────┴────────────────┴────────┘
 ```
 
-Result with `lexer = new Interlex { catchall_concat: false, reserved_concat: false, }`:
+Result with `add_catchall_lexeme { mode, concat: false, }`, `add_reserved_lexeme { mode, concat: false, }`:
 
 ```
  ':.;*#'
@@ -269,7 +268,7 @@ Result with `lexer = new Interlex { catchall_concat: false, reserved_concat: fal
 └───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
-Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true, }`:
+Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme { mode, concat: true, }`:
 
 ```
  ':.;*#'
@@ -287,11 +286,11 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 ## Linewise and Stae-Keeping Lexing
 
 * `state`:
-  * `state: 'keep'`—do not call `lexer.reset()` implicitly (except once before the very first chunk of
+  * `state: 'keep'`—do not reset lexer state implicitly (except once before the very first chunk of
     source is passed to the lexer with `lexer.walk()` or `lexer.run()`)
     * this is the default for both `split: 'lines'` and `split: false`, so modes (but not lexemes) may
       stretch across line or chunk boundaries
-  * `state: 'reset'`—call `lexer.reset()` before processing each new chunk of source. This happens always
+  * `state: 'reset'`—reset lexer state before processing each new chunk of source. This happens always
     when `lexer.walk()` (or `lexer.run()`) is called, and, if `split: 'lines'` is set, before each new line
     of input
 
@@ -309,18 +308,20 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   * when start tokens are enabled, they will be sent
     * when `state` is `reset`: each time `lexer.walk()` is called
     * when `state` is `keep`: only when `lexer.walk()` is called for the first time after an implicit or
-      explicit call to `lexer.reset()` (an implicit call only occurs once after a lexer has been
+      explicit reset of the lexer state (an implicit call only occurs once after a lexer has been
       instantiated and is used for the first time, or is triggered by a prior explicit call to
       `lexer.end()`)
+  * in any event, 'reset of lexer state' means that mode stack is emptied and the lexing mode is set to the
+    base mode; however, the line number will not be reset to `1`
   * when end tokens are enabled, they will be sent
     * when `state` is `reset`: each time `lexer.walk()` is called and has exhausted the current source
     * when `state` is `keep`: any time when `lexer.end()` is called (explicitly). After `lexer.end()` has
       been called, the next time a source is being iterated over with `lexer.walk()`, that call will be
       treated like the very first call to `lexer.walk()` and hence trigger a start token to be sent (in case
       `start_token` is `true`)
-  * there's the edge case that methods like `lexer.reset()` and `lexer.start()` are called, by application
-    code, *within* a `for token from lexer.walk source` loop; this is a question that will have to be dealt
-    with later
+  * there's the edge case that a reset of the lexer state caused by an explicit call to `lexer.start()` from
+    application code *within* a `for token from lexer.walk source` loop; this is a question that will have
+    to be dealt with later
 
 ### Piecemeal Lexing
 
@@ -431,13 +432,6 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
   to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
   will be incorrect)
 * **[–]** allow lexeme declarations to declare errors with a `code`
-* **[–]** modify behavior of catchall and reserved:
-  * **[+]** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
-    `_finalize()` is called
-  * **[+]** catchall and reserved alway come last (in this order)
-  * **[+]** prevent re-ordering of catchall and reserved when doing topological sorting
-  * **[–]** the instantiation settings `catchall_concat` and `reserved_concat` can be overriden when
-    either is declared
 * **[–]** optionally (but less importantly), could demand implicit catchall and reserved lexemes for all
   modes, then allow overrides per mode
 * **[–]** add public API `new_token()` (can be used as `new_token t` to produce copy of `t`, or `new_token {
@@ -474,5 +468,12 @@ Result with `lexer = new Interlex { catchall_concat: true, reserved_concat: true
 * **[+]** implement lexeme property `create`
 * **[+]** disallow lexemes to be accidentally overwritten
 * **[+]** allow lexeme declarations to override `value` by setting either `value` or `empty_value` to
+* **[+]** modify behavior of catchall and reserved:
+  * **[+]** catchall and reserved are 'declared', not 'added', meaning they will be created implicitly when
+    `_finalize()` is called
+  * **[+]** catchall and reserved alway come last (in this order)
+  * **[+]** prevent re-ordering of catchall and reserved when doing topological sorting
+  * **[+]** <del>the instantiation settings `catchall_concat` and `reserved_concat` can be overriden when
+    either is declared</del>
   constant or function
 
