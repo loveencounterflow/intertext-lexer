@@ -169,13 +169,12 @@ class Interlex
     ### TAINT use `@types.create.ilx_state()` ###
     @_finalize() if @state? and not @state.finalized
     @state                             ?= {}
+    @state.finalized                   ?= false
     switch @cfg.state
       when 'keep'
-        @state.finalized                   ?= false
         @state.stack                       ?= []
         @state.mode                        ?= @base_mode ? null
       when 'reset'
-        @state.finalized                    = false
         @state.stack                        = []
         @state.mode                         = @base_mode ? null
       else
