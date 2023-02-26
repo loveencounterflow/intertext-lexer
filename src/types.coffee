@@ -46,7 +46,7 @@ get_base_types = ->
   declare.ilx_reserved_text   'nonempty.text'
   declare.ilx_lexeme_value    'function.or.text'
   declare.ilx_splitmode       ( x ) -> x in [ 'lines', false, ]
-  declare.ilx_statemode       ( x ) -> x in [ 'keep', 'restart', ]
+  declare.ilx_statemode       ( x ) -> x in [ 'keep', 'reset', ]
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
