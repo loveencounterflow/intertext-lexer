@@ -382,7 +382,6 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * **[–]** documentation
 * **[–]** allow to configure `start`, `stop`, `error` tokens, implicit `finalize()`
 * **[–]** introduce aliases for names of `compose` that don't use snake case &c
-* **[–]** implement `line`, `col` coordinates for tokens
 * **[–]** group renaming has a fault in that it will wrongly accept things looking like a named group inside
   a square-bracket character class, as in `/[?<abc>)]`
 * **[–]** we cannot mix regexes with and without `s` / `dotall` flag; configure that per mode, per instance?
@@ -430,14 +429,6 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * **[–]** implement `reset()` method that is equivalent to instantiating a new lexer with the same settings
 * **[–]** already possible to use `:` within mode names to indicate multi-level hierarchy (modes and
   submodes); possible / necessary / useful to formalize this?
-* **[–]** change indexing shape from `lnr`, `start`, `stop` to `l1`, `x1`, `l2`, `x2`, since in the general
-  case, a token may start one one line and end on another. `x1`, `x2` are zero-based, exclusive, code unit
-  indexes (JS string indices), while `l1`, `l2` are one-based, inclusive line numbers. Observe that it can
-  be quite difficult to give correct column numbers when complex scripts are used; for Latin script sources
-  that do not use combining characters but may be intermingled e.g. with symbols and CJK characters from
-  SMP, SIP and TIP , `( Array.from 'string'[ ... x1 ] ).length` converts correctly from 0-based code units
-  to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
-  will be incorrect)
 * **[–]** allow lexeme declarations to declare errors with a `code`
 * **[–]** optionally (but less importantly), could demand implicit catchall and reserved lexemes for all
   modes, then allow overrides per mode
@@ -450,7 +441,16 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * **[–]** consider to introduce 'pre-jumps' (?) such that the occurrence of a match (say, `<` in `plain`
   mode) means that the match is already in the jump-target mode (say, `tag`). This should make some things
   cleaner / more logical when both the left and the right delimiters of a mode are within that mode
-
+  * fast, slow jump; inclusive, exclusive jump; early, late jump
+  * syntax (assuming mode `plain`):
+    * `{ jump: '[tag', }` (inclusive jump; token belongs to new mode `tag`),
+    * `{ jump: 'tag[', }` (exclusive jump; token belongs to old mode `plain`),
+    * `{ jump: '.]',   }` (inclusive jump back; token belongs to old mode `tag`),
+    * `{ jump: '].',   }` (exclusive jump back; token belongs to new mode `plain`)
+* **[–]** implement method to add standard lexemes:
+  * **[–]** for escaped characters, like `{ mode, tid: 'escchr', pattern:
+  /\\(?<chr>.)/u, reserved: '\\', }`
+  * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 
 ## Is Done
 
@@ -489,4 +489,13 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * **[+]** <del>the instantiation settings `catchall_concat` and `reserved_concat` can be overriden when
     either is declared</del>
   constant or function
+* **[+]** <del>implement `line`, `col` coordinates for tokens</del>
+* **[+]** change indexing shape from `lnr`, `start`, `stop` to `l1`, `x1`, `l2`, `x2`, since in the general
+  case, a token may start one one line and end on another. `x1`, `x2` are zero-based, exclusive, code unit
+  indexes (JS string indices), while `l1`, `l2` are one-based, inclusive line numbers. Observe that it can
+  be quite difficult to give correct column numbers when complex scripts are used; for Latin script sources
+  that do not use combining characters but may be intermingled e.g. with symbols and CJK characters from
+  SMP, SIP and TIP , `( Array.from 'string'[ ... x1 ] ).length` converts correctly from 0-based code units
+  to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
+  will be incorrect)
 
