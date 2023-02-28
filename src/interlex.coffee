@@ -23,7 +23,6 @@ GUY                       = require 'guy'
 { equals
   copy_regex }            = GUY.samesame
 { misfit
-  jump_symbol
   get_base_types }        = require './types'
 E                         = require './errors'
 #...........................................................................................................
@@ -55,7 +54,6 @@ class Interlex
     @registry     = {}
     @_metachr     = '𝔛' # used for identifying group keys
     @_metachrlen  = @_metachr.length
-    @jump_symbol  = jump_symbol
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -65,12 +63,14 @@ class Interlex
     @base_mode                 ?= cfg.mode
     entry                       = @_get_mode_entry cfg
     entry.toposort            or= cfg.needs? or cfg.precedes?
-    type_of_jump                = @_get_type_of_jump cfg.jump
+    { jump_action
+      jump_time
+      jump_target             } = @_parse_jump_cfg cfg.jump
     #.......................................................................................................
     if entry.lexemes[ cfg.tid ]?
       throw new E.Interlex_lexeme_exists '^interlex.add_lexeme@1^', cfg.mode, cfg.tid
     #.......................................................................................................
-    entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., type_of_jump, }
+    entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., jump_action, jump_time, jump_target, }
     lexeme.pattern              = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
     lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
     lexeme.type_of_value        = @types.type_of lexeme.value
@@ -95,14 +95,22 @@ class Interlex
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _get_type_of_jump: ( jump ) ->
-    return 'nojump'   if not jump?
-    return 'popmode'  if jump is jump_symbol
-    return 'callme'   if @types.isa.function jump
-    return 'pushmode' if @types.isa.nonempty.text jump
-    @types.validate.ilx_jump jump
-    throw new E.Interlex_internal_error '^interlex._get_type_of_jump@1^', \
-      "jump (#{@types.type_of jump}) #{rpr jump} should have caused validation error but didn't"
+  _parse_jump_cfg: ( jump ) ->
+    return { jump_action: 'nojump',  jump_time: null, jump_target: null } unless jump?
+    return { jump_action: 'callme',  jump_time: null, jump_target: null } if ( type = @types.type_of jump ) is 'function'
+    #.......................................................................................................
+    unless type is 'text' and jump.length > 1
+      throw new E.Interlex_illegal_jump_target '^interlex._parse_jump_cfg@1^', type, jump
+    #.......................................................................................................
+    return { jump_action: 'popmode', jump_time: 'inclusive', jump_target: null } if jump is '.]'
+    return { jump_action: 'popmode', jump_time: 'exclusive', jump_target: null } if jump is '].'
+    #.......................................................................................................
+    if jump.startsWith '['
+      return { jump_action: 'pushmode',jump_time: 'inclusive', jump_target: jump[ 1 .. ], }
+    if jump.endsWith   '['
+      return { jump_action: 'pushmode',jump_time: 'exclusive', jump_target: jump[ ... jump.length - 1 ], }
+    #.......................................................................................................
+    throw new E.Interlex_illegal_jump_target '^interlex._parse_jump_cfg@2^', type, jump
 
   #---------------------------------------------------------------------------------------------------------
   _rename_groups: ( name, re ) ->
@@ -371,31 +379,34 @@ class Interlex
     if @types.isa.function divert
       throw new E.Interlex_TBDUNCLASSIFIED '^interlex._call_jump_handler@1^', \
         "jump handler of lexeme #{rpr lexeme.mk} returned illegal value #{rpr divert}"
-    token         = replacement_token if ( replacement_token = divert.token )?
-    jump          = divert.jump ? null
-    type_of_jump  = @_get_type_of_jump jump
-    return { token, jump, type_of_jump, }
+    token           = replacement_token if ( replacement_token = divert.token )?
+    jump            = divert.jump ? null
+    return { token, jump, ( @_parse_jump_cfg jump )..., }
 
   #---------------------------------------------------------------------------------------------------------
   _get_next_token: ( lexeme, token, match ) ->
-    switch lexeme.type_of_jump
+    ### TAINT code duplication ###
+    debug '^3242341^', GUY.props.pick_with_fallback lexeme, null, 'jump_action', 'jump_time', 'jump_target'
+    switch lexeme.jump_action
       when 'nojump'   then null
-      when 'pushmode' then @_push_mode lexeme.jump
+      when 'pushmode' then @_push_mode lexeme.jump_target
       when 'popmode'
         @_pop_mode()
         token = lets token, ( token ) => token.jump = @state.mode
       when 'callme'
         { token
           jump
-          type_of_jump } = @_call_jump_handler lexeme, token, match
+          jump_action
+          jump_time
+          jump_target } = @_call_jump_handler lexeme, token, match
         # debug '^2343^', ( rpr jump ), token
-        switch type_of_jump
+        switch jump_action
           when 'nojump'   then null
-          when 'pushmode' then @_push_mode jump
+          when 'pushmode' then @_push_mode jump_target
           when 'popmode'  then @_pop_mode()
           else
             throw new E.Interlex_internal_error '^interlex._get_next_token@1^', \
-              "unknown type_of_jump #{rpr type_of_jump} in lexeme #{rpr lexeme}"
+              "unknown jump_action #{rpr jump_action} in lexeme #{rpr lexeme}"
         token = lets token, ( token ) => token.jump = if type_of_jump is 'nojump' then null else @state.mode
       else
         throw new E.Interlex_internal_error '^interlex._get_next_token@2^', \
@@ -414,9 +425,11 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _push_mode: ( jump ) ->
+  _push_mode: ( jump_target ) ->
+    debug '^_push_mode@1^', { jump_target, }
+    debug '^_push_mode@1^', ( k for k of @registry )
     @state.stack.push @state.mode
-    @state.mode               = jump
+    @state.mode               = jump_target
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx

@@ -21,7 +21,6 @@ GUY                       = require 'guy'
 { Intertype }             = require 'intertype'
 base_types                = null
 misfit                    = Symbol 'misfit'
-jump_symbol               = '^'
 # PATH                      = require 'node:path'
 
 
@@ -39,8 +38,9 @@ get_base_types = ->
   declare.ilx_mode            'nonempty.text'
   declare.ilx_tid             'nonempty.text'
   declare.ilx_pattern         'text.or.regex'
-  declare.ilx_pop             ( x ) -> x is jump_symbol
-  declare.ilx_jump            'ilx_mode.or.ilx_pop.or.function'
+  # declare.ilx_pop             ( x ) -> x is jump_symbol
+  ### TAINT should be more specific than 'text' ###
+  declare.ilx_jump            'text.or.function'
   declare.ilx_reserved        'optional.ilx_reserved_list.or.ilx_reserved_text'
   declare.ilx_reserved_list   'list.of.nonempty.text'
   declare.ilx_reserved_text   'nonempty.text'
@@ -131,7 +131,7 @@ get_base_types = ->
 
 
 #===========================================================================================================
-module.exports = { misfit, jump_symbol, get_base_types, }
+module.exports = { misfit, get_base_types, }
 
 
 

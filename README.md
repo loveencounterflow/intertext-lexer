@@ -443,10 +443,13 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   cleaner / more logical when both the left and the right delimiters of a mode are within that mode
   * fast, slow jump; inclusive, exclusive jump; early, late jump
   * syntax (assuming mode `plain`):
-    * `{ jump: '[tag', }` (inclusive jump; token belongs to new mode `tag`),
-    * `{ jump: 'tag[', }` (exclusive jump; token belongs to old mode `plain`),
-    * `{ jump: '.]',   }` (inclusive jump back; token belongs to old mode `tag`),
-    * `{ jump: '].',   }` (exclusive jump back; token belongs to new mode `plain`)
+    * entry jumps:
+      * `{ jump: '[tag', }` (inclusive entry jump; boundary 'post' belongs to *new* mode `tag`),
+      * `{ jump: 'tag[', }` (exclusive entry jump; boundary 'post' belongs to *old* mode `plain`),
+    * exit jumps; the location of the `.` (dot) symbolizes the location of the mode the 'post' will belong
+      to:
+      * `{ jump: '.]',   }` (inclusive exit jump; boundary 'post' belongs to *old* mode `tag`),
+      * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
 * **[–]** implement method to add standard lexemes:
   * **[–]** for escaped characters, like `{ mode, tid: 'escchr', pattern:
   /\\(?<chr>.)/u, reserved: '\\', }`
