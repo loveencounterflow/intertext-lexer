@@ -444,6 +444,12 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * **[–]** add public API `new_token()` (can be used as `new_token t` to produce copy of `t`, or `new_token {
   t..., value: 'xxx', }` to derive from `t`, so don't need explicit arguments for that)
 * **[–]** review role of Datom, `$key` element
+* **[–]** introduce new value for `cfg.split` which is like `lines` but foregoes the implicit application of
+  `GUY.str.walk_lines()` and trimming, assuming this has been properly done by the consumer; this mainly as
+  a minor optimization
+* **[–]** consider to introduce 'pre-jumps' (?) such that the occurrence of a match (say, `<` in `plain`
+  mode) means that the match is already in the jump-target mode (say, `tag`). This should make some things
+  cleaner / more logical when both the left and the right delimiters of a mode are within that mode
 
 
 ## Is Done
