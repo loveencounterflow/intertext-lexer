@@ -450,6 +450,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       to:
       * `{ jump: '.]',   }` (inclusive exit jump; boundary 'post' belongs to *old* mode `tag`),
       * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
+  * **[–]** how to mark borders when two inclusive jumps appear with no separation as in `<tag1><tag2>`?
 * **[–]** implement method to add standard lexemes:
   * **[–]** for escaped characters, like `{ mode, tid: 'escchr', pattern:
   /\\(?<chr>.)/u, reserved: '\\', }`
