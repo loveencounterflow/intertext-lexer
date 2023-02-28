@@ -243,14 +243,14 @@ class Interlex
     lnr1  = lnr2 = @state.lnr1
     R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, x, source, }
     #.......................................................................................................
-    @_set_entry_value R, lexeme, value
+    @_set_token_value R, lexeme, value
     #.......................................................................................................
     if lexeme?.create?
       R = lexeme.create.call @, R
     return new_datom "^#{mode}", R
 
   #---------------------------------------------------------------------------------------------------------
-  _set_entry_value: ( token, lexeme, value ) ->
+  _set_token_value: ( token, lexeme, value ) ->
     if lexeme?.empty_value? and ( ( not token.value? ) or ( token.value is '' ) )
       switch lexeme.type_of_empty_value
         when 'text'     then token.value  = lexeme.empty_value
