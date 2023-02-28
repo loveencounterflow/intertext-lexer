@@ -242,17 +242,17 @@ class Interlex
     return new_datom "^#{mode}", R
 
   #---------------------------------------------------------------------------------------------------------
-  _set_entry_value: ( entry, lexeme, value ) ->
-    if lexeme?.empty_value? and ( ( not entry.value? ) or ( entry.value is '' ) )
+  _set_entry_value: ( token, lexeme, value ) ->
+    if lexeme?.empty_value? and ( ( not token.value? ) or ( token.value is '' ) )
       switch lexeme.type_of_empty_value
-        when 'text'     then entry.value  = lexeme.empty_value
-        when 'function' then entry.value  = lexeme.empty_value.call @, entry
+        when 'text'     then token.value  = lexeme.empty_value
+        when 'function' then token.value  = lexeme.empty_value.call @, token
         else throw new E.Interlex_internal_error '^_new_token@1^', \
           "unknown type of lexeme.empty_value: #{rpr lexeme.type_of_empty_value}"
     else if lexeme?.value?
       switch lexeme.type_of_value
-        when 'text'     then entry.value  = lexeme.value
-        when 'function' then entry.value  = lexeme.value.call       @, entry
+        when 'text'     then token.value  = lexeme.value
+        when 'function' then token.value  = lexeme.value.call       @, token
         else throw new E.Interlex_internal_error '^_new_token@2^', \
           "unknown type of lexeme.value: #{rpr lexeme.type_of_value}"
     return null
