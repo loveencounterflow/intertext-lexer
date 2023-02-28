@@ -73,8 +73,8 @@ class Interlex
     entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., type_of_jump, }
     lexeme.pattern              = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
     lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
-    lexeme.type_of_value        = @types.type_of entry.value
-    lexeme.type_of_empty_value  = @types.type_of entry.empty_value
+    lexeme.type_of_value        = @types.type_of lexeme.value
+    lexeme.type_of_empty_value  = @types.type_of lexeme.empty_value
     @_add_reserved_chrs cfg.mode, cfg.reserved if cfg.reserved?
     return null
 
