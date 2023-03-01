@@ -223,9 +223,14 @@ class Interlex
   rpr_token: ( token ) ->
     # @types.validate.ilx_token token
     t = token
-    j = token.jump
     R = []
-    R.push t.mk + if j? then ( if j is jump_symbol then j else ">#{j}") else ''
+    if token.jump?
+      j   = @registry[ token.mode ]?.lexemes[ token.tid ]?.jump ? null
+      j   = "<#{j}>" if j?
+      j  ?= ''
+    else
+      j   = ''
+    R.push t.mk + j
     R.push "(#{t.lnr1}:#{t.x1})(#{t.lnr2}:#{t.x2})"
     R.push "=#{rpr t.value}"
     R.push "#{k}:#{rpr v}" for k, v of t.x ? {}
