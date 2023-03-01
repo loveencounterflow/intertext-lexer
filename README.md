@@ -470,19 +470,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * **[–]** introduce new value for `cfg.split` which is like `lines` but foregoes the implicit application of
   `GUY.str.walk_lines()` and trimming, assuming this has been properly done by the consumer; this mainly as
   a minor optimization
-* **[–]** consider to introduce 'pre-jumps' (?) such that the occurrence of a match (say, `<` in `plain`
-  mode) means that the match is already in the jump-target mode (say, `tag`). This should make some things
-  cleaner / more logical when both the left and the right delimiters of a mode are within that mode
-  * fast, slow jump; inclusive, exclusive jump; early, late jump
-  * syntax (assuming mode `plain`):
-    * entry jumps:
-      * `{ jump: '[tag', }` (inclusive entry jump; boundary 'post' belongs to *new* mode `tag`),
-      * `{ jump: 'tag[', }` (exclusive entry jump; boundary 'post' belongs to *old* mode `plain`),
-    * exit jumps; the location of the `.` (dot) symbolizes the location of the mode the 'post' will belong
-      to:
-      * `{ jump: '.]',   }` (inclusive exit jump; boundary 'post' belongs to *old* mode `tag`),
-      * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
-  * **[–]** how to mark borders when two inclusive jumps appear with no separation as in `<tag1><tag2>`?
+* **[–]** how to mark borders when two inclusive jumps appear with no separation as in `<tag1><tag2>`?
 * **[–]** implement method to add standard lexemes:
   * **[–]** for escaped characters, like `{ mode, tid: 'escchr', pattern:
   /\\(?<chr>.)/u, reserved: '\\', }`
@@ -534,4 +522,18 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   SMP, SIP and TIP , `( Array.from 'string'[ ... x1 ] ).length` converts correctly from 0-based code units
   to human-readable column counts (but throw in combining characters, RTL scripts or complex emoji and they
   will be incorrect)
+* **[+]** <del>consider to introduce 'pre-jumps' (?) such that the occurrence of a match (say, `<` in `plain`
+  mode) means that the match is already in the jump-target mode (say, `tag`). This should make some things
+  cleaner / more logical when both the left and the right delimiters of a mode are within that mode</del>
+  <ins>Implement syntax, semantics for inclusive, exclusive jumps:</ins>
+  * <del>fast, slow jump;</del> inclusive, exclusive jump; <del>early, late jump</del>
+  * syntax (assuming mode `plain`):
+    * entry jumps:
+      * `{ jump: '[tag', }` (inclusive entry jump; boundary 'post' belongs to *new* mode `tag`),
+      * `{ jump: 'tag[', }` (exclusive entry jump; boundary 'post' belongs to *old* mode `plain`),
+    * exit jumps; the location of the `.` (dot) symbolizes the location of the mode the 'post' will belong
+      to:
+      * `{ jump: '.]',   }` (inclusive exit jump; boundary 'post' belongs to *old* mode `tag`),
+      * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
+  * documentation
 
