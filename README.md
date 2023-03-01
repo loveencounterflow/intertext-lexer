@@ -10,7 +10,7 @@
 - [InterText Lexer `Interlex`](#intertext-lexer-interlex)
   - [Notes](#notes)
   - [Adding Lexemes](#adding-lexemes)
-  - [Jumps](#jumps)
+    - [Jumps](#jumps)
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
@@ -53,14 +53,9 @@
       `/abc(?<letter>[a-z]+)/`), those matches will be put into an object named `g` of the token (so if the
       above matches, `token.g.letter` will contain a string matching one or more of the basic 26 lower case
       Latin letters)
-  * `cfg.jump`: an optional string or function that describes whether to change the lexing mode and / or
-    which token should result
-    * if `cfg.jump` is a valid JS identifier, then it should be the name of the lexing mode that should be entered
-      right after the present token
-    * if `cfg.jump` is the caret `^`, this means 'jump back', i.e. resume the previous mode. This causes a
-      runtime error in case a jump back from the initial mode is attempted
   * names of modes and lexemes will be used to construct regex group names; therefore, they must all be
     [valid JS identifiers](https://mathiasbynens.be/notes/javascript-identifiers-es6)
+  * `cfg.jump`: see [Jumps](#jumps)
   * `cfg.create`: an optional function that will be called right after a token is created from the lexeme
     (and right before it is frozen and yielded to the caller); whatever `create()` returns will become
     the next token
@@ -73,7 +68,31 @@
     * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
       applicable)
 
-## Jumps
+### Jumps
+
+The `jump` property of a lexeme declaration indicates which new mode the lexer should switch to when
+it encounters a matching pattern. It is either a string or a function. Allowed strings take one of four forms
+(assuming we're in mode `plain` in the below):
+
+* **entry jumps** (jumps that mandate a jump to a new mode): say we're looking for left pointy brackets `<` and
+  want to switch to mode `tag`) have either a leading or a trailing `[` (left square bracket):
+  * `{ jump: '[tag', }`: an *inclusive entry jump*; the 'boundary post' (the token for the `<`) will belong
+    to the *new* mode, `tag`). This is called 'inclusive' because the new mode already includes the upcoming
+    token (although it is declared with `mode: 'plain'`). The jump target `tag` appears 'inside' the square
+    bracket.
+  * `{ jump: 'tag[', }`: an *exclusive entry jump*; the 'boundary post' (the token for the `<`) will belong
+    to the *old* mode, `plain`). This is called 'exclusive' because the new mode will *not* include the
+    upcoming token. The jump target appears 'outside' the square bracket.
+
+* **exit jumps** (jumps that mandate a jump out of the current mode back to the previous one): say we're
+  inside a pair of pointy brackets `<...>` that we're lexing in mode `tag`; now we encounter the right
+  pointy bracket `>` that signals the end of that stretch, so it's time to revert to `plain`. This can be
+  symbolized by a `jump` value that either starts or ends with a `]` (right square bracket) and has a `.`
+  (dot) symbolizing the location of the mode the 'boundary post' will belong to:
+  * `{ jump: '.]', }`: an *inclusive exit jump*; 'boundary post' belongs to the *old* mode, `tag`
+  * `{ jump: '].', }`: an *exclusive exit jump*; 'boundary post' belongs to the *new* mode, `plain`
+
+
 
 ## Example
 
