@@ -158,9 +158,9 @@ class Interlex
       @registry[ mode ].pattern = C.sticky C.unicode pattern
     for mode, entry of @registry
       for tid, lexeme of entry.lexemes
-        continue if lexeme.type_of_jump isnt 'pushmode'
-        continue if @registry[ lexeme.jump ]?
-        throw new E.Interlex_TBDUNCLASSIFIED '^interlex._finalize@1^', "unknown jump target in lexeme #{rpr lexeme}"
+        continue if lexeme.jump_action isnt 'pushmode'
+        continue if @registry[ lexeme.jump_target ]?
+        throw new E.Interlex_mode_unknown '^interlex._finalize@1^', lexeme.jump_target
     @state.finalized = true
     return null
 
@@ -404,7 +404,7 @@ class Interlex
         jump_target } = @_call_jump_handler lexeme, token, match
       overrides       = { jump_action, jump_time, jump_target, }
       ### ???
-      token = lets token, ( token ) => token.jump = if type_of_jump is 'nojump' then null else @state.mode
+      token = lets token, ( token ) => token.jump = if jump_action is 'nojump' then null else @state.mode
       ###
     else
       { jump_action
