@@ -386,20 +386,30 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   _get_next_token: ( lexeme, token, match ) ->
     ### TAINT code duplication ###
-    debug '^3242341^', GUY.props.pick_with_fallback lexeme, null, 'jump_action', 'jump_time', 'jump_target'
     switch lexeme.jump_action
       when 'nojump'   then null
-      when 'pushmode' then @_push_mode lexeme.jump_target
+      when 'pushmode'
+        @_push_mode lexeme.jump_target
+        if lexeme.jump_time is 'inclusive' then token = lets token, ( token ) =>
+          token.mode = lexeme.jump_target
+          ### TAINT use API ###
+          token.mk = "#{token.mode}:#{token.tid}"
+          return null
       when 'popmode'
         @_pop_mode()
-        token = lets token, ( token ) => token.jump = @state.mode
+        token = lets token, ( token ) =>
+          token.jump = @state.mode
+          if lexeme.jump_time is 'exclusive'
+            token.mode = @state.mode
+            ### TAINT use API ###
+            token.mk = "#{token.mode}:#{token.tid}"
+          return null
       when 'callme'
         { token
           jump
           jump_action
           jump_time
           jump_target } = @_call_jump_handler lexeme, token, match
-        # debug '^2343^', ( rpr jump ), token
         switch jump_action
           when 'nojump'   then null
           when 'pushmode' then @_push_mode jump_target
@@ -426,8 +436,6 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _push_mode: ( jump_target ) ->
-    debug '^_push_mode@1^', { jump_target, }
-    debug '^_push_mode@1^', ( k for k of @registry )
     @state.stack.push @state.mode
     @state.mode               = jump_target
     old_last_idx              = @state.pattern.lastIndex
