@@ -395,10 +395,12 @@ class Interlex
       when 'nojump'   then null
       when 'pushmode'
         @_push_mode lexeme.jump_target
-        if lexeme.jump_time is 'inclusive' then token = lets token, ( token ) =>
-          token.mode = lexeme.jump_target
-          ### TAINT use API ###
-          token.mk = "#{token.mode}:#{token.tid}"
+        token = lets token, ( token ) =>
+          token.jump = lexeme.jump_target
+          if lexeme.jump_time is 'inclusive'
+            token.mode = lexeme.jump_target
+            ### TAINT use API ###
+            token.mk = "#{token.mode}:#{token.tid}"
           return null
       when 'popmode'
         @_pop_mode()
