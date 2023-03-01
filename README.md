@@ -92,7 +92,17 @@ it encounters a matching pattern. It is either a string or a function. Allowed s
   * `{ jump: '.]', }`: an *inclusive exit jump*; 'boundary post' belongs to the *old* mode, `tag`
   * `{ jump: '].', }`: an *exclusive exit jump*; 'boundary post' belongs to the *new* mode, `plain`
 
-
+* In case the value of the `jump` property is a function, it will be called with an object `{ token, match,
+  lexer, }`. It should return one of:
+  * `null` in case nothing should be done; the token will be used as passed-in to this function, and the
+    mode will not be changed, or
+  * an object with two optional properties, `jump` and `token`
+  * `jump` should be an optional string whose be interpreted as described above, and
+  * `token` which could be the token passed in or a completely new one.
+  * In any event, the token's `jump`, `mode` and `mk` properties will be adjusted as appropriate which means
+    that setting or not setting these values makes no difference.
+  * You can only change the lexer's mode by returning an allowable value for `jump`; a returned `token`'s
+    `mode` will be ignored.
 
 ## Example
 

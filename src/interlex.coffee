@@ -376,72 +376,82 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _call_jump_handler: ( lexeme, token, match ) ->
-    divert = lexeme.jump { token, match, lexer: @, }
-    return { token, jump: null, type_of_jump: 'nojump', } unless divert?
-    if @types.isa.text divert
-      return { token, jump: jump_symbol,  type_of_jump: 'popmode',  } if divert is jump_symbol
-      return { token, jump: divert,       type_of_jump: 'pushmode', }
-    if @types.isa.function divert
-      throw new E.Interlex_TBDUNCLASSIFIED '^interlex._call_jump_handler@1^', \
-        "jump handler of lexeme #{rpr lexeme.mk} returned illegal value #{rpr divert}"
-    token           = replacement_token if ( replacement_token = divert.token )?
-    jump            = divert.jump ? null
-    return { token, jump, ( @_parse_jump_cfg jump )..., }
+    unless ( divert = lexeme.jump { token, match, lexer: @, } )?
+      jump_cfg = GUY.props.pick_with_fallback lexeme, null, 'jump_action', 'jump_time', 'jump_target'
+      return { token, jump_cfg..., }
+    #.......................................................................................................
+    switch type = @types.type_of divert
+      when 'text'
+        return { token, ( @_parse_jump_cfg divert )..., }
+      when 'object'
+        token = divert.token ? token
+        if divert.jump?
+          jump_cfg = @_parse_jump_cfg divert.jump
+        else
+          jump_cfg = null
+        return { token, jump_cfg..., }
+    #.......................................................................................................
+    throw new E.Interlex_TBDUNCLASSIFIED '^interlex._call_jump_handler@1^', \
+      "jump handler of lexeme #{rpr lexeme.mk} returned illegal value #{rpr divert}"
 
   #---------------------------------------------------------------------------------------------------------
   _get_next_token: ( lexeme, token, match ) ->
     ### TAINT code duplication ###
-    switch lexeme.jump_action
+    if lexeme.jump_action is 'callme'
+      { token
+        jump_action
+        jump_time
+        jump_target } = @_call_jump_handler lexeme, token, match
+      overrides       = { jump_action, jump_time, jump_target, }
+      ### ???
+      token = lets token, ( token ) => token.jump = if type_of_jump is 'nojump' then null else @state.mode
+      ###
+    else
+      { jump_action
+        jump_time
+        jump_target } = lexeme
+      overrides       = null
+    return token unless jump_action?
+    switch jump_action
       when 'nojump'   then null
-      when 'pushmode' then token = @_push_mode  lexeme, token
-      when 'popmode'  then token = @_pop_mode   lexeme, token
-      when 'callme'
-        { token
-          jump
-          jump_action
-          jump_time
-          jump_target } = @_call_jump_handler lexeme, token, match
-        switch jump_action
-          when 'nojump'   then null
-          when 'pushmode' then @_push_mode jump_target
-          when 'popmode'  then @_pop_mode()
-          else
-            throw new E.Interlex_internal_error '^interlex._get_next_token@1^', \
-              "unknown jump_action #{rpr jump_action} in lexeme #{rpr lexeme}"
-        token = lets token, ( token ) => token.jump = if type_of_jump is 'nojump' then null else @state.mode
+      when 'pushmode' then token = @_push_mode  lexeme, token, overrides
+      when 'popmode'  then token = @_pop_mode   lexeme, token, overrides
       else
         throw new E.Interlex_internal_error '^interlex._get_next_token@2^', \
-          "unknown type_of_jump in lexeme #{rpr lexeme}"
+          "unknown jump_action (#{rpr jump_action}) from lexeme #{rpr lexeme}"
     return token
 
   #---------------------------------------------------------------------------------------------------------
-  _pop_mode: ( lexeme, token ) ->
+  _pop_mode: ( lexeme, token, overrides ) ->
     unless @state.stack.length > 0
       throw new E.Interlex_mode_stack_exhausted '^interlex._pop_mode@2^', \
         "unable to jump back from initial state"
+    { jump_time }             = overrides ? lexeme
     @state.mode               = @state.stack.pop()
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
     return lets token, ( token ) =>
       token.jump = @state.mode
-      if lexeme.jump_time is 'exclusive'
+      if jump_time is 'exclusive'
         token.mode = @state.mode
         ### TAINT use API ###
         token.mk = "#{token.mode}:#{token.tid}"
       return null
 
   #---------------------------------------------------------------------------------------------------------
-  _push_mode: ( lexeme, token ) ->
+  _push_mode: ( lexeme, token, overrides ) ->
+    { jump_target
+      jump_time   }           = overrides ? lexeme
     @state.stack.push @state.mode
-    @state.mode               = lexeme.jump_target
+    @state.mode               = jump_target
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
     return lets token, ( token ) =>
-      token.jump = lexeme.jump_target
-      if lexeme.jump_time is 'inclusive'
-        token.mode = lexeme.jump_target
+      token.jump = jump_target
+      if jump_time is 'inclusive'
+        token.mode = jump_target
         ### TAINT use API ###
         token.mk = "#{token.mode}:#{token.tid}"
       return null
