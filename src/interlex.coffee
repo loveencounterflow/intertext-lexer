@@ -393,24 +393,8 @@ class Interlex
     ### TAINT code duplication ###
     switch lexeme.jump_action
       when 'nojump'   then null
-      when 'pushmode'
-        @_push_mode lexeme.jump_target
-        token = lets token, ( token ) =>
-          token.jump = lexeme.jump_target
-          if lexeme.jump_time is 'inclusive'
-            token.mode = lexeme.jump_target
-            ### TAINT use API ###
-            token.mk = "#{token.mode}:#{token.tid}"
-          return null
-      when 'popmode'
-        @_pop_mode()
-        token = lets token, ( token ) =>
-          token.jump = @state.mode
-          if lexeme.jump_time is 'exclusive'
-            token.mode = @state.mode
-            ### TAINT use API ###
-            token.mk = "#{token.mode}:#{token.tid}"
-          return null
+      when 'pushmode' then token = @_push_mode  lexeme, token
+      when 'popmode'  then token = @_pop_mode   lexeme, token
       when 'callme'
         { token
           jump
@@ -431,7 +415,7 @@ class Interlex
     return token
 
   #---------------------------------------------------------------------------------------------------------
-  _pop_mode: ->
+  _pop_mode: ( lexeme, token ) ->
     unless @state.stack.length > 0
       throw new E.Interlex_mode_stack_exhausted '^interlex._pop_mode@2^', \
         "unable to jump back from initial state"
@@ -439,16 +423,28 @@ class Interlex
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
-    return null
+    return lets token, ( token ) =>
+      token.jump = @state.mode
+      if lexeme.jump_time is 'exclusive'
+        token.mode = @state.mode
+        ### TAINT use API ###
+        token.mk = "#{token.mode}:#{token.tid}"
+      return null
 
   #---------------------------------------------------------------------------------------------------------
-  _push_mode: ( jump_target ) ->
+  _push_mode: ( lexeme, token ) ->
     @state.stack.push @state.mode
-    @state.mode               = jump_target
+    @state.mode               = lexeme.jump_target
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
     @state.pattern.lastIndex  = old_last_idx
-    return null
+    return lets token, ( token ) =>
+      token.jump = lexeme.jump_target
+      if lexeme.jump_time is 'inclusive'
+        token.mode = lexeme.jump_target
+        ### TAINT use API ###
+        token.mk = "#{token.mode}:#{token.tid}"
+      return null
 
 
   #=========================================================================================================
