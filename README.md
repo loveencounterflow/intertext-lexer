@@ -10,6 +10,7 @@
 - [InterText Lexer `Interlex`](#intertext-lexer-interlex)
   - [Notes](#notes)
   - [Adding Lexemes](#adding-lexemes)
+  - [Jumps](#jumps)
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
@@ -71,6 +72,8 @@
       and with the token as only argument
     * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
       applicable)
+
+## Jumps
 
 ## Example
 
