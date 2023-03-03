@@ -496,6 +496,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 * **[–]** add tests to ensure positive, negative lookbehinds, lookaheads are not recognized as capturing
   groups
+* **[–]** rename `x` -> `atrs`
 
 ## Is Done
 
