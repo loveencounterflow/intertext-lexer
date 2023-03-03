@@ -73,6 +73,8 @@ get_base_types = ->
       start_token:      'boolean'
       end_token:        'boolean'
       error_tokens:     'boolean'
+      border_tokens:    'boolean'
+      border_value:     'text'
       multiline:        'boolean'
       dotall:           'boolean'
       split:            'ilx_splitmode'
@@ -84,6 +86,8 @@ get_base_types = ->
       start_token:      false
       end_token:        false
       error_tokens:     true
+      border_tokens:    false
+      border_value:     ''
       multiline:        false
       dotall:           false
       split:            'lines'
