@@ -187,6 +187,9 @@ class Interlex
         @state.mode                         = @base_mode ? null
       else
         throw new E.Interlex_TBDUNCLASSIFIED '^_start@1^', "illegal value for @cfg.state: #{rpr @cfg.state}"
+    @state.prv_mode                     = null
+    @state.prv_token                    = null
+    @state.token_queue                  = []
     @state.prv_last_idx                 = 0
     @state.pattern                      = @registry?[ @state.mode ]?.pattern ? null
     @state.source                       = source
@@ -313,7 +316,7 @@ class Interlex
     #.......................................................................................................
     loop
       break if @state.finished
-      yield Y if ( Y = @step() )?
+      yield from @step()
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -324,6 +327,28 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   step: ->
+    ###
+    return null unless token? and @state.token_queue.length is 0
+    #.......................................................................................................
+    new_token = null
+    if @state.prv_mode? and true # @cfg.border_posts
+      debug '^345234^', { prv: @state.prv_mode, nxt: @state.mode, }
+      new_token = @_new_token '$border', '', 0, { prv: @state.prv_mode, nxt: @state.mode, }
+    @state.prv_mode = null
+    # @state.token_queue.push
+    #.......................................................................................................
+    if @state.token_queue.length > 0
+      @state.token_queue.push token if token?
+      return @state.token_queue.shift()
+    # token = null
+    # return token if token?
+    return token
+    ###
+    return [] unless ( R = @_step() )?
+    return [ R, ]
+
+  #---------------------------------------------------------------------------------------------------------
+  _step: ->
     #.......................................................................................................
     ### Affordance for lexemes matching only end-of-input (pattern `/$/y`): ###
     if ( @state.prv_last_idx is @state.source.length ) and ( match = @state.source.match @state.pattern )?
@@ -427,6 +452,7 @@ class Interlex
       throw new E.Interlex_mode_stack_exhausted '^interlex._pop_mode@2^', \
         "unable to jump back from initial state"
     { jump_time }             = overrides ? lexeme
+    @state.prv_mode           = @state.mode
     @state.mode               = @state.stack.pop()
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
@@ -444,6 +470,7 @@ class Interlex
     { jump_target
       jump_time   }           = overrides ? lexeme
     @state.stack.push @state.mode
+    @state.prv_mode           = @state.mode
     @state.mode               = jump_target
     old_last_idx              = @state.pattern.lastIndex
     @state.pattern            = @registry[ @state.mode ].pattern
