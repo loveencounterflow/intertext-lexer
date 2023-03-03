@@ -334,6 +334,24 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       the corresponding file* are first (synchronously) read into memory and then lexed in its entirety.
       This may be suboptimal when files get big in comparison to available RAM.
 
+* automatic `$border` tokens:
+  * enabled with `cfg.border_tokens: true`
+  * issued whenever a jump from one mode to the other occurs
+  * when jump lexemes are declared as inclusive, just looking at the stream of tokens may make it impossible
+    to determine stretches of contiguous tokens; e.g. when `<` starts and `>` ends `tag` mode inclusively,
+    then `<t1><t2>` will have a sequence of `{ value: '>', mode: 'tag', }`, `{ value: '<', mode: 'tag', }`
+    with no change in mode. Enable border tokens and now you get a sequence
+
+      ```coffee
+      { mode: 'tag', tid: 'rightpointy',  value: '>', }
+      { mode: 'tag', tid: '$border',      value: '', x: { prv: 'tag',   nxt: 'plain', }, }
+      { mode: 'tag', tid: '$border',      value: '', x: { prv: 'plain', nxt: 'tag',   }, }
+      { mode: 'tag', tid: 'leftpointy',   value: '<', }`
+      ```
+
+  * `value` of border tokens can be set with e.g. `cfg.border_value: '|'` (can then concatenate all `value`
+    properties of all tokens to visualize where lexer mode was changed)
+
 * Behavior of automatic `$start` and `$end` tokens:
   * only when enabled at instantiation with `start_token: true` and / or `end_token: true`
   * when start tokens are enabled, they will be sent
@@ -358,6 +376,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   guarantees that at the start of each line, the lexer is reset to its base mode and hence things like an
   erroneously forgotten closing quote will not affect the entire rest of the result; in other words, it
   makes lexing a little more robust.
+
 
 
 ### Linewise Lexing
