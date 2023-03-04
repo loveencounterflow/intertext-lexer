@@ -233,11 +233,11 @@ class Interlex
     R.push t.mk + j
     R.push "(#{t.lnr1}:#{t.x1})(#{t.lnr2}:#{t.x2})"
     R.push "=#{rpr t.value}"
-    R.push "#{k}:#{rpr v}" for k, v of t.x ? {}
+    R.push "#{k}:#{rpr v}" for k, v of t.atrs ? {}
     return "[#{R.join ','}]"
 
   #---------------------------------------------------------------------------------------------------------
-  _new_token: ( tid, value, length, x = null, lexeme = null ) ->
+  _new_token: ( tid, value, length, atrs = null, lexeme = null ) ->
     x1        = @state.prv_last_idx
     x2        = x1 + length
     jump      = lexeme?.jump ? null
@@ -246,7 +246,7 @@ class Interlex
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
     lnr1  = lnr2 = @state.lnr1
-    R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, x, source, }
+    R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, atrs, source, }
     #.......................................................................................................
     @_set_token_value R, lexeme, value
     #.......................................................................................................
@@ -272,7 +272,7 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _token_and_lexeme_from_match: ( match ) ->
-    x = null
+    atrs = null
     for key, value of match.groups
       continue unless value?
       if key.startsWith @_metachr
@@ -280,9 +280,9 @@ class Interlex
         token_value         = value
       else
         key                 = ( key.split @_metachr )[ 1 ]
-        ( x ?= {} )[ key ]  = if value is '' then null else value
+        ( atrs ?= {} )[ key ]  = if value is '' then null else value
     lexeme  = @registry[ @state.mode ].lexemes[ token_tid ]
-    token   = @_new_token token_tid, token_value, match[ 0 ].length, x, lexeme
+    token   = @_new_token token_tid, token_value, match[ 0 ].length, atrs, lexeme
     return { token, lexeme, }
 
   #---------------------------------------------------------------------------------------------------------

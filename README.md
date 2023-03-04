@@ -344,8 +344,8 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 
       ```coffee
       { mode: 'tag', tid: 'rightpointy',  value: '>', }
-      { mode: 'tag', tid: '$border',      value: '', x: { prv: 'tag',   nxt: 'plain', }, }
-      { mode: 'tag', tid: '$border',      value: '', x: { prv: 'plain', nxt: 'tag',   }, }
+      { mode: 'tag', tid: '$border',      value: '', atrs: { prv: 'tag',   nxt: 'plain', }, }
+      { mode: 'tag', tid: '$border',      value: '', atrs: { prv: 'plain', nxt: 'tag',   }, }
       { mode: 'tag', tid: 'leftpointy',   value: '<', }`
       ```
 
@@ -496,7 +496,6 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 * **[–]** add tests to ensure positive, negative lookbehinds, lookaheads are not recognized as capturing
   groups
-* **[–]** rename `x` -> `atrs`
 
 ## Is Done
 
@@ -558,4 +557,5 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       * `{ jump: '.]',   }` (inclusive exit jump; boundary 'post' belongs to *old* mode `tag`),
       * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
   * documentation
+* **[+]** rename `x` -> `atrs`
 
