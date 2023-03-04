@@ -558,4 +558,5 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       * `{ jump: '].',   }` (exclusive exit jump; boundary 'post' belongs to *new* mode `plain`)
   * documentation
 * **[+]** rename `x` -> `atrs`
+* **[+]** rename `atrs` -> `data`
 
