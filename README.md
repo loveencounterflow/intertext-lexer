@@ -496,6 +496,17 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 * **[–]** add tests to ensure positive, negative lookbehinds, lookaheads are not recognized as capturing
   groups
+* **[–]** implement 'singular' jumps:
+  * `jump: '[str]'` will return a token in mode `str` without jumping into that mode (or, by 'virtually'
+    jumping to that mode and then immediately back); the `value` of the token will be the matched substring
+    (as usual)
+  * optionally: `jump: 'str[]'`, same as above, but value will always be the empty string (can also be done
+    as `jump: '[str]', value: ''` so not essential)
+* **[–]** might want to have tokens that cause one or two border tokens to be emitted, notation:
+  * `jump: '].['`: emit one token `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
+  * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
+  * `jump: ']xyz['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ tid:
+    '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
 
 ## Is Done
 
