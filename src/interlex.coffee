@@ -105,10 +105,12 @@ class Interlex
     return { jump_action: 'popmode', jump_time: 'inclusive', jump_target: null } if jump is '.]'
     return { jump_action: 'popmode', jump_time: 'exclusive', jump_target: null } if jump is '].'
     #.......................................................................................................
+    if ( jump.startsWith '[' ) and ( jump.endsWith ']' )
+      return { jump_action: 'pushpop',  jump_time: 'inclusive', jump_target: jump[ 1 ... jump.length - 1 ], }
     if jump.startsWith '['
-      return { jump_action: 'pushmode',jump_time: 'inclusive', jump_target: jump[ 1 .. ], }
+      return { jump_action: 'pushmode', jump_time: 'inclusive', jump_target: jump[ 1  ..                 ], }
     if jump.endsWith   '['
-      return { jump_action: 'pushmode',jump_time: 'exclusive', jump_target: jump[ ... jump.length - 1 ], }
+      return { jump_action: 'pushmode', jump_time: 'exclusive', jump_target: jump[   ... jump.length - 1 ], }
     #.......................................................................................................
     throw new E.Interlex_illegal_jump_target '^interlex._parse_jump_cfg@2^', type, jump
 
@@ -329,20 +331,28 @@ class Interlex
     token     = @_step()
     #.......................................................................................................
     if token?
-      border = null
-      #.....................................................................................................
-      if @cfg.border_tokens and ( @state.mode isnt prv_mode )
-        border = @_new_token '$border', @cfg.border_value, 0, { prv: prv_mode, nxt: @state.mode, }
-      #.....................................................................................................
-      if border? and token.mode isnt prv_mode
-        border = lets border, ( border ) -> border.x1 = border.x2 = token.x1
-        R.push border
-      #.....................................................................................................
       R.push token
-      #.....................................................................................................
-      if border? and token.mode is prv_mode
-        border = lets border, ( border ) -> border.x1 = border.x2 = border.x2
-        R.push border
+      if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token.mode isnt prv_mode ) )
+        if is_singleton_jump = ( @state.mode is prv_mode )
+          prv = prv_mode
+          nxt = token.mode
+        else
+          prv = prv_mode
+          nxt = @state.mode
+        border = @_new_token '$border', @cfg.border_value, 0, { prv, nxt, }
+        #...................................................................................................
+        if is_singleton_jump
+          R.unshift lets border, ( border ) ->
+            border.x1 = border.x2 = token.x1
+          R.push    lets border, ( border ) ->
+            border.x1 = border.x2 = border.x2
+            [ border.data.prv, border.data.nxt, ] = [ border.data.nxt, border.data.prv, ]
+        #...................................................................................................
+        else
+          if token.mode isnt prv_mode
+            R.unshift lets border, ( border ) -> border.x1 = border.x2 = token.x1
+          else if token.mode is prv_mode
+            R.push    lets border, ( border ) -> border.x1 = border.x2 = border.x2
     #.......................................................................................................
     return R
 
@@ -438,6 +448,9 @@ class Interlex
     return token unless jump_action?
     switch jump_action
       when 'nojump'   then null
+      when 'pushpop'
+        token = @_push_mode  lexeme, token, overrides
+        token = @_pop_mode   lexeme, token, overrides
       when 'pushmode' then token = @_push_mode  lexeme, token, overrides
       when 'popmode'  then token = @_pop_mode   lexeme, token, overrides
       else

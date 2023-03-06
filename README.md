@@ -92,6 +92,16 @@ it encounters a matching pattern. It is either a string or a function. Allowed s
   * `{ jump: '.]', }`: an *inclusive exit jump*; 'boundary post' belongs to the *old* mode, `tag`
   * `{ jump: '].', }`: an *exclusive exit jump*; 'boundary post' belongs to the *new* mode, `plain`
 
+* **singleton (or virtual) jumps**: lexemes that are declared with a mode name enclosed by a left and a
+  right bracket as in `jump: '[foo]'` will, when a match occurs, cause a token to be emitted for that match
+  whose mode is set to the jump target (here `foo`). For example, when declaring tokens and modes for
+  typical `"string literals"`, it is possible to fast-track, as it were, the special case of an empty string
+  literal, `""`, in plain mode, but still make that lexeme and token belong to the string literal mode (say,
+  `dqstr` for 'double quoted string'): `lexer.add_lexeme { mode: 'plain', tid: 'dq2', jump: '[dqstr]',
+  pattern: /(?<!")""(?!")/u, reserved: '"', }`.
+  * Singleton jumps will cause border tokens to be emitted just as with regular jumps (when the lexer is
+    configured with `border_tokens: true`).
+
 * In case the value of the `jump` property is a function, it will be called with an object `{ token, match,
   lexer, }`. It should return one of:
   * `null` in case nothing should be done; the token will be used as passed-in to this function, and the
@@ -496,12 +506,6 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 * **[–]** add tests to ensure positive, negative lookbehinds, lookaheads are not recognized as capturing
   groups
-* **[–]** implement 'singular' jumps:
-  * `jump: '[str]'` will return a token in mode `str` without jumping into that mode (or, by 'virtually'
-    jumping to that mode and then immediately back); the `value` of the token will be the matched substring
-    (as usual)
-  * optionally: `jump: 'str[]'`, same as above, but value will always be the empty string (can also be done
-    as `jump: '[str]', value: ''` so not essential)
 * **[–]** might want to have tokens that cause one or two border tokens to be emitted, notation:
   * `jump: '].['`: emit one token `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
   * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
@@ -570,4 +574,10 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * documentation
 * **[+]** rename `x` -> `atrs`
 * **[+]** rename `atrs` -> `data`
+* **[+]** implement 'singleton' / 'virtual' jumps:
+  * `jump: '[str]'` will return a token in mode `str` without jumping into that mode (or, by 'virtually'
+    jumping to that mode and then immediately back); the `value` of the token will be the matched substring
+    (as usual)
+  * optionally: `jump: 'str[]'`, same as above, but value will always be the empty string (can also be done
+    as `jump: '[str]', value: ''` so not essential)
 
