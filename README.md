@@ -511,6 +511,19 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
   * `jump: ']xyz['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ tid:
     '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
+* **[–]** implement a preprocessing mode and a binary property `lexer.state.active`, the rule being that
+  * until the preprocessing mode has brought the lexer from `active == false` to `active == true`, all
+    material is rendered, as-is, as `value` property of special `$raw` tokens, without being scanned by the
+    regular mode patterns
+  * as soon as the preprocessing mode can bring `lexer.state.active` from `true` to `false` and vice versa
+    any number of times, which means that we can use the lexer to determine regions for lexing
+  * the reason the above is not feasable with regular modes is that
+    * once we jump from preprocessing to regular, the lexer will stay in that regular mode (when `state:
+      'keep'` is set)
+    * when preprocessing has found a `start` meta-token, one does know that only material after that token
+      will have to be lexed by an regular mode—but one does *not* yet know whether another meta-token can be
+      matched within that remaining region of the source; therefore, one has to first exhaust the
+      preprocessor (for the current chunk or line at least) before regular lexing can start
 
 ## Is Done
 
