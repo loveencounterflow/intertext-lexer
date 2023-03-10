@@ -524,6 +524,8 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       will have to be lexed by an regular mode—but one does *not* yet know whether another meta-token can be
       matched within that remaining region of the source; therefore, one has to first exhaust the
       preprocessor (for the current chunk or line at least) before regular lexing can start
+    * this is essentially the behavior of `Interlex` itself, so one could implement preprocessing by
+      instantiating a separate `Interlex` instance
 
 ## Is Done
 
