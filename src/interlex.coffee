@@ -180,6 +180,7 @@ class Interlex
     @_finalize() if @state? and not @state.finalized
     @state                             ?= {}
     @state.finalized                   ?= false
+    @state.offset                      ?= { lnr: 1, x: 0, }
     switch @cfg.state
       when 'keep'
         @state.stack                       ?= []
@@ -240,14 +241,14 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, data = null, lexeme = null ) ->
-    x1        = @state.prv_last_idx
+    x1        = @state.prv_last_idx + @state.offset.x
     x2        = x1 + length
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
-    lnr1  = lnr2 = @state.lnr1
+    lnr1  = lnr2 = @state.lnr1 + @state.offset.lnr - 1
     R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, data, source, }
     #.......................................................................................................
     @_set_token_value R, lexeme, value
@@ -546,6 +547,14 @@ class Interlex
     if entry.reserved?
       throw new E.Interlex_reserved_exists '^interlex.add_reserved_lexeme@1^', cfg.mode, entry.reserved.tid
     entry.reserved = cfg
+    return null
+
+  #=========================================================================================================
+  # POSITIONING API
+  #---------------------------------------------------------------------------------------------------------
+  set_offset: ( cfg ) ->
+    cfg           = @types.create.ilx_set_offset_cfg cfg
+    @state.offset = { cfg..., }
     return null
 
 

@@ -47,6 +47,8 @@ get_base_types = ->
   declare.ilx_lexeme_value    'function.or.text'
   declare.ilx_splitmode       ( x ) -> x in [ 'lines', false, ]
   declare.ilx_statemode       ( x ) -> x in [ 'keep', 'reset', ]
+  declare.ilx_line_number     'positive1.integer'
+  declare.ilx_codeunit_idx    'positive0.integer'
   #.........................................................................................................
   declare.ilx_add_lexeme_cfg
     fields:
@@ -136,7 +138,15 @@ get_base_types = ->
     fields:
       active:         'boolean'
     default:
-      active:         false
+      active:         true
+  #.........................................................................................................
+  declare.ilx_set_offset_cfg
+    fields:
+      lnr:            'ilx_line_number'
+      x:              'ilx_codeunit_idx'
+    default:
+      lnr:            1
+      x:              0
   return base_types
 
 
