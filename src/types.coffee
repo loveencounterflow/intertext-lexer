@@ -131,6 +131,12 @@ get_base_types = ->
       mode:           null
       tid:            '$reserved'
       concat:         false
+  #.........................................................................................................
+  declare.ilx_start_stop_preprocessor_cfg
+    fields:
+      active:         'boolean'
+    default:
+      active:         false
   return base_types
 
 
