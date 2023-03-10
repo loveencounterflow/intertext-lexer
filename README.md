@@ -17,6 +17,8 @@
   - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
     - [Linewise Lexing](#linewise-lexing)
   - [Comparing Token Positions](#comparing-token-positions)
+  - [Tools](#tools)
+    - [Start-Stop Preprocessor](#start-stop-preprocessor)
   - [To Do](#to-do)
   - [Is Done](#is-done)
 
@@ -437,6 +439,32 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   operator overrides, then maybe I would've implemented this as `a << b` or `a precedes b` instead of
   `ordering_is a, b`
 
+## Tools
+
+(experimental)
+
+Collection of useful stuff
+
+### Start-Stop Preprocessor
+
+* use it to find start, stop tokens in source before applying your main lexer
+* currently fixed to recognize XML processing instruction-like `<?start?>`, `<?stop?>`, `<?stop-all?>` (with
+  variant `<?stop_all?>` to avoid risk of line breaks when re-flowing text in editor); no whitespace may be
+  used inside these
+* could be extended to accept custom lexer or custom lexemes
+* will yield tokens with `{ data: { active: true, }, }` (or `false`) depending on whether source text
+  followed more close a start or a stop instruction
+* the relevant processing instructions will always be set to `active: false`
+* uses linewise mode
+* initialize as
+
+  ```coffee
+  { tools } = require '../../../apps/intertext-lexer'
+  prepro    = new tools.Start_stop_preprocessor { active: false, }
+  ```
+
+* can set desired initial `active` state
+
 
 ## To Do
 
@@ -511,21 +539,6 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
   * `jump: ']xyz['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ tid:
     '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
-* **[–]** implement a preprocessing mode and a binary property `lexer.state.active`, the rule being that
-  * until the preprocessing mode has brought the lexer from `active == false` to `active == true`, all
-    material is rendered, as-is, as `value` property of special `$raw` tokens, without being scanned by the
-    regular mode patterns
-  * as soon as the preprocessing mode can bring `lexer.state.active` from `true` to `false` and vice versa
-    any number of times, which means that we can use the lexer to determine regions for lexing
-  * the reason the above is not feasable with regular modes is that
-    * once we jump from preprocessing to regular, the lexer will stay in that regular mode (when `state:
-      'keep'` is set)
-    * when preprocessing has found a `start` meta-token, one does know that only material after that token
-      will have to be lexed by an regular mode—but one does *not* yet know whether another meta-token can be
-      matched within that remaining region of the source; therefore, one has to first exhaust the
-      preprocessor (for the current chunk or line at least) before regular lexing can start
-    * this is essentially the behavior of `Interlex` itself, so one could implement preprocessing by
-      instantiating a separate `Interlex` instance
 
 ## Is Done
 
@@ -595,4 +608,23 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
     (as usual)
   * optionally: `jump: 'str[]'`, same as above, but value will always be the empty string (can also be done
     as `jump: '[str]', value: ''` so not essential)
+* **[+]** add MVP version of `tools/start-stop-preprocessor` to implement start/stop roughly as detailed
+  below
+
+  <del>implement a preprocessing mode and a binary property `lexer.state.active`, the rule being
+  that</del>
+  * <del>until the preprocessing mode has brought the lexer from `active == false` to `active == true`, all
+    material is rendered, as-is, as `value` property of special `$raw` tokens, without being scanned by the
+    regular mode patterns</del>
+  * <del>as soon as the preprocessing mode can bring `lexer.state.active` from `true` to `false` and vice
+    versa any number of times, which means that we can use the lexer to determine regions for lexing</del>
+  * <del>the reason the above is not feasable with regular modes is that</del>
+    * <del>once we jump from preprocessing to regular, the lexer will stay in that regular mode (when
+      `state: 'keep'` is set)</del>
+    * <del>when preprocessing has found a `start` meta-token, one does know that only material after that
+      token will have to be lexed by an regular mode—but one does *not* yet know whether another meta-token
+      can be matched within that remaining region of the source; therefore, one has to first exhaust the
+      preprocessor (for the current chunk or line at least) before regular lexing can start</del>
+    * <del>this is essentially the behavior of `Interlex` itself, so one could implement preprocessing by
+      instantiating a separate `Interlex` instance</del>
 
