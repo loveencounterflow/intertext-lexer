@@ -17,6 +17,7 @@
   - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
     - [Linewise Lexing](#linewise-lexing)
   - [Comparing Token Positions](#comparing-token-positions)
+  - [Positioning](#positioning)
   - [Tools](#tools)
     - [Start-Stop Preprocessor](#start-stop-preprocessor)
   - [To Do](#to-do)
@@ -439,6 +440,17 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   operator overrides, then maybe I would've implemented this as `a << b` or `a precedes b` instead of
   `ordering_is a, b`
 
+## Positioning
+
+* can increase (but not decrease) line number `lnr1`, `lnr2`, code unit index `x1`, `x2` by calling
+  `lexer.set_offset { lnr, x, }` before lexing a chunk of source
+* `lnr` must be a one-based line number; it will be decremented by `1` and added to both `lnr1` and `lnr2`
+* `x` must be a zero-based code unit index (JS string index); it will be added to both `x1` and `x2`
+* both `lnr` and `x` are optional; their defaults are `{ lnr: 1, x: 0, }`
+* this is useful when parts of a file or a string are to be lexed with some parts omitted
+* output of `Start_stop_preprocessor` can be used, line and column positions will be those in the original
+  source
+
 ## Tools
 
 (experimental)
@@ -454,7 +466,7 @@ Collection of useful stuff
 * could be extended to accept custom lexer or custom lexemes
 * will yield tokens with `{ data: { active: true, }, }` (or `false`) depending on whether source text
   followed more close a start or a stop instruction
-* the relevant processing instructions will always be set to `active: false`
+* the tokens containing the relevant processing instructions will always be set to `active: false`
 * uses linewise mode
 * initialize as
 
@@ -463,7 +475,7 @@ Collection of useful stuff
   prepro    = new tools.Start_stop_preprocessor { active: false, }
   ```
 
-* can set desired initial `active` state
+* can set desired initial `active` state, default is `true`
 
 
 ## To Do
@@ -539,6 +551,20 @@ Collection of useful stuff
   * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
   * `jump: ']xyz['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ tid:
     '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
+* **[–]** implement positioning API to ensure correct positioning of tokens obtained from a lexer that
+  consumes output of a `Start_stop_preprocessor`:
+  * **[–]** `lexer.get_position()`
+  * **[–]** `lexer.set_position()`
+  * **[–]** `lexer.get_position_1()`
+  * **[–]** `lexer.set_position_1()`
+  * **[–]** `lexer.get_position_2()`
+  * **[–]** `lexer.set_position_2()`
+  * **[–]** `lexer.get_offset()`
+  * **[+]** `lexer.set_offset()`
+* **[–]** allow parsing of 'minimal token' with mandatory attribute, `value`, optional attributes `lnr1`,
+  `x1`; this will implicitly call `lexer.set_offset()`. Useful for consuming tokens from
+  `Start_stop_preprocessor`
+* **[–]** implement using regexes in `reserved` when possible
 
 ## Is Done
 
