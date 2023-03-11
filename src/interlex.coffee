@@ -294,6 +294,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   walk: ( source_or_cfg ) ->
     cfg = @types.cast.ilx_walk_source_or_cfg source_or_cfg
+    @set_offset cfg
     return @_walk_text        cfg if cfg.source?
     return @_walk_file_lines  cfg
 

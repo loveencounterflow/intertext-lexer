@@ -99,20 +99,25 @@ get_base_types = ->
   declare.ilx_walk_source_or_cfg
     fields:
       source:           'optional.text'
+      value:            'optional.text'
       path:             'optional.nonempty.text'
       _error:           'null'
     default:
       source:           null
+      value:            null
       path:             null
       _error:           null
     cast: ( x ) ->
       return { @registry.ilx_walk_source_or_cfg.default..., source: x, } if @isa.text x
       return x unless @isa.object x
-      R = { @registry.ilx_walk_source_or_cfg.default..., x..., }
+      R         = { @registry.ilx_walk_source_or_cfg.default..., x..., }
+      R.source  = R.value if R.value?
       if ( not x.source? and not x.path? )
         R._error = "must set either `source` or `path`"
       if ( x.source? and x.path? )
         R._error = "cannot set both `source` and `path`"
+      R.lnr     ?= ( R.lnr1 ? 1 )
+      R.x       ?= ( R.x1   ? 0 )
       return R
   #.........................................................................................................
   declare.ilx_add_catchall_lexeme_cfg
