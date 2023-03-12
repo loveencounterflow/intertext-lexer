@@ -566,6 +566,13 @@ class Interlex
     @state.offset = { cfg..., }
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  XXX_set_position: ( cfg ) ->
+    # cfg           = @types.create.ilx_set_offset_cfg cfg
+    @state.lnr1 = cfg.lnr1 - 1
+    # @state.x1   = cfg.x1
+    return null
+
 
 #===========================================================================================================
 module.exports = { Interlex, compose, sorter, }
