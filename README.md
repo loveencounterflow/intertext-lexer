@@ -16,6 +16,7 @@
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
   - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
     - [Linewise Lexing](#linewise-lexing)
+  - [Prepending and Appending to Chunks and Lines](#prepending-and-appending-to-chunks-and-lines)
   - [Comparing Token Positions](#comparing-token-positions)
   - [Positioning](#positioning)
   - [Tools](#tools)
@@ -425,6 +426,16 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
     linebreaks in linewise mode). However, if those tokens are then fed to a parser, that parser may match
     tokens across linebreaks, and in that case it will be convenient to derive the position of the resulting
     region by `{ lnr1, x1, } = first_token; { lnr2, x2, } = last_token`
+
+## Prepending and Appending to Chunks and Lines
+
+* Can instantiate lexer with `prepend`, `append` settings
+* this will prefix, suffix each line or chunk with the string given, if any
+* may choose to instantiate as `lexer = new Interlex { split: 'lines', append: '\n', }` to ensure each line
+  is properly terminated depending on use case
+* when prepending, `x` positions will take prefix length into account and will not match positions in the
+  source
+
 
 ## Comparing Token Positions
 
