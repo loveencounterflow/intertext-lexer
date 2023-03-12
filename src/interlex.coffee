@@ -317,7 +317,8 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text_lines: ( cfg ) ->
-    for { lnr: lnr1, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, { trim: @cfg.trim, }
+    for { lnr: lnr1, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, \
+      { trim: @cfg.trim, prepend: @cfg.prepend, append: @cfg.append, }
       yield from @_walk_text_whole { cfg..., lnr1, source: line, eol, }
     return null
 
@@ -325,7 +326,8 @@ class Interlex
   _walk_file_lines: ( cfg ) ->
     ### TAINT should provide `lnr1`, `eol` as well ###
     ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
-    for { line, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
+    for { line, } from GUY.fs.walk_lines_with_positions cfg.path, \
+      { trim: @cfg.trim, prepend: @cfg.prepend, append: @cfg.append, }
       yield from @_walk_text { cfg..., source: line, }
     return null
 
@@ -339,8 +341,6 @@ class Interlex
     token     = @_step()
     #.......................................................................................................
     if token?
-      if ( @cfg.prepend isnt '' ) or ( @cfg.append isnt '' )
-        token = GUY.lft.lets token, ( token ) => token.value = @cfg.prepend + token.value + @cfg.append
       R.push token
       if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token.mode isnt prv_mode ) )
         if is_singleton_jump = ( @state.mode is prv_mode )
