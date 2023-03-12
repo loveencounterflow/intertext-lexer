@@ -41,7 +41,7 @@ class @Start_stop_preprocessor
   #---------------------------------------------------------------------------------------------------------
   _new_prelexer: ( cfg ) ->
     { Interlex }  = require '../main'
-    lexer         = new Interlex { split: 'lines', cfg..., }
+    lexer         = new Interlex { split: 'lines', append: '\n', cfg..., }
     #.......................................................................................................
     do =>
       mode = 'meta'
