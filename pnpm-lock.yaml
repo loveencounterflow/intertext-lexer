@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   compose-regexp-commonjs: ^0.6.24
   datom: ^11.0.0
-  guy: ^13.1.0
+  guy: ^13.2.0
   intertype: ^0.111.0
   ltsort: ^4.0.0
   moonriver: ^4.0.0
@@ -11,7 +11,7 @@ specifiers:
 dependencies:
   compose-regexp-commonjs: 0.6.24
   datom: 11.0.0
-  guy: 13.1.0
+  guy: 13.2.0
   intertype: 0.111.0
   ltsort: 4.0.0
   moonriver: 4.0.0
@@ -78,8 +78,8 @@ packages:
       letsfreezethat: 3.1.0
     dev: false
 
-  /guy/13.1.0:
-    resolution: {integrity: sha512-AkkQXfzP5S1cbVF0cPmoZxeHJgNmLRIEZdZhMzj0i0y5mqV8BpSKh5JuKPfsQOdA42qtlRXPs0OR3hf+Q3dy6Q==}
+  /guy/13.2.0:
+    resolution: {integrity: sha512-YdE19XaufMS4NwpdJfBEL4hm+xmaQoEWrU76WHalV+oN4xHW/W3XAgcoCfEwCdSJpu8rLSEVSTzU80qJRdbOQw==}
     peerDependencies:
       acorn: ^8.7.1
       acorn-loose: ^8.3.0
