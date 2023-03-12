@@ -21,6 +21,7 @@ GUY                       = require 'guy'
   log     }               = GUY.trm
 { misfit
   get_base_types }        = require '../types'
+lets                      = GUY.lft.lets
 
 
 #===========================================================================================================
