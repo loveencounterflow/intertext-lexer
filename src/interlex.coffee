@@ -339,6 +339,8 @@ class Interlex
     token     = @_step()
     #.......................................................................................................
     if token?
+      if ( @cfg.prepend isnt '' ) or ( @cfg.append isnt '' )
+        token = GUY.lft.lets token, ( token ) => token.value = @cfg.prepend + token.value + @cfg.append
       R.push token
       if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token.mode isnt prv_mode ) )
         if is_singleton_jump = ( @state.mode is prv_mode )

@@ -82,6 +82,8 @@ get_base_types = ->
       split:            'ilx_splitmode'
       state:            'ilx_statemode'
       trim:             'boolean'
+      prepend:          'text'
+      append:           'text'
       # global ???
       # ignorecase  # ignoreCase
     default:
@@ -95,6 +97,8 @@ get_base_types = ->
       split:            'lines'
       state:            'keep'
       trim:             true
+      prepend:          ''
+      append:           ''
   #.........................................................................................................
   declare.ilx_walk_source_or_cfg
     fields:
