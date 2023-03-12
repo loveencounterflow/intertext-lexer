@@ -299,14 +299,6 @@ class Interlex
     return @_walk_file_lines  cfg
 
   #---------------------------------------------------------------------------------------------------------
-  _walk_file_lines: ( cfg ) ->
-    ### TAINT should provide `lnr1`, `eol` as well ###
-    ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
-    for { line, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
-      yield from @_walk_text { cfg..., source: line, }
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
   _walk_text: ( cfg ) ->
     return @_walk_text_lines cfg if ( @cfg.split is 'lines' )
     return @_walk_text_whole cfg
@@ -327,6 +319,12 @@ class Interlex
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  _walk_file_lines: ( cfg ) ->
+    ### TAINT should provide `lnr1`, `eol` as well ###
+    ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
+    for { line, } from GUY.fs.walk_lines_with_positions cfg.path, { trim: @cfg.trim, }
+      yield from @_walk_text { cfg..., source: line, }
+    return null
   step: ->
     R         = []
     prv_mode  = @state.mode
