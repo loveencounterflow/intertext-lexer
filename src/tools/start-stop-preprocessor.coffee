@@ -52,7 +52,7 @@ class @Start_stop_preprocessor
         return token
       lexer.add_lexeme { mode, tid: 'start',          pattern: /(?<!\\)<\?start\?>/,                      reserved: '<', }
       lexer.add_lexeme { mode, tid: 'stop',   create, pattern: /(?<!\\)<\?stop(?:[-_](?<scope>all))?\?>/, reserved: '<', }
-      lexer.add_lexeme { mode, tid: 'nl',             pattern: /$/u, value: '\n', }
+      lexer.add_lexeme { mode, tid: 'nl',             pattern: /\n/u, reserved: '\n', }
       lexer.add_lexeme { mode, tid: 'text_lt',        pattern: /<(?=\?)/, }
       lexer.add_catchall_lexeme { mode, tid: 'text', concat: true, }
     #.......................................................................................................
@@ -60,18 +60,29 @@ class @Start_stop_preprocessor
 
   #---------------------------------------------------------------------------------------------------------
   _new_preparser: ->
-    { Pipeline }  = require 'moonriver'
+    { Pipeline
+      $         } = require 'moonriver'
     p             = new Pipeline()
+    #.......................................................................................................
+    join = ( collector, joiner ) =>
+      first_t = collector.at 0
+      last_t  = collector.at -1
+      return lets first_t, ( d ) =>
+        d.value = ( ( t.value for t in collector ).join joiner ).trimEnd()
+        d.lnr1  = first_t.lnr1
+        d.x1    = first_t.x1
+        d.lnr2  = last_t.lnr2
+        d.x2    = last_t.x2
     #.......................................................................................................
     $parse = => parse = ( source, send ) =>
       send token for token from @_lexer.walk source
     #.......................................................................................................
     $mark_active = =>
       active = @cfg.active
-      set_active = ( d, active ) -> GUY.lft.lets d, ( d ) ->
+      set_active = ( d, active ) => lets d, ( d ) =>
         d.data         ?= {}
         d.data.active   = active
-      return mark_active = ( d, send ) ->
+      return mark_active = ( d, send ) =>
         if d.mk is 'meta:start'
           active = true
           return send set_active d, false
@@ -80,34 +91,51 @@ class @Start_stop_preprocessor
           return send set_active d, false
         send set_active d, active
     #.......................................................................................................
-    $collect_chunks = ->
+    $collect_chunks = =>
       collector = []
       active    = null
+      last      = Symbol 'last'
       #.....................................................................................................
-      join      = ->
-        first_t = collector.at 0
-        last_t  = collector.at -1
-        return GUY.lft.lets first_t, ( d ) ->
-          d.value = ( t.value for t in collector ).join ''
-          d.lnr1  = first_t.lnr1
-          d.x1    = first_t.x1
-          d.lnr2  = last_t.lnr2
-          d.x2    = last_t.x2
-      #.....................................................................................................
-      return collect_chunks = ( d, send ) ->
+      return collect_chunks = $ { last, }, ( d, send ) =>
         # active ?= d.data.active
+        if d is last
+          send join collector, '' if collector.length > 0
+          collector = []
+          return null
         if d.mk is 'meta:nl'
           collector.push d
-          send join()
+          send join collector, ''
           collector = []
         else if active isnt d.data.active
-          send join() if collector.length > 0
+          send join collector, '' if collector.length > 0
           collector = [ d, ]
         else
           collector.push d
         active = d.data.active
     #.......................................................................................................
+    $assemble_lines = =>
+      collector = []
+      last      = Symbol 'last'
+      prv_lnr1  = null
+      #.....................................................................................................
+      return assemble_lines = $ { last, }, ( d, send ) =>
+        if d is last
+          send join collector, @cfg.join if collector.length > 0
+          collector = []
+          return null
+        return send d unless d.data.active
+        prv_lnr1 ?= d.lnr1
+        if d.lnr1 isnt prv_lnr1
+          prv_lnr1 = d.lnr1
+          send join collector, @cfg.join if collector.length > 0
+          collector = []
+          collector.push d
+          return null
+        collector.push d
+        return null
+    #.......................................................................................................
     p.push $parse()
     p.push $mark_active()
     p.push $collect_chunks()
+    p.push $assemble_lines()
     return p

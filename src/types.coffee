@@ -146,8 +146,10 @@ get_base_types = ->
   declare.ilx_start_stop_preprocessor_cfg
     fields:
       active:         'boolean'
+      join:           'text'
     default:
       active:         true
+      join:           ''
   #.........................................................................................................
   declare.ilx_set_offset_cfg
     fields:
