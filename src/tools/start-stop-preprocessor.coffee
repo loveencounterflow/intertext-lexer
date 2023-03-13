@@ -64,11 +64,25 @@ class @Start_stop_preprocessor
       $         } = require 'moonriver'
     p             = new Pipeline()
     #.......................................................................................................
-    join = ( collector, joiner ) =>
-      first_t = collector.at 0
-      last_t  = collector.at -1
+    join = ( collector, joinerase ) =>
+      debug '^32-1^', rpr ( t.value for t in collector )
+      { joiner
+        eraser }  = joinerase
+      first_t     = collector.at 0
+      last_t      = collector.at -1
       return lets first_t, ( d ) =>
-        d.value = ( ( t.value for t in collector ).join joiner ).trimEnd()
+        #...................................................................................................
+        if joiner?
+          d.value = ( ( t.value for t in collector ).join joiner ).trimEnd()
+        else
+          parts     = []
+          last_idx  = collector.length - 1
+          for t, idx in collector
+            parts.push t.value
+            continue if idx >= last_idx
+            parts.push eraser.repeat distance if ( distance = collector[ idx + 1 ].x1 - t.x2 ) > 0
+          d.value = ( parts.join '' ).trimEnd()
+        #...................................................................................................
         d.lnr1  = first_t.lnr1
         d.x1    = first_t.x1
         d.lnr2  = last_t.lnr2
@@ -97,17 +111,16 @@ class @Start_stop_preprocessor
       last      = Symbol 'last'
       #.....................................................................................................
       return collect_chunks = $ { last, }, ( d, send ) =>
-        # active ?= d.data.active
         if d is last
-          send join collector, '' if collector.length > 0
+          send join collector, { joiner: '', } if collector.length > 0
           collector = []
           return null
         if d.mk is 'meta:nl'
           collector.push d
-          send join collector, ''
+          send join collector, { joiner: '', }
           collector = []
         else if active isnt d.data.active
-          send join collector, '' if collector.length > 0
+          send join collector, { joiner: '', } if collector.length > 0
           collector = [ d, ]
         else
           collector.push d
@@ -117,17 +130,20 @@ class @Start_stop_preprocessor
       collector = []
       last      = Symbol 'last'
       prv_lnr1  = null
+      join_cfg  = {}
+      join_cfg.joiner = @cfg.joiner if @cfg.joiner?
+      join_cfg.eraser = @cfg.eraser if @cfg.eraser?
       #.....................................................................................................
       return assemble_lines = $ { last, }, ( d, send ) =>
         if d is last
-          send join collector, @cfg.join if collector.length > 0
+          send join collector, join_cfg if collector.length > 0
           collector = []
           return null
         return send d unless d.data.active
         prv_lnr1 ?= d.lnr1
         if d.lnr1 isnt prv_lnr1
           prv_lnr1 = d.lnr1
-          send join collector, @cfg.join if collector.length > 0
+          send join collector, join_cfg if collector.length > 0
           collector = []
           collector.push d
           return null

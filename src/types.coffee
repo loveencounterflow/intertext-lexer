@@ -146,10 +146,30 @@ get_base_types = ->
   declare.ilx_start_stop_preprocessor_cfg
     fields:
       active:         'boolean'
-      join:           'text'
+      joiner:         'optional.text'
+      eraser:         'optional.text'
     default:
       active:         true
-      join:           ''
+      joiner:         null
+      eraser:         null
+    create: ( x ) ->
+      # {}, null -> { eraser: ' ', }
+      # { eraser: 'x', } -> { eraser: 'x', }
+      # { joiner: 'x', } -> { joiner: 'x', eraser: null, }
+      # { joiner: 'x', eraser: 'y', } -> error
+      x        ?= { @registry.ilx_start_stop_preprocessor_cfg.default..., }
+      return x unless @isa.object x
+      R         = {}
+      R.active  = x.active ? @registry.ilx_start_stop_preprocessor_cfg.default.active
+      if x.joiner?
+        if x.eraser?
+          throw new Error "cannot set both `joiner` and `eraser`, got #{rpr x}"
+        else
+          R.joiner = x.joiner
+        return R
+      R.eraser = x.eraser ? ' '
+      return R
+
   #.........................................................................................................
   declare.ilx_set_offset_cfg
     fields:
