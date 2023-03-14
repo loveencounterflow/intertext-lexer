@@ -483,11 +483,41 @@ Collection of useful stuff
 
   ```coffee
   { tools } = require '../../../apps/intertext-lexer'
-  prepro    = new tools.Start_stop_preprocessor { active: false, }
+  prepro    = new tools.Start_stop_preprocessor { active: true, eraser: ' ', }
   ```
 
-* can set desired initial `active` state, default is `true`
-
+  Shown here are the defaults:
+    * set `active: false` to only start when a `<?start?>` marker is found
+    * `eraser` and `joiner` control how gaps in the source are treated
+    * consider a source like `abc<?start?>xyz` being processed with initial `active: true`
+    * the `<?start?>` marker is redundant in that case and will be 'elided', meaning a token with `value:
+      <?start?>, $stamped: true, data: { active: false, }` is yielded (and may be discarded as seen fit)
+    * but that leaves a hole in the source: `abc❓❓❓xyz`, how to deal with it?
+    * the MVP solution was to send one active chunk `abc`, one inactive chunk `<?start?>`, then one active
+      chunk `xyz`. But this is not a good solution if the downstream lexer operates in linewise fashion
+      because it then will treat `abc` and `xyz` as appearing on two consecutive lines and mess up their
+      position data
+    * most of the time one would prefer all `lnr1, x1` positions to be preserved as faithfully as feasable
+    * `xyz` occurred at `x1: 12` in the input; if we now pass on `abcxyz` that would change its position to
+      `x1: 3`. What's more, it isn't quite clear whether we should treat `abc` and `xyz` as separate
+      stretches / words (because they were separated by a marker) or as a single stretch / word (because the
+      marker was elided). Only the consumer can tell what they want
+    * The preprocessor tries to err on the side of the 'safe' and practical assumption that the consumer
+      probably wants their source positions be preserved and won't mind extraneous inline spaces (true for a
+      lot or source code, HTML &c) and will replace each elided character by a `\x20` (U+0020 Space),
+      yielding `abc         xyz`.
+      * This behavior is called 'erasing' and is controlled by the `eraser` configuration setting. This can
+        be any string, including the empty string; it will be repeated for as many times as the number of
+        code units (JS string index, length) the erased part comprised (so any codepoint in U+0000..U+FFFF
+        will preserve positions)
+    * The alternative to 'erasing' is 'joining' which will put a single copy of whatever text is present in
+      the `joiner` configuration setting into the spot where a marker was found, so processing
+      `abc<?start?>xyz` with `joiner: ' '` will produce `abc xyz`
+    * settings `eraser: ''` and `joiner: ''` are equivalent and will produce `abcxyz`
+    * if the default setting of `eraser: ' ` is not good fit for your use case consider to use something
+      like `eraser: '\x00'`; U+0000 should not normally be part of any human-readable text source; a pattern
+      `/\x00+/` will preserve the information that the source has a hole in this spot, and the resulting
+      line `abc␀␀␀␀␀␀␀␀␀xyz` will preserve positions
 
 ## To Do
 
