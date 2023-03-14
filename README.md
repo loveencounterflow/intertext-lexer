@@ -14,7 +14,7 @@
   - [Example](#example)
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
-  - [Linewise and Stae-Keeping Lexing](#linewise-and-stae-keeping-lexing)
+  - [Linewise Lexing and State-Keeping](#linewise-lexing-and-state-keeping)
     - [Linewise Lexing](#linewise-lexing)
   - [Prepending and Appending to Chunks and Lines](#prepending-and-appending-to-chunks-and-lines)
   - [Comparing Token Positions](#comparing-token-positions)
@@ -328,7 +328,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * it is possible to give `$catchall` and `$reserved` lexemes a custom TID by settting the `tid` parameter
   when calling `lexer.add_catchall_lexeme()` and `lexer.add_reserved_lexeme()`
 
-## Linewise and Stae-Keeping Lexing
+## Linewise Lexing and State-Keeping
 
 * `state`:
   * `state: 'keep'`—do not reset lexer state implicitly (except once before the very first chunk of
