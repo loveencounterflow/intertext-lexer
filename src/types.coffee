@@ -115,6 +115,8 @@ get_base_types = ->
       return { @registry.ilx_walk_source_or_cfg.default..., source: x, } if @isa.text x
       return x unless @isa.object x
       R         = { @registry.ilx_walk_source_or_cfg.default..., x..., }
+      ### TAINT this is a hotfix that allows to use tokens with a `value` property to be used as lexing
+      cfg (which uses `source`); this fix will be removed when we have renamed one or both properties ###
       R.source  = R.value if R.value?
       if ( not x.source? and not x.path? )
         R._error = "must set either `source` or `path`"
