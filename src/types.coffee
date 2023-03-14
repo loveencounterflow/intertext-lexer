@@ -105,12 +105,10 @@ get_base_types = ->
       source:           'optional.text'
       value:            'optional.text'
       path:             'optional.nonempty.text'
-      _error:           'null'
     default:
       source:           null
       value:            null
       path:             null
-      _error:           null
     cast: ( x ) ->
       return { @registry.ilx_walk_source_or_cfg.default..., source: x, } if @isa.text x
       return x unless @isa.object x
