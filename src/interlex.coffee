@@ -180,7 +180,6 @@ class Interlex
     @_finalize() if @state? and not @state.finalized
     @state                             ?= {}
     @state.finalized                   ?= false
-    @state.offset                      ?= { lnr: 1, x: 0, }
     switch @cfg.state
       when 'keep'
         @state.stack                       ?= []
@@ -191,6 +190,8 @@ class Interlex
       else
         throw new E.Interlex_TBDUNCLASSIFIED '^_start@1^', "illegal value for @cfg.state: #{rpr @cfg.state}"
     @state.prv_last_idx                 = 0
+    @state.delta_x                      = @state.posapi_x1 ? 0
+    @state.posapi_x1                    = null
     @state.pattern                      = @registry?[ @state.mode ]?.pattern ? null
     @state.source                       = source
     @state.finished                     = false
@@ -241,14 +242,14 @@ class Interlex
 
   #---------------------------------------------------------------------------------------------------------
   _new_token: ( tid, value, length, data = null, lexeme = null ) ->
-    x1        = @state.prv_last_idx + @state.offset.x
+    x1        = @state.prv_last_idx + @state.delta_x
     x2        = x1 + length
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
     #.......................................................................................................
     ### TAINT use `types.create.ilx_token {}` ###
-    lnr1  = lnr2 = @state.lnr1 + @state.offset.lnr - 1
+    lnr1  = lnr2 = @state.lnr1
     R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, data, source, }
     #.......................................................................................................
     @_set_token_value R, lexeme, value
@@ -297,7 +298,7 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   walk: ( source_or_cfg ) ->
     cfg = @types.cast.ilx_walk_source_or_cfg source_or_cfg
-    @set_offset cfg
+    # @set_offset cfg
     return @_walk_text        cfg if cfg.source?
     return @_walk_file_lines  cfg
 
@@ -558,19 +559,14 @@ class Interlex
     entry.reserved = cfg
     return null
 
+
   #=========================================================================================================
   # POSITIONING API
   #---------------------------------------------------------------------------------------------------------
-  set_offset: ( cfg ) ->
-    cfg           = @types.create.ilx_set_offset_cfg cfg
-    @state.offset = { cfg..., }
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  XXX_set_position: ( cfg ) ->
-    # cfg           = @types.create.ilx_set_offset_cfg cfg
-    @state.lnr1 = cfg.lnr1 - 1
-    # @state.x1   = cfg.x1
+  set_position: ( cfg ) ->
+    cfg               = @types.create.ilx_set_position_cfg cfg
+    @state.lnr1       = cfg.lnr1 - 1  if cfg.lnr1?
+    @state.posapi_x1  = cfg.x1        if cfg.x1?
     return null
 
 

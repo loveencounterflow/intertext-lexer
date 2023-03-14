@@ -171,13 +171,13 @@ get_base_types = ->
       return R
 
   #.........................................................................................................
-  declare.ilx_set_offset_cfg
+  declare.ilx_set_position_cfg
     fields:
-      lnr:            'ilx_line_number'
-      x:              'ilx_codeunit_idx'
+      lnr1:           'optional.ilx_line_number'
+      x1:             'optional.ilx_codeunit_idx'
     default:
-      lnr:            1
-      x:              0
+      lnr1:           null
+      x1:             null
   return base_types
 
 
