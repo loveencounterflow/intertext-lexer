@@ -135,9 +135,9 @@ new_toy_md_lexer = ( mode = 'plain' ) ->
   #.........................................................................................................
   lexer.add_lexeme { mode: 'plain',   tid: 'escchr',    jump: null,       pattern:  /\\(?<chr>.)/u,     }
   lexer.add_lexeme { mode: 'plain',   tid: 'star1',     jump: null,       pattern:  /(?<!\*)\*(?!\*)/u, }
-  lexer.add_lexeme { mode: 'plain',   tid: 'codespan',  jump: 'literal',  pattern:  /(?<!`)`(?!`)/u,    }
+  lexer.add_lexeme { mode: 'plain',   tid: 'codespan',  jump: 'literal[', pattern:  /(?<!`)`(?!`)/u,    }
   lexer.add_lexeme { mode: 'plain',   tid: 'other',     jump: null,       pattern:  /[^*`\\]+/u,        }
-  lexer.add_lexeme { mode: 'literal', tid: 'codespan',  jump: '^',        pattern:  /(?<!`)`(?!`)/u,    }
+  lexer.add_lexeme { mode: 'literal', tid: 'codespan',  jump: '.]',       pattern:  /(?<!`)`(?!`)/u,    }
   lexer.add_lexeme { mode: 'literal', tid: 'text',      jump: null,       pattern:  /(?:\\`|[^`])+/u,   }
 ```
 
