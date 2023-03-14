@@ -65,7 +65,6 @@ class @Start_stop_preprocessor
     p             = new Pipeline()
     #.......................................................................................................
     join = ( collector, joinerase ) =>
-      debug '^32-1^', rpr ( t.value for t in collector )
       { joiner
         eraser }  = joinerase
       first_t     = collector.at 0
