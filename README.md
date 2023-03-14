@@ -505,7 +505,7 @@ Collection of useful stuff
     * The preprocessor tries to err on the side of the 'safe' and practical assumption that the consumer
       probably wants their source positions be preserved and won't mind extraneous inline spaces (true for a
       lot or source code, HTML &c) and will replace each elided character by a `\x20` (U+0020 Space),
-      yielding `abc         xyz`.
+      yielding<br>`abc         xyz`.
     * This behavior is called 'erasing' and is controlled by the `eraser` configuration setting. This can be
       any string, including the empty string; it will be repeated for as many times as the number of code
       units (JS string index, length) the erased part comprised (so any codepoint in U+0000..U+FFFF will
