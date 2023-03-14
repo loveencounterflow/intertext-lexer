@@ -118,10 +118,10 @@ get_base_types = ->
       ### TAINT this is a hotfix that allows to use tokens with a `value` property to be used as lexing
       cfg (which uses `source`); this fix will be removed when we have renamed one or both properties ###
       R.source  = R.value if R.value?
-      if ( not x.source? and not x.path? )
-        R._error = "must set either `source` or `path`"
-      if ( x.source? and x.path? )
-        R._error = "cannot set both `source` and `path`"
+      if ( not R.source? and not R.path? )
+        throw new Error "^types.ilx_walk_source_or_cfg@1^ must set either `source` or `path`"
+      if ( R.source? and R.path? )
+        throw new Error "^types.ilx_walk_source_or_cfg@2^ cannot set both `source` and `path`"
       R.lnr     ?= ( R.lnr1 ? 1 )
       R.x       ?= ( R.x1   ? 0 )
       return R
