@@ -506,15 +506,15 @@ Collection of useful stuff
       probably wants their source positions be preserved and won't mind extraneous inline spaces (true for a
       lot or source code, HTML &c) and will replace each elided character by a `\x20` (U+0020 Space),
       yielding `abc         xyz`.
-      * This behavior is called 'erasing' and is controlled by the `eraser` configuration setting. This can
-        be any string, including the empty string; it will be repeated for as many times as the number of
-        code units (JS string index, length) the erased part comprised (so any codepoint in U+0000..U+FFFF
-        will preserve positions)
+    * This behavior is called 'erasing' and is controlled by the `eraser` configuration setting. This can be
+      any string, including the empty string; it will be repeated for as many times as the number of code
+      units (JS string index, length) the erased part comprised (so any codepoint in U+0000..U+FFFF will
+      preserve positions)
     * The alternative to 'erasing' is 'joining' which will put a single copy of whatever text is present in
       the `joiner` configuration setting into the spot where a marker was found, so processing
       `abc<?start?>xyz` with `joiner: ' '` will produce `abc xyz`
     * settings `eraser: ''` and `joiner: ''` are equivalent and will produce `abcxyz`
-    * if the default setting of `eraser: ' ` is not good fit for your use case consider to use something
+    * if the default setting of `eraser: ' '` is no good fit for your use case consider to use something
       like `eraser: '\x00'`; U+0000 should not normally be part of any human-readable text source; a pattern
       `/\x00+/` will preserve the information that the source has a hole in this spot, and the resulting
       line `abc␀␀␀␀␀␀␀␀␀xyz` will preserve positions
