@@ -613,6 +613,8 @@ Collection of useful stuff
 * **[–]** disallow lexing with an 'empty' lexer (that has no lexemes); must explicitly declare a
   'match-nothing' lexeme if that's what you want (unlikely)
 * **[–]** remove `set_offset()`, implement `set_position()`
+* **[–]** in test `start_stop_preprocessor/start_stop_preprocessor_basic()` some tests show active, inactive
+  tokens out of order; try to fix in preprocessor `$assemble_lines()`?
 
 ## Is Done
 
