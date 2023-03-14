@@ -606,9 +606,11 @@ Collection of useful stuff
   `x1`; this will implicitly call `lexer.set_offset { lnr: t.lnr1, x: t.x1, }`. Useful for consuming tokens
   from `Start_stop_preprocessor`
   * should offset be reset or carried on when intermittently lexing w/out positions?
-  * **[–]** consider to rename `token.source -> token.input`, `token.value -> token.source`
+* **[–]** consider to rename `token.source -> token.input`, `token.value -> token.source`
   * **[–]** FTTB, allow minimal token to have either `value` and / or `source` attributes, prefer `value`
     where present
+  * **[–]** importantly, **input shape should match output shape** (with the exception that input may also
+    come from strings or a file instead of a token-like object)
 * **[–]** implement using regexes in `reserved` when possible
 * **[–]** disallow lexing with an 'empty' lexer (that has no lexemes); must explicitly declare a
   'match-nothing' lexeme if that's what you want (unlikely)
