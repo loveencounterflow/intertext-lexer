@@ -594,14 +594,14 @@ Collection of useful stuff
     '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
 * **[–]** implement positioning API to ensure correct positioning of tokens obtained from a lexer that
   consumes output of a `Start_stop_preprocessor`:
-  * **[–]** `lexer.get_position()`
   * **[–]** `lexer.set_position()`
-  * **[–]** `lexer.get_position_1()`
-  * **[–]** `lexer.set_position_1()`
-  * **[–]** `lexer.get_position_2()`
-  * **[–]** `lexer.set_position_2()`
-  * **[–]** `lexer.get_offset()`
-  * **[+]** `lexer.set_offset()`
+  * **[–]** ❓`lexer.get_position()`
+  * **[–]** ❓`lexer.get_position_1()`
+  * **[–]** ❓`lexer.set_position_1()`
+  * **[–]** ❓`lexer.get_position_2()`
+  * **[–]** ❓`lexer.set_position_2()`
+  * **[–]** <del>`lexer.get_offset()`</del>
+  * **[+]** <del>`lexer.set_offset()`</del>
 * **[–]** allow parsing of 'minimal token' with mandatory attribute, `value`, optional attributes `lnr1`,
   `x1`; this will implicitly call `lexer.set_offset { lnr: t.lnr1, x: t.x1, }`. Useful for consuming tokens
   from `Start_stop_preprocessor`
@@ -612,6 +612,7 @@ Collection of useful stuff
 * **[–]** implement using regexes in `reserved` when possible
 * **[–]** disallow lexing with an 'empty' lexer (that has no lexemes); must explicitly declare a
   'match-nothing' lexeme if that's what you want (unlikely)
+* **[–]** remove `set_offset()`, implement `set_position()`
 
 ## Is Done
 
