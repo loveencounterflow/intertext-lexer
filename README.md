@@ -611,6 +611,7 @@ Collection of useful stuff
     where present
   * **[–]** importantly, **input shape should match output shape** (with the exception that input may also
     come from strings or a file instead of a token-like object)
+* **[–]** implement declarative chaining of preprocessors and lexers, lexers and lexers
 * **[–]** implement using regexes in `reserved` when possible
 * **[–]** disallow lexing with an 'empty' lexer (that has no lexemes); must explicitly declare a
   'match-nothing' lexeme if that's what you want (unlikely)
