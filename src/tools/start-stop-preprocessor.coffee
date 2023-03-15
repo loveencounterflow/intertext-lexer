@@ -50,9 +50,10 @@ class @Start_stop_preprocessor
         token.data        ?= {}
         token.data.scope  ?= 'local'
         return token
-      lexer.add_lexeme { mode, tid: 'start',          pattern: /(?<!\\)<\?start\?>/,                      reserved: '<', }
-      lexer.add_lexeme { mode, tid: 'stop',   create, pattern: /(?<!\\)<\?stop(?:[-_](?<scope>all))?\?>/, reserved: '<', }
-      lexer.add_lexeme { mode, tid: 'nl',             pattern: /\n/u, reserved: '\n', }
+      lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
+      lexer.add_lexeme { mode, tid: 'start',          pattern: /<\?start\?>/,                       reserved: '<', }
+      lexer.add_lexeme { mode, tid: 'stop',   create, pattern: /<\?stop(?:[-_](?<scope>all))?\?>/,  reserved: '<', }
+      lexer.add_lexeme { mode, tid: 'nl',             pattern: /\n/u,                               reserved: '\n', }
       lexer.add_lexeme { mode, tid: 'text_lt',        pattern: /<(?=\?)/, }
       lexer.add_catchall_lexeme { mode, tid: 'text', concat: true, }
     #.......................................................................................................
