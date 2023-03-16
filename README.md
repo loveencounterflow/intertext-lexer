@@ -518,6 +518,9 @@ Collection of useful stuff
       like `eraser: '\x00'`; U+0000 should not normally be part of any human-readable text source; a pattern
       `/\x00+/` will preserve the information that the source has a hole in this spot, and the resulting
       line `abc␀␀␀␀␀␀␀␀␀xyz` will preserve positions
+    * Because the preprocessor will keep lines with 'holes' rather than breaking up lines that have
+      intermittend start/stop marks, the relative ordering of active and inactive chunks is not guaranteed;
+      only the ordering relative to other active (respectively inactive) tokens is preserved
 
 ## To Do
 
