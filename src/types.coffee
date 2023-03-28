@@ -169,7 +169,16 @@ get_base_types = ->
         return R
       R.eraser = x.eraser ? ' '
       return R
-
+  #.........................................................................................................
+  ### TAINT only allows fixed number U+0020 Space, should allow tabs ###
+  declare.ilx_outline_preprocessor_cfg
+    fields:
+      blank_line_count:   'positive0.integer'
+      indent_module:      'positive1.integer'
+    default:
+      blank_line_count:   2
+      ### NOTE number of spaces for one level of indentation ###
+      indent_module:      2
   #.........................................................................................................
   declare.ilx_set_position_cfg
     fields:
