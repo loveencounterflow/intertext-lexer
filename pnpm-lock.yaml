@@ -3,18 +3,18 @@ lockfileVersion: 5.4
 specifiers:
   compose-regexp-commonjs: ^0.6.24
   datom: ^11.0.0
-  guy: ^13.2.0
-  intertype: ^0.111.0
+  guy: ^13.5.0
+  intertype: ^0.113.0
   ltsort: ^4.0.0
-  moonriver: ^4.0.0
+  moonriver: ^4.8.0
 
 dependencies:
   compose-regexp-commonjs: 0.6.24
   datom: 11.0.0
-  guy: 13.2.0
-  intertype: 0.111.0
+  guy: 13.5.0
+  intertype: 0.113.0
   ltsort: 4.0.0
-  moonriver: 4.0.0
+  moonriver: 4.8.0
 
 packages:
 
@@ -78,8 +78,22 @@ packages:
       letsfreezethat: 3.1.0
     dev: false
 
-  /guy/13.2.0:
-    resolution: {integrity: sha512-YdE19XaufMS4NwpdJfBEL4hm+xmaQoEWrU76WHalV+oN4xHW/W3XAgcoCfEwCdSJpu8rLSEVSTzU80qJRdbOQw==}
+  /guy/13.4.1:
+    resolution: {integrity: sha512-on37Rey168p+CO6VqXgt7QlSUwDMZz+AtkzBNMo7Ez5v27sSPZcp+oj74Htx/DnLon+RfkJgs7BCuwpr6wwoaQ==}
+    peerDependencies:
+      acorn: ^8.7.1
+      acorn-loose: ^8.3.0
+      acorn-walk: ^8.2.0
+      astring: ^1.8.3
+      dayjs: ^1.11.7
+      tmp: ^0.2.1
+    dependencies:
+      intertype-legacy: 7.7.1
+      letsfreezethat: 3.1.0
+    dev: false
+
+  /guy/13.5.0:
+    resolution: {integrity: sha512-GHHY/Ay1RvjQyFfv6giKc/MFGP8RiLYmBYFVHsjuRJ2EQj+RAZfWs1U7wAQF/Vnrdq83f+gEHbrDefnL9Eh+sg==}
     peerDependencies:
       acorn: ^8.7.1
       acorn-loose: ^8.3.0
@@ -107,6 +121,21 @@ packages:
 
   /intertype/0.111.0:
     resolution: {integrity: sha512-GLIrc9yk0vziLjp7riKr2Czmj5FZt+zxFX9+FLrzPfM04QsIs6PopzxuZy5iVkg2szgEgUZIwICRO/fhk2FPvw==}
+    dependencies:
+      guy: 11.12.0
+      intertype-legacy: 7.7.1
+      rfdc: 1.3.0
+      to-width: 1.2.0
+    transitivePeerDependencies:
+      - acorn
+      - acorn-loose
+      - acorn-walk
+      - astring
+      - tmp
+    dev: false
+
+  /intertype/0.113.0:
+    resolution: {integrity: sha512-j3/p8HAKOQ4WEu7vB+Y6MT6gGaIlleNzL902PYrgNEFx4Ip6xfhXNxxtvFd222+ABfL4DRRKCMEyo7i8zeIb8Q==}
     dependencies:
       guy: 11.12.0
       intertype-legacy: 7.7.1
@@ -157,12 +186,12 @@ packages:
       - tmp
     dev: false
 
-  /moonriver/4.0.0:
-    resolution: {integrity: sha512-+5QuQWhEhuD9MgTAzKSBcHgdWi/htCzI/ap4LwNBRgCqkmyABPXL8yGjAOKMS/fVA/sbpr3lRqe8x+MDO2dZzQ==}
+  /moonriver/4.8.0:
+    resolution: {integrity: sha512-05kH5VVpEZzPNo8TmfQ3C3qgsNxnH26+a0tLbM6hnCQ2BdG6YskyPVpzWTRuMR6wcO0555SEXruGwv+UvdExWA==}
     dependencies:
-      guy: 12.10.0
+      guy: 13.4.1
       intertext-splitlines: 1.2.1
-      intertype: 0.111.0
+      intertype: 0.113.0
       jfee: 0.1.4
     transitivePeerDependencies:
       - acorn
