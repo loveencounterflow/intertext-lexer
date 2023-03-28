@@ -22,6 +22,44 @@ GUY                       = require 'guy'
 { misfit
   get_base_types }        = require '../types'
 lets                      = GUY.lft.lets
+{ Transformer }           = require 'moonriver'
+
+
+
+#===========================================================================================================
+_new_prelexer = ( cfg ) ->
+  { Interlex }  = require '../main'
+  lexer         = new Interlex { split: 'lines', cfg..., }
+  #.......................................................................................................
+  do =>
+    mode = 'outline'
+    create = ( token ) =>
+      token.data           ?= {}
+      token.data.indent    ?= ''
+      token.data.material  ?= ''
+      token.data.level      = token.data.indent.length / lexer.cfg.indent_module
+      return token
+    ### NOTE consider to allow escaping newlines ###
+    # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
+    lexer.add_lexeme { mode, tid: 'blank',            pattern: /^\s*$/u, }
+    lexer.add_lexeme { mode, tid: 'material', create, pattern: /^(?<indent>(?:\x20\x20)*)(?<material>.+)$/, }
+  #.......................................................................................................
+  return lexer
+
+#===========================================================================================================
+class _Preparser extends Transformer
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ->
+    super()
+    GUY.props.hide @, '_lexer', _new_prelexer()
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  $parse: => parse = ( source, send ) =>
+    debug '^534^', source
+    debug '^534^', @_lexer
+    send token for token from @_lexer.walk source
 
 
 #===========================================================================================================
@@ -39,25 +77,6 @@ class @Outline_preprocessor
   walk: ( source_or_cfg ) -> @_parser.send source_or_cfg; yield from @_parser.walk()
   run:  ( source_or_cfg ) -> [ ( @walk source_or_cfg )..., ]
 
-  #---------------------------------------------------------------------------------------------------------
-  _new_prelexer: ( cfg ) ->
-    { Interlex }  = require '../main'
-    lexer         = new Interlex { split: 'lines', cfg..., }
-    #.......................................................................................................
-    do =>
-      mode = 'outline'
-      create = ( token ) =>
-        token.data           ?= {}
-        token.data.indent    ?= ''
-        token.data.material  ?= ''
-        token.data.level      = token.data.indent.length / @cfg.indent_module
-        return token
-      ### NOTE consider to allow escaping newlines ###
-      # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
-      lexer.add_lexeme { mode, tid: 'blank',            pattern: /^\s*$/u, }
-      lexer.add_lexeme { mode, tid: 'material', create, pattern: /^(?<indent>(?:\x20\x20)*)(?<material>.+)$/, }
-    #.......................................................................................................
-    return lexer
 
   #---------------------------------------------------------------------------------------------------------
   _new_preparser: ->
@@ -88,8 +107,6 @@ class @Outline_preprocessor
     #     d.lnr2  = last_t.lnr2
     #     d.x2    = last_t.x2
     #.......................................................................................................
-    $parse = => parse = ( source, send ) =>
-      send token for token from @_lexer.walk source
     # #.......................................................................................................
     # $mark_active = =>
     #   active = @cfg.active
@@ -153,3 +170,8 @@ class @Outline_preprocessor
     p.push $parse()
     # p.push ( d ) -> urge '^77-1^', d
     return p
+
+
+module.exports = { _new_prelexer, _Preparser, }
+
+
