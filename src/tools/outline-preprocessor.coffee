@@ -22,7 +22,8 @@ GUY                       = require 'guy'
 { misfit
   get_base_types }        = require '../types'
 lets                      = GUY.lft.lets
-{ Transformer }           = require 'moonriver'
+{ Transformer
+  $           }           = require 'moonriver'
 
 
 
@@ -37,7 +38,7 @@ _new_prelexer = ( cfg ) ->
       token.data           ?= {}
       token.data.indent    ?= ''
       token.data.material  ?= ''
-      token.data.level      = token.data.indent.length / lexer.cfg.indent_module
+      token.data.level      = token.data.indent.length / 2 # lexer.cfg.indent_module
       return token
     ### NOTE consider to allow escaping newlines ###
     # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
@@ -47,7 +48,7 @@ _new_prelexer = ( cfg ) ->
   return lexer
 
 #===========================================================================================================
-class _Preparser extends Transformer
+@$010_lexing = class $010_lexing extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ->
@@ -57,10 +58,57 @@ class _Preparser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $parse: => parse = ( source, send ) =>
-    debug '^534^', source
-    debug '^534^', @_lexer
     send token for token from @_lexer.walk source
+    return null
 
+#===========================================================================================================
+@$020_consolidate = class $020_consolidate extends $010_lexing
+
+  #---------------------------------------------------------------------------------------------------------
+  $consolidate_newlines: ->
+    count       = 0
+    position    = null
+    stop        = Symbol 'stop'
+    template    = { mode: 'plain', tid: 'nls', mk: 'plain:nls', $: '^outliner.020^', }
+    #.......................................................................................................
+    flush = ( send ) =>
+      return null if count is 0
+      value         = '\n'.repeat count
+      position.lnr2 = position.lnr1 + count
+      if count > 1
+        position.lnr2 = position.lnr1 + count - 1
+        position.x2   = 0
+      data          = { count, }
+      nls           = { template..., value, data, position..., }
+      count         = 0
+      position      = null
+      send nls
+    #.......................................................................................................
+    return $ { stop, }, consolidate_newlines = ( d, send ) =>
+      return flush send if d is stop
+      return send d if d.$stamped
+      if d.mk is 'outline:blank'
+        count++
+        position   ?= H.get_position d
+      else
+        flush send
+        send d
+      return null
+
+
+#===========================================================================================================
+@$030_structure = class $030_structure extends Transformer
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ->
+    super()
+    GUY.props.hide @, '_lexer', _new_prelexer()
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  $structure: => structure = ( source, send ) =>
+    send token for token from @_lexer.walk source
+    return null
 
 #===========================================================================================================
 class @Outline_preprocessor
@@ -172,6 +220,5 @@ class @Outline_preprocessor
     return p
 
 
-module.exports = { _new_prelexer, _Preparser, }
 
 
