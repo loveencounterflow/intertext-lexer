@@ -66,10 +66,11 @@ _new_prelexer = ( cfg ) ->
 
   #---------------------------------------------------------------------------------------------------------
   $consolidate_newlines: ->
-    count       = 0
-    position    = null
-    stop        = Symbol 'stop'
-    template    = { mode: 'plain', tid: 'nls', mk: 'plain:nls', $: '^outliner.020^', }
+    { Interlex }  = require '../main'
+    count         = 0
+    position      = null
+    stop          = Symbol 'stop'
+    template      = { mode: 'plain', tid: 'nls', mk: 'plain:nls', $: '^outliner.020^', }
     #.......................................................................................................
     flush = ( send ) =>
       return null if count is 0
@@ -89,7 +90,7 @@ _new_prelexer = ( cfg ) ->
       return send d if d.$stamped
       if d.mk is 'outline:nl'
         count++
-        position   ?= H.get_position d
+        position ?= Interlex.get_token_position d
       else
         flush send
         send d
