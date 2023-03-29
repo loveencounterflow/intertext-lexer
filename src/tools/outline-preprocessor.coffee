@@ -42,8 +42,8 @@ _new_prelexer = ( cfg ) ->
       return token
     ### NOTE consider to allow escaping newlines ###
     # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
-    lexer.add_lexeme { mode, tid: 'blank',            pattern: /^\s*$/u, }
-    lexer.add_lexeme { mode, tid: 'material', create, pattern: /^(?<indent>(?:\x20\x20)*)(?<material>.+)$/, }
+    lexer.add_lexeme { mode, tid: 'nl',       value: '\n',  pattern: /$/u, }
+    lexer.add_lexeme { mode, tid: 'material', create,       pattern: /^(?<indent>\x20*)(?<material>.+)$/, }
   #.......................................................................................................
   return lexer
 
@@ -87,7 +87,7 @@ _new_prelexer = ( cfg ) ->
     return $ { stop, }, consolidate_newlines = ( d, send ) =>
       return flush send if d is stop
       return send d if d.$stamped
-      if d.mk is 'outline:blank'
+      if d.mk is 'outline:nl'
         count++
         position   ?= H.get_position d
       else
