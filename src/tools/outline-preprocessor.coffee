@@ -38,7 +38,7 @@ _new_prelexer = ( cfg ) ->
       token.data           ?= {}
       token.data.indent    ?= ''
       token.data.material  ?= ''
-      token.data.level      = token.data.indent.length / 2 # lexer.cfg.indent_module
+      token.data.spc_count  = token.data.indent.length
       return token
     ### NOTE consider to allow escaping newlines ###
     # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
