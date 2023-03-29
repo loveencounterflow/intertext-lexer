@@ -569,6 +569,9 @@ class Interlex
     @state.posapi_x1  = cfg.x1        if cfg.x1?
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  get_token_position:   ( token ) -> GUY.props.pick_with_fallback token, null, 'lnr1', 'x1', 'lnr2', 'x2'
+  @get_token_position:  ( token ) -> GUY.props.pick_with_fallback token, null, 'lnr1', 'x1', 'lnr2', 'x2'
 
 #===========================================================================================================
 module.exports = { Interlex, compose, sorter, }
