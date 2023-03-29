@@ -107,53 +107,33 @@ _new_prelexer = ( cfg ) ->
       return null
 
 #===========================================================================================================
-@$030_structure = class $030_structure extends Transformer
+@$030_structure = class $030_structure extends $020_consolidate
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ->
-    super()
-    GUY.props.hide @, '_lexer', _new_prelexer()
-    return undefined
+  start = Symbol 'start'
+  stop  = Symbol 'stop'
 
   #---------------------------------------------------------------------------------------------------------
-  $structure: => structure = ( source, send ) =>
-    send token for token from @_lexer.walk source
-    return null
-
-#===========================================================================================================
-class @Outline_preprocessor
+  $add_start_and_stop: => $ { start, stop, }, ( d, send ) => send d
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( cfg ) ->
-    @types        = get_base_types()
-    @cfg          = Object.freeze @types.create.ilx_outline_preprocessor_cfg cfg
-    @_lexer       = @_new_prelexer()
-    @_parser      = @_new_preparser()
-    return undefined
+  $mark_indentation_levels: =>
+    { Interlex }  = require '../main'
+    prv_spc_count = 0
+    template      = { mode: 'outline', tid: 'dentchg', mk: 'outline:dentchg', $: '^outliner.030^', }
+    position      = null
+    return group_indentation_levels = ( d, send ) =>
+      if d is start
+        return send { template..., lnr1: 1, x1: 0, lnr2: 1, x2: 0, data: { from: prv_spc_count, to: 0, }, }
+      if d is stop
+        return send { template..., position..., data: { from: prv_spc_count, to: 0, }, }
+      position = Interlex.get_token_position d
+      if ( spc_count = d.data.spc_count ) isnt prv_spc_count
+        send { template..., position..., data: { from: prv_spc_count, to: spc_count, }, }
+        prv_spc_count = spc_count
+      send d
+      return null
 
-  #---------------------------------------------------------------------------------------------------------
-  walk: ( source_or_cfg ) -> @_parser.send source_or_cfg; yield from @_parser.walk()
-  run:  ( source_or_cfg ) -> [ ( @walk source_or_cfg )..., ]
-
-
-  #---------------------------------------------------------------------------------------------------------
-  _new_preparser: ->
-    { Pipeline
-      $         } = require 'moonriver'
-    p             = new Pipeline()
-    # #.......................................................................................................
-    # join = ( collector, joinerase ) =>
-    #   { joiner
-    #     eraser }  = joinerase
-    #   first_t     = collector.at 0
-    #   last_t      = collector.at -1
-    #   return lets first_t, ( d ) =>
-    #     #...................................................................................................
-    #     if joiner?
-    #       d.value = ( ( t.value for t in collector ).join joiner ).trimEnd()
-    #     else
-    #       parts     = []
-    #       last_idx  = collector.length - 1
 
 
 
