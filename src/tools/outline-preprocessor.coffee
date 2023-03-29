@@ -14,7 +14,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'INTERLEX/START-STOP-PREPROC'
+  whisper }               = GUY.trm.get_loggers 'INTERLEX/OUTLINE-PREPROC'
 { rpr
   inspect
   echo
@@ -23,6 +23,7 @@ GUY                       = require 'guy'
   get_base_types }        = require '../types'
 lets                      = GUY.lft.lets
 { Transformer
+  transforms
   $           }           = require 'moonriver'
 
 
@@ -31,19 +32,25 @@ lets                      = GUY.lft.lets
 _new_prelexer = ( cfg ) ->
   { Interlex }  = require '../main'
   lexer         = new Interlex { split: 'lines', cfg..., }
+  prv_spc_count = 0
   #.......................................................................................................
   do =>
     mode = 'outline'
-    create = ( token ) =>
+    nl = ( token ) =>
+      token.value           = '\n'
+      token.data           ?= {}
+      token.data.spc_count  = prv_spc_count
+      return token
+    material = ( token ) =>
       token.data           ?= {}
       token.data.indent    ?= ''
       token.data.material  ?= ''
-      token.data.spc_count  = token.data.indent.length
+      token.data.spc_count  = prv_spc_count = token.data.indent.length
       return token
     ### NOTE consider to allow escaping newlines ###
     # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
-    lexer.add_lexeme { mode, tid: 'nl',       value: '\n',  pattern: /$/u, }
-    lexer.add_lexeme { mode, tid: 'material', create,       pattern: /^(?<indent>\x20*)(?<material>.+)$/, }
+    lexer.add_lexeme { mode, tid: 'nl',       create: nl,       pattern: /$/u, }
+    lexer.add_lexeme { mode, tid: 'material', create: material, pattern: /^(?<indent>\x20*)(?<material>.+)$/, }
   #.......................................................................................................
   return lexer
 
@@ -67,35 +74,37 @@ _new_prelexer = ( cfg ) ->
   #---------------------------------------------------------------------------------------------------------
   $consolidate_newlines: ->
     { Interlex }  = require '../main'
-    count         = 0
     position      = null
+    nl_count      = 0
+    spc_count     = null
     stop          = Symbol 'stop'
     template      = { mode: 'plain', tid: 'nls', mk: 'plain:nls', $: '^outliner.020^', }
     #.......................................................................................................
     flush = ( send ) =>
-      return null if count is 0
-      value         = '\n'.repeat count
-      position.lnr2 = position.lnr1 + count
-      if count > 1
-        position.lnr2 = position.lnr1 + count - 1
+      return null if nl_count is 0
+      value         = '\n'.repeat nl_count
+      position.lnr2 = position.lnr1 + nl_count
+      if nl_count > 1
+        position.lnr2 = position.lnr1 + nl_count - 1
         position.x2   = 0
-      data          = { count, }
+      data          = { nl_count, spc_count, }
       nls           = { template..., value, data, position..., }
-      count         = 0
+      nl_count         = 0
       position      = null
+      spc_count     = null
       send nls
     #.......................................................................................................
     return $ { stop, }, consolidate_newlines = ( d, send ) =>
       return flush send if d is stop
       return send d if d.$stamped
       if d.mk is 'outline:nl'
-        count++
-        position ?= Interlex.get_token_position d
+        nl_count++
+        position   ?= Interlex.get_token_position d
+        spc_count  ?= d.data.spc_count
       else
         flush send
         send d
       return null
-
 
 #===========================================================================================================
 @$030_structure = class $030_structure extends Transformer
@@ -145,80 +154,6 @@ class @Outline_preprocessor
     #     else
     #       parts     = []
     #       last_idx  = collector.length - 1
-    #       for t, idx in collector
-    #         parts.push t.value
-    #         continue if idx >= last_idx
-    #         parts.push eraser.repeat distance if ( distance = collector[ idx + 1 ].x1 - t.x2 ) > 0
-    #       d.value = ( parts.join '' ).trimEnd()
-    #     #...................................................................................................
-    #     d.lnr1  = first_t.lnr1
-    #     d.x1    = first_t.x1
-    #     d.lnr2  = last_t.lnr2
-    #     d.x2    = last_t.x2
-    #.......................................................................................................
-    # #.......................................................................................................
-    # $mark_active = =>
-    #   active = @cfg.active
-    #   set_active = ( d, active ) => lets d, ( d ) =>
-    #     d.data         ?= {}
-    #     d.data.active   = active
-    #   return mark_active = ( d, send ) =>
-    #     if d.mk is 'meta:start'
-    #       active = true
-    #       return send set_active d, false
-    #     if d.mk is 'meta:stop'
-    #       active = false
-    #       return send set_active d, false
-    #     send set_active d, active
-    # #.......................................................................................................
-    # $collect_chunks = =>
-    #   collector = []
-    #   active    = null
-    #   last      = Symbol 'last'
-    #   #.....................................................................................................
-    #   return collect_chunks = $ { last, }, ( d, send ) =>
-    #     if d is last
-    #       send join collector, { joiner: '', } if collector.length > 0
-    #       collector = []
-    #       return null
-    #     if d.mk is 'meta:nl'
-    #       collector.push d
-    #       send join collector, { joiner: '', }
-    #       collector = []
-    #     else if active isnt d.data.active
-    #       send join collector, { joiner: '', } if collector.length > 0
-    #       collector = [ d, ]
-    #     else
-    #       collector.push d
-    #     active = d.data.active
-    # #.......................................................................................................
-    # $assemble_lines = =>
-    #   collector = []
-    #   last      = Symbol 'last'
-    #   prv_lnr1  = null
-    #   join_cfg  = {}
-    #   join_cfg.joiner = @cfg.joiner if @cfg.joiner?
-    #   join_cfg.eraser = @cfg.eraser if @cfg.eraser?
-    #   #.....................................................................................................
-    #   return assemble_lines = $ { last, }, ( d, send ) =>
-    #     if d is last
-    #       send join collector, join_cfg if collector.length > 0
-    #       collector = []
-    #       return null
-    #     return send d unless d.data.active
-    #     prv_lnr1 ?= d.lnr1
-    #     if d.lnr1 isnt prv_lnr1
-    #       prv_lnr1 = d.lnr1
-    #       send join collector, join_cfg if collector.length > 0
-    #       collector = []
-    #       collector.push d
-    #       return null
-    #     collector.push d
-    #     return null
-    #.......................................................................................................
-    p.push $parse()
-    # p.push ( d ) -> urge '^77-1^', d
-    return p
 
 
 
