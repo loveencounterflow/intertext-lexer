@@ -247,16 +247,12 @@ class Interlex
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
-    #.......................................................................................................
-    ### TAINT use `types.create.ilx_token {}` ###
-    lnr1  = lnr2 = @state.lnr1
-    R     = { mode, tid, mk: "#{mode}:#{tid}", jump, value, lnr1, x1, lnr2, x2, data, source, }
-    #.......................................................................................................
+    $key      = "#{mode}:#{tid}"
+    lnr1      = lnr2 = @state.lnr1
+    R         = new_datom $key, { jump, value, lnr1, x1, lnr2, x2, data, source, }
     @_set_token_value R, lexeme, value
-    #.......................................................................................................
-    if lexeme?.create?
-      R = lexeme.create.call @, R
-    return new_datom "^#{mode}", R
+    R         = lexeme.create.call @, R if lexeme?.create?
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   _set_token_value: ( token, lexeme, value ) ->
@@ -346,7 +342,7 @@ class Interlex
       if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token.mode isnt prv_mode ) )
         if is_singleton_jump = ( @state.mode is prv_mode )
           prv = prv_mode
-          nxt = token.mode
+          nxt = @get_token_mode token
         else
           prv = prv_mode
           nxt = @state.mode
@@ -360,9 +356,10 @@ class Interlex
             [ border.data.prv, border.data.nxt, ] = [ border.data.nxt, border.data.prv, ]
         #...................................................................................................
         else
-          if token.mode isnt prv_mode
+          token_mode = @get_token_mode token
+          if token_mode isnt prv_mode
             R.unshift lets border, ( border ) -> border.x1 = border.x2 = token.x1
-          else if token.mode is prv_mode
+          else if token_mode is prv_mode
             R.push    lets border, ( border ) -> border.x1 = border.x2 = border.x2
     #.......................................................................................................
     return R
@@ -559,6 +556,11 @@ class Interlex
     entry.reserved = cfg
     return null
 
+
+  #=========================================================================================================
+  # POSITIONING API
+  #---------------------------------------------------------------------------------------------------------
+  get_token_mode: ( token ) -> ( token.$key.split ':' )[ 0 ]
 
   #=========================================================================================================
   # POSITIONING API

@@ -25,7 +25,10 @@ lets                      = GUY.lft.lets
 { Transformer
   transforms
   $           }           = require 'moonriver'
-
+{ $window }               = transforms
+{ DATOM }                 = require 'datom'
+{ new_datom
+  select }                = DATOM
 
 
 #===========================================================================================================
@@ -36,12 +39,12 @@ _new_prelexer = ( cfg ) ->
   #.......................................................................................................
   do =>
     mode = 'outline'
-    nl = ( token ) =>
+    nl = ( token ) => lets token, ( token ) =>
       token.value           = '\n'
       token.data           ?= {}
       token.data.spc_count  = prv_spc_count
       return token
-    material = ( token ) =>
+    material = ( token ) => lets token, ( token ) =>
       token.data           ?= {}
       token.data.indent    ?= ''
       token.data.material  ?= ''
@@ -65,7 +68,8 @@ _new_prelexer = ( cfg ) ->
 
   #---------------------------------------------------------------------------------------------------------
   $parse: => parse = ( source, send ) =>
-    send token for token from @_lexer.walk source
+    for d from @_lexer.walk source
+      send lets d, ( d ) -> d.$ = '^outliner@010^'
     return null
 
 #===========================================================================================================
@@ -78,18 +82,21 @@ _new_prelexer = ( cfg ) ->
     nl_count      = 0
     spc_count     = null
     stop          = Symbol 'stop'
-    template      = { mode: 'plain', tid: 'nls', mk: 'plain:nls', $: '^outliner.020^', }
+    ref           = '^outliner@020^'
     #.......................................................................................................
     flush = ( send ) =>
       return null if nl_count is 0
       value         = '\n'.repeat nl_count
       position.lnr2 = position.lnr1 + nl_count
-      if nl_count > 1
+      if nl_count is 1
+        $key          = 'outline:nl'
+      else
         position.lnr2 = position.lnr1 + nl_count - 1
         position.x2   = 0
+        $key          = 'outline:nls'
       data          = { nl_count, spc_count, }
-      nls           = { template..., value, data, position..., }
-      nl_count         = 0
+      nls           = new_datom $key, { value, data, position..., $: ref, }
+      nl_count      = 0
       position      = null
       spc_count     = null
       send nls
@@ -97,7 +104,7 @@ _new_prelexer = ( cfg ) ->
     return $ { stop, }, consolidate_newlines = ( d, send ) =>
       return flush send if d is stop
       return send d if d.$stamped
-      if d.mk is 'outline:nl'
+      if select d, 'outline:nl'
         nl_count++
         position   ?= Interlex.get_token_position d
         spc_count  ?= d.data.spc_count
@@ -120,20 +127,64 @@ _new_prelexer = ( cfg ) ->
   $mark_indentation_levels: =>
     { Interlex }  = require '../main'
     prv_spc_count = 0
-    template      = { mode: 'outline', tid: 'dentchg', mk: 'outline:dentchg', $: '^outliner.030^', }
+    ref           = '^outliner@030^'
+    $key          = 'outline:dentchg'
     position      = null
     return group_indentation_levels = ( d, send ) =>
+      #.....................................................................................................
       if d is start
-        return send { template..., lnr1: 1, x1: 0, lnr2: 1, x2: 0, data: { from: prv_spc_count, to: 0, }, }
+        send start
+        send new_datom $key, { lnr1: 1, x1: 0, lnr2: 1, x2: 0, data: { from: null, to: 0, }, $: ref, }
+        return null
+      #.....................................................................................................
       if d is stop
-        return send { template..., position..., data: { from: prv_spc_count, to: 0, }, }
+        send new_datom $key, { position..., data: { from: prv_spc_count, to: null, }, $: ref, }
+        send stop
+        return null
+      #.....................................................................................................
       position = Interlex.get_token_position d
       if ( spc_count = d.data.spc_count ) isnt prv_spc_count
-        send { template..., position..., data: { from: prv_spc_count, to: spc_count, }, }
+        send new_datom $key, { position..., data: { from: prv_spc_count, to: spc_count, }, $: ref, }
         prv_spc_count = spc_count
+      #.....................................................................................................
       send d
       return null
 
+  #---------------------------------------------------------------------------------------------------------
+  $remove_start_and_stop: => ( d, send ) => send d unless ( d is start ) or ( d is stop )
+
+
+#===========================================================================================================
+@$040_blocks = class $040_blocks extends $030_structure
+
+  #---------------------------------------------------------------------------------------------------------
+  $add_block_starts: =>
+    { Interlex }  = require '../main'
+    $key          = 'outline:block:start'
+    ref           = '^outliner@040^'
+    return add_block_starts = $window { min: -1, max: 0, empty: null, }, ( [ prv, d, ], send ) =>
+      return send d unless select d, 'outline:material'
+      return send d unless select prv, 'outline:dentchg', 'outline:nls'
+      data      = { spc_count: d.data.spc_count, }
+      position  = Interlex.get_token_position prv
+      send new_datom $key, { data, position..., $: ref, }
+      send d
+      return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $add_block_stops: =>
+    { Interlex }  = require '../main'
+    $key          = 'outline:block:stop'
+    ref           = '^outliner@040^'
+    return add_block_stops = $window { min: 0, max: +2, empty: null, }, ( [ d, d1, d2, ], send ) =>
+      return send d unless select d, 'outline:material'
+      return send d unless ( select d1, 'outline:nls' ) \
+                      or ( ( select d1, 'outline:nl'  ) and ( select d2, 'outline:dentchg' ) )
+      send d
+      data      = { spc_count: d.data.spc_count, }
+      position  = Interlex.get_token_position d1
+      send new_datom $key, { data, position..., $: ref, }
+      return null
 
 
 
