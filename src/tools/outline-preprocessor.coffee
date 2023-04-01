@@ -32,7 +32,7 @@ lets                      = GUY.lft.lets
 
 
 #===========================================================================================================
-_new_prelexer = ( cfg ) ->
+new_prelexer = ( cfg ) ->
   { Interlex }  = require '../main'
   lexer         = new Interlex { split: 'lines', cfg..., }
   prv_spc_count = 0
@@ -51,19 +51,19 @@ _new_prelexer = ( cfg ) ->
       token.data.spc_count  = prv_spc_count = token.data.indent.length
       return token
     ### NOTE consider to allow escaping newlines ###
-    # lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
-    lexer.add_lexeme { mode, tid: 'nl',       create: nl,       pattern: /$/u, }
-    lexer.add_lexeme { mode, tid: 'material', create: material, pattern: /^(?<indent>\x20*)(?<material>.+)$/, }
+    # lexer.add_lexeme { mode, lxid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
+    lexer.add_lexeme { mode, lxid: 'nl',       create: nl,       pattern: /$/u, }
+    lexer.add_lexeme { mode, lxid: 'material', create: material, pattern: /^(?<indent>\x20*)(?<material>.+)$/, }
   #.......................................................................................................
   return lexer
 
 #===========================================================================================================
-@$010_lexing = class $010_lexing extends Transformer
+class $010_lexing extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ->
     super()
-    GUY.props.hide @, '_lexer', _new_prelexer()
+    GUY.props.hide @, '_lexer', new_prelexer()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -72,8 +72,9 @@ _new_prelexer = ( cfg ) ->
       send lets d, ( d ) -> d.$ = '^outliner@010^'
     return null
 
+
 #===========================================================================================================
-@$020_consolidate = class $020_consolidate extends $010_lexing
+class $020_consolidate extends $010_lexing
 
   #---------------------------------------------------------------------------------------------------------
   $consolidate_newlines: ->
@@ -114,7 +115,7 @@ _new_prelexer = ( cfg ) ->
       return null
 
 #===========================================================================================================
-@$030_structure = class $030_structure extends $020_consolidate
+class $030_dentchgs extends $020_consolidate
 
   #---------------------------------------------------------------------------------------------------------
   start = Symbol 'start'
@@ -155,7 +156,7 @@ _new_prelexer = ( cfg ) ->
 
 
 #===========================================================================================================
-@$040_blocks = class $040_blocks extends $030_structure
+class $040_blocks extends $030_dentchgs
 
   #---------------------------------------------------------------------------------------------------------
   $add_block_starts: =>
@@ -186,6 +187,12 @@ _new_prelexer = ( cfg ) ->
       send new_datom $key, { data, position..., $: ref, }
       return null
 
+#===========================================================================================================
+@Outliner = class Outliner extends $040_blocks
+  @$010_lexing:       $010_lexing
+  @$020_consolidate:  $020_consolidate
+  @$030_dentchgs:     $030_dentchgs
+  @$040_blocks:       $040_blocks
 
 
 

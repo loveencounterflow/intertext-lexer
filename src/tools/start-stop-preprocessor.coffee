@@ -50,12 +50,12 @@ class @Start_stop_preprocessor
         token.data        ?= {}
         token.data.scope  ?= 'local'
         return token
-      lexer.add_lexeme { mode, tid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
-      lexer.add_lexeme { mode, tid: 'start',          pattern: /<\?start\?>/,                       reserved: '<', }
-      lexer.add_lexeme { mode, tid: 'stop',   create, pattern: /<\?stop(?:[-_](?<scope>all))?\?>/,  reserved: '<', }
-      lexer.add_lexeme { mode, tid: 'nl',             pattern: /\n/u,                               reserved: '\n', }
-      lexer.add_lexeme { mode, tid: 'text_lt',        pattern: /<(?=\?)/, }
-      lexer.add_catchall_lexeme { mode, tid: 'text', concat: true, }
+      lexer.add_lexeme { mode, lxid: 'escchr',         pattern: /\\(?<chr>.)/u,                      reserved: '\\', }
+      lexer.add_lexeme { mode, lxid: 'start',          pattern: /<\?start\?>/,                       reserved: '<', }
+      lexer.add_lexeme { mode, lxid: 'stop',   create, pattern: /<\?stop(?:[-_](?<scope>all))?\?>/,  reserved: '<', }
+      lexer.add_lexeme { mode, lxid: 'nl',             pattern: /\n/u,                               reserved: '\n', }
+      lexer.add_lexeme { mode, lxid: 'text_lt',        pattern: /<(?=\?)/, }
+      lexer.add_catchall_lexeme { mode, lxid: 'text', concat: true, }
     #.......................................................................................................
     return lexer
 
@@ -97,10 +97,10 @@ class @Start_stop_preprocessor
         d.data         ?= {}
         d.data.active   = active
       return mark_active = ( d, send ) =>
-        if d.mk is 'meta:start'
+        if d.$key is 'meta:start'
           active = true
           return send set_active d, false
-        if d.mk is 'meta:stop'
+        if d.$key is 'meta:stop'
           active = false
           return send set_active d, false
         send set_active d, active
@@ -115,7 +115,7 @@ class @Start_stop_preprocessor
           send join collector, { joiner: '', } if collector.length > 0
           collector = []
           return null
-        if d.mk is 'meta:nl'
+        if d.$key is 'meta:nl'
           collector.push d
           send join collector, { joiner: '', }
           collector = []

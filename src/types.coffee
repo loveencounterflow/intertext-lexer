@@ -36,7 +36,7 @@ get_base_types = ->
   ### TAINT legal mode names, lexeme IDs should be confined to JS identifiers ###
   ### TAINT legal mode names should exclude `lx`, `new` to avoid name clashes ###
   declare.ilx_mode            'nonempty.text'
-  declare.ilx_tid             'nonempty.text'
+  declare.ilx_lxid            'nonempty.text'
   declare.ilx_pattern         'text.or.regex'
   # declare.ilx_pop             ( x ) -> x is jump_symbol
   ### TAINT should be more specific than 'text' ###
@@ -53,7 +53,7 @@ get_base_types = ->
   declare.ilx_add_lexeme_cfg
     fields:
       mode:           'ilx_mode'
-      tid:            'ilx_tid'
+      lxid:           'ilx_lxid'
       pattern:        'ilx_pattern'
       jump:           'optional.ilx_jump'
       reserved:       'optional.ilx_reserved'
@@ -62,7 +62,7 @@ get_base_types = ->
       empty_value:    'optional.ilx_lexeme_value'
     default:
       mode:           'plain'
-      tid:            null
+      lxid:           null
       pattern:        null
       jump:           null
       reserved:       null
@@ -127,20 +127,20 @@ get_base_types = ->
   declare.ilx_add_catchall_lexeme_cfg
     fields:
       mode:           'ilx_mode'
-      tid:            'ilx_tid'
+      lxid:            'ilx_lxid'
       concat:         'boolean'
     default:
       mode:           null
-      tid:            '$catchall'
+      lxid:            '$catchall'
       concat:         false
   declare.ilx_add_reserved_lexeme_cfg
     fields:
       mode:           'ilx_mode'
-      tid:            'ilx_tid'
+      lxid:            'ilx_lxid'
       concat:         'boolean'
     default:
       mode:           null
-      tid:            '$reserved'
+      lxid:            '$reserved'
       concat:         false
   #.........................................................................................................
   declare.ilx_start_stop_preprocessor_cfg
@@ -170,15 +170,15 @@ get_base_types = ->
       R.eraser = x.eraser ? ' '
       return R
   #.........................................................................................................
-  ### TAINT only allows fixed number U+0020 Space, should allow tabs ###
-  declare.ilx_outline_preprocessor_cfg
-    fields:
-      blank_line_count:   'positive0.integer'
-      indent_module:      'positive1.integer'
-    default:
-      blank_line_count:   2
-      ### NOTE number of spaces for one level of indentation ###
-      indent_module:      2
+  # ### TAINT only allows fixed number U+0020 Space, should allow tabs ###
+  # declare.ilx_outline_preprocessor_cfg
+  #   fields:
+  #     blank_line_count:   'positive0.integer'
+  #     indent_module:      'positive1.integer'
+  #   default:
+  #     blank_line_count:   2
+  #     ### NOTE number of spaces for one level of indentation ###
+  #     indent_module:      2
   #.........................................................................................................
   declare.ilx_set_position_cfg
     fields:

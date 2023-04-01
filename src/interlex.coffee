@@ -37,9 +37,20 @@ compose   = C = { _CRX..., _X..., }
 #...........................................................................................................
 { DATOM }                 = require 'datom'
 { new_datom
-  lets      }             = DATOM
+  lets
+  freeze }                = DATOM
 { Ltsort }                = require 'ltsort'
 sorter                    = ( require './sorter' ).sorter
+
+
+#===========================================================================================================
+get_token_mode          = ( token ) -> ( token.$key.split ':' )[ 0 ]
+### TAINT in future version, will want LXID to always start with colon ###
+get_token_lxid          = ( token ) -> token.$key.replace /^[^:]*:/, ''
+set_token_mode          = ( token ) -> lets token, ( token, mode ) -> _set_token_mode token, mode
+### NODE play safe, avoid [A$$es](https://github.com/loveencounterflow/gaps-and-islands#regular-expressions-how-to-avoid-accidental-string-substitutions-so-called-aes) ###
+_set_token_mode         = ( token ) -> token.$key = $token.$key.replace /^[^:]+/, -> mode
+_split_token_mode_lxid  = ( token ) -> ( token.$key.split /^([^:]+):(.*)$/ )[ 1 .. 2 ]
 
 
 #===========================================================================================================
@@ -67,12 +78,12 @@ class Interlex
       jump_time
       jump_target             } = @_parse_jump_cfg cfg.jump
     #.......................................................................................................
-    if entry.lexemes[ cfg.tid ]?
-      throw new E.Interlex_lexeme_exists '^interlex.add_lexeme@1^', cfg.mode, cfg.tid
+    if entry.lexemes[ cfg.lxid ]?
+      throw new E.Interlex_lexeme_exists '^interlex.add_lexeme@1^', cfg.mode, cfg.lxid
     #.......................................................................................................
-    entry.lexemes[ cfg.tid ]    = lexeme = { cfg..., jump_action, jump_time, jump_target, }
-    lexeme.pattern              = @_rename_groups lexeme.tid, lexeme.pattern if @types.isa.regex lexeme.pattern
-    lexeme.pattern              = C.namedCapture ( @_metachr + cfg.tid ), lexeme.pattern
+    entry.lexemes[ cfg.lxid ]   = lexeme = { cfg..., jump_action, jump_time, jump_target, }
+    lexeme.pattern              = @_rename_groups lexeme.lxid, lexeme.pattern if @types.isa.regex lexeme.pattern
+    lexeme.pattern              = C.namedCapture ( @_metachr + cfg.lxid ), lexeme.pattern
     lexeme.type_of_value        = @types.type_of lexeme.value
     lexeme.type_of_empty_value  = @types.type_of lexeme.empty_value
     @_add_reserved_chrs cfg.mode, cfg.reserved if cfg.reserved?
@@ -125,14 +136,14 @@ class Interlex
     return entry unless entry.toposort
     g   = new Ltsort()
     tmp = Object.assign {}, entry.lexemes ### NOTE avoiding shorthand for clarity ###
-    for tid, lexeme of entry.lexemes
-      tmp[ tid ]  = lexeme
-      delete entry.lexemes[ tid ]
+    for lxid, lexeme of entry.lexemes
+      tmp[ lxid ]  = lexeme
+      delete entry.lexemes[ lxid ]
       needs       = lexeme.needs  ? []
       precedes      = lexeme.precedes ? []
-      g.add { name: tid, needs, precedes, }
-    for tid in g.linearize()
-      entry.lexemes[ tid ] = tmp[ tid ]
+      g.add { name: lxid, needs, precedes, }
+    for lxid in g.linearize()
+      entry.lexemes[ lxid ] = tmp[ lxid ]
     return entry
 
   #---------------------------------------------------------------------------------------------------------
@@ -148,18 +159,18 @@ class Interlex
     for mode, entry of @registry
       entry                     = @_toposort_patterns entry
       #.....................................................................................................
-      @_add_catchall_lexeme mode, entry.catchall.tid, entry if entry.catchall?
-      @_add_reserved_lexeme mode, entry.reserved.tid, entry if entry.reserved?
+      @_add_catchall_lexeme mode, entry.catchall.lxid, entry if entry.catchall?
+      @_add_reserved_lexeme mode, entry.reserved.lxid, entry if entry.reserved?
       #.....................................................................................................
       ### TAINT use API ###
-      patterns                  = @_set_u_flag ( lexeme.pattern for tid, lexeme of entry.lexemes )
+      patterns                  = @_set_u_flag ( lexeme.pattern for lxid, lexeme of entry.lexemes )
       pattern                   = C.either patterns...
       ### TAINT could / should set all flags in single step ###
       pattern                   = C.dotall    pattern if @cfg.dotall
       pattern                   = C.multiline pattern if @cfg.multiline
       @registry[ mode ].pattern = C.sticky C.unicode pattern
     for mode, entry of @registry
-      for tid, lexeme of entry.lexemes
+      for lxid, lexeme of entry.lexemes
         continue if lexeme.jump_action isnt 'pushmode'
         continue if @registry[ lexeme.jump_target ]?
         throw new E.Interlex_mode_unknown '^interlex._finalize@1^', lexeme.jump_target
@@ -229,30 +240,32 @@ class Interlex
     t = token
     R = []
     if token.jump?
-      j   = @registry[ token.mode ]?.lexemes[ token.tid ]?.jump ? null
-      j   = "<#{j}>" if j?
-      j  ?= ''
+      [ mode
+        lxid  ] =   _split_token_mode_lxid token
+      j         = @registry[ mode ]?.lexemes[ lxid ]?.jump ? null
+      j         = "<#{j}>" if j?
+      j        ?= ''
     else
       j   = ''
-    R.push t.mk + j
+    R.push t.$key + j
     R.push "(#{t.lnr1}:#{t.x1})(#{t.lnr2}:#{t.x2})"
     R.push "=#{rpr t.value}"
     R.push "#{k}:#{rpr v}" for k, v of t.data ? {}
     return "[#{R.join ','}]"
 
   #---------------------------------------------------------------------------------------------------------
-  _new_token: ( tid, value, length, data = null, lexeme = null ) ->
+  _new_token: ( lxid, value, length, data = null, lexeme = null ) ->
     x1        = @state.prv_last_idx + @state.delta_x
     x2        = x1 + length
     jump      = lexeme?.jump ? null
     { source
       mode  } = @state
-    $key      = "#{mode}:#{tid}"
+    $key      = "#{mode}:#{lxid}"
     lnr1      = lnr2 = @state.lnr1
-    R         = new_datom $key, { jump, value, lnr1, x1, lnr2, x2, data, source, }
-    @_set_token_value R, lexeme, value
-    R         = lexeme.create.call @, R if lexeme?.create?
-    return R
+    pretoken  = { $key, jump, value, lnr1, x1, lnr2, x2, data, source, }
+    @_set_token_value pretoken, lexeme, value
+    R         = if lexeme?.create? then ( lexeme.create.call @, pretoken ) else pretoken
+    return freeze R
 
   #---------------------------------------------------------------------------------------------------------
   _set_token_value: ( token, lexeme, value ) ->
@@ -402,7 +415,7 @@ class Interlex
         mid       = @state.source[ center ]
         ### TAINT raise error or return error token ###
         warn '^31-9^', { before, mid, after, }
-        warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.tid} matched empty string; stopping"
+        warn '^31-10^', GUY.trm.reverse "pattern #{rpr token.$key} matched empty string; stopping"
         @state.finished = true
       else
         ### TAINT raise error or return error token ###
@@ -434,7 +447,7 @@ class Interlex
         return { token, jump_cfg..., }
     #.......................................................................................................
     throw new E.Interlex_TBDUNCLASSIFIED '^interlex._call_jump_handler@1^', \
-      "jump handler of lexeme #{rpr lexeme.mk} returned illegal value #{rpr divert}"
+      "jump handler of lexeme #{rpr lexeme.$key} returned illegal value #{rpr divert}"
 
   #---------------------------------------------------------------------------------------------------------
   _get_next_token: ( lexeme, token, match ) ->
@@ -479,9 +492,7 @@ class Interlex
     return lets token, ( token ) =>
       token.jump = @state.mode
       if jump_time is 'exclusive'
-        token.mode = @state.mode
-        ### TAINT use API ###
-        token.mk = "#{token.mode}:#{token.tid}"
+        _set_token_mode token, @state.mode
       return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -496,9 +507,7 @@ class Interlex
     return lets token, ( token ) =>
       token.jump = jump_target
       if jump_time is 'inclusive'
-        token.mode = jump_target
-        ### TAINT use API ###
-        token.mk = "#{token.mode}:#{token.tid}"
+        _set_token_mode token, jump_target
       return null
 
 
@@ -521,17 +530,17 @@ class Interlex
   _get_reserved_regex: ( mode, entry ) -> compose.either entry.reserved_chrs...
 
   #---------------------------------------------------------------------------------------------------------
-  _add_catchall_lexeme: ( mode, tid, entry ) ->
+  _add_catchall_lexeme: ( mode, lxid, entry ) ->
     pattern = @_get_catchall_regex mode, entry
     pattern = compose.suffix '+', pattern if entry.catchall.concat
-    @add_lexeme { mode, tid, pattern, }
+    @add_lexeme { mode, lxid, pattern, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _add_reserved_lexeme: ( mode, tid, entry ) ->
+  _add_reserved_lexeme: ( mode, lxid, entry ) ->
     pattern = @_get_reserved_regex mode, entry
     pattern = compose.suffix '+', pattern if entry.reserved.concat
-    @add_lexeme { mode, tid, pattern, }
+    @add_lexeme { mode, lxid, pattern, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -541,7 +550,7 @@ class Interlex
     unless ( entry = @registry[ cfg.mode ] )?
       throw new E.Interlex_mode_unknown '^interlex.add_catchall_lexeme@1^', cfg.mode
     if entry.catchall?
-      throw new E.Interlex_catchall_exists '^interlex.add_catchall_lexeme@1^', cfg.mode, entry.catchall.tid
+      throw new E.Interlex_catchall_exists '^interlex.add_catchall_lexeme@1^', cfg.mode, entry.catchall.lxid
     entry.catchall = cfg
     return null
 
@@ -552,15 +561,25 @@ class Interlex
     unless ( entry = @registry[ cfg.mode ] )?
       throw new E.Interlex_mode_unknown '^interlex.add_reserved_lexeme@1^', cfg.mode
     if entry.reserved?
-      throw new E.Interlex_reserved_exists '^interlex.add_reserved_lexeme@1^', cfg.mode, entry.reserved.tid
+      throw new E.Interlex_reserved_exists '^interlex.add_reserved_lexeme@1^', cfg.mode, entry.reserved.lxid
     entry.reserved = cfg
     return null
 
 
   #=========================================================================================================
-  # POSITIONING API
+  # GETTING AND SETTING TOKEN $KEY PARTS
   #---------------------------------------------------------------------------------------------------------
-  get_token_mode: ( token ) -> ( token.$key.split ':' )[ 0 ]
+  get_token_lxid:   get_token_lxid
+  @get_token_lxid:  get_token_lxid
+
+  #---------------------------------------------------------------------------------------------------------
+  get_token_mode:   get_token_mode
+  @get_token_mode:  get_token_mode
+
+  #---------------------------------------------------------------------------------------------------------
+  set_token_mode:   set_token_mode
+  @set_token_mode:  set_token_mode
+
 
   #=========================================================================================================
   # POSITIONING API
