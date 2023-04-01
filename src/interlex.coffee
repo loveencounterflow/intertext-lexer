@@ -49,7 +49,7 @@ get_token_mode          = ( token ) -> ( token.$key.split ':' )[ 0 ]
 get_token_lxid          = ( token ) -> token.$key.replace /^[^:]*:/, ''
 set_token_mode          = ( token ) -> lets token, ( token, mode ) -> _set_token_mode token, mode
 ### NODE play safe, avoid [A$$es](https://github.com/loveencounterflow/gaps-and-islands#regular-expressions-how-to-avoid-accidental-string-substitutions-so-called-aes) ###
-_set_token_mode         = ( token ) -> token.$key = $token.$key.replace /^[^:]+/, -> mode
+_set_token_mode         = ( token, mode ) -> token.$key = token.$key.replace /^[^:]+/, -> mode
 _split_token_mode_lxid  = ( token ) -> ( token.$key.split /^([^:]+):(.*)$/ )[ 1 .. 2 ]
 
 
