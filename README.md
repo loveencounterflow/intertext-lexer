@@ -621,6 +621,10 @@ Collection of useful stuff
 * **[–]** remove `set_offset()`, implement `set_position()`
 * **[–]** in test `start_stop_preprocessor/start_stop_preprocessor_basic()` some tests show active, inactive
   tokens out of order; try to fix in preprocessor `$assemble_lines()`?
+* **[–]** just as `denchg` tokens are emitted at the very start and end of each document, so should
+  `$border` tokens be emitted
+* **[–]** use `$meta` (or similar), `$outline` as mode names in preprocessors to avoid name clashes with
+  userland modes
 
 ## Is Done
 
