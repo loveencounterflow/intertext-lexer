@@ -352,7 +352,8 @@ class Interlex
     #.......................................................................................................
     if token?
       R.push token
-      if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token.mode isnt prv_mode ) )
+      token_mode = get_token_mode token
+      if @cfg.border_tokens and ( ( @state.mode isnt prv_mode ) or ( token_mode isnt prv_mode ) )
         if is_singleton_jump = ( @state.mode is prv_mode )
           prv = prv_mode
           nxt = @get_token_mode token
@@ -369,7 +370,6 @@ class Interlex
             [ border.data.prv, border.data.nxt, ] = [ border.data.nxt, border.data.prv, ]
         #...................................................................................................
         else
-          token_mode = @get_token_mode token
           if token_mode isnt prv_mode
             R.unshift lets border, ( border ) -> border.x1 = border.x2 = token.x1
           else if token_mode is prv_mode
