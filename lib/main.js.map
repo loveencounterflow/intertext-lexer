@@ -6,8 +6,8 @@
     "../src/main.coffee"
   ],
   "names": [],
-  "mappings": "AAAA;AAAA,MAAA;;EAAA,KAAA,GAAkB;IAChB,GAAA,CAAE,OAAA,CAAQ,iCAAR,CAAF,CADgB;IAEhB,QAAA,EAAY,OAAA,CAAQ,8BAAR;EAFI;;EAGlB,MAAM,CAAC,OAAP,GAAkB,CAAE,GAAA,CAAE,OAAA,CAAQ,YAAR,CAAF,CAAF,EAA+B,GAAA,CAAE,OAAA,CAAQ,UAAR,CAAF,CAA/B,EAA0D,KAA1D;AAHlB",
+  "mappings": "AAAA;AAAA,MAAA;;EAAA,KAAA,GAAkB,CAChB,GAAA,CAAE,OAAA,CAAQ,iCAAR,CAAF,CADgB,EAEhB,GAAA,CAAE,OAAA,CAAQ,8BAAR,CAAF,CAFgB;;EAGlB,MAAM,CAAC,OAAP,GAAkB,CAAE,GAAA,CAAE,OAAA,CAAQ,YAAR,CAAF,CAAF,EAA+B,GAAA,CAAE,OAAA,CAAQ,UAAR,CAAF,CAA/B,EAA0D,KAA1D;AAHlB",
   "sourcesContent": [
-    "tools           = {\n  ( require './tools/start-stop-preprocessor' )...,\n  outliner: ( require './tools/outline-preprocessor' ), }\nmodule.exports  = { ( require './interlex' )..., ( require './syntax' )..., tools, }"
+    "tools           = {\n  ( require './tools/start-stop-preprocessor' )...,\n  ( require './tools/outline-preprocessor'    )..., }\nmodule.exports  = { ( require './interlex' )..., ( require './syntax' )..., tools, }"
   ]
 }
