@@ -60,7 +60,7 @@ get_base_types = ->
       create:         'optional.function'
       value:          'optional.ilx_lexeme_value'
       empty_value:    'optional.ilx_lexeme_value'
-    default:
+    template:
       mode:           'plain'
       lxid:           null
       pattern:        null
@@ -86,7 +86,7 @@ get_base_types = ->
       append:           'text'
       # global ???
       # ignorecase  # ignoreCase
-    default:
+    template:
       start_token:      false
       end_token:        false
       error_tokens:     true
@@ -105,14 +105,14 @@ get_base_types = ->
       source:           'optional.text'
       value:            'optional.text'
       path:             'optional.nonempty.text'
-    default:
+    template:
       source:           null
       value:            null
       path:             null
     cast: ( x ) ->
-      return { @registry.ilx_walk_source_or_cfg.default..., source: x, } if @isa.text x
+      return { @registry.ilx_walk_source_or_cfg.template..., source: x, } if @isa.text x
       return x unless @isa.object x
-      R         = { @registry.ilx_walk_source_or_cfg.default..., x..., }
+      R         = { @registry.ilx_walk_source_or_cfg.template..., x..., }
       ### TAINT this is a hotfix that allows to use tokens with a `value` property to be used as lexing
       cfg (which uses `source`); this fix will be removed when we have renamed one or both properties ###
       R.source  = R.value if R.value?
@@ -129,7 +129,7 @@ get_base_types = ->
       mode:           'ilx_mode'
       lxid:            'ilx_lxid'
       concat:         'boolean'
-    default:
+    template:
       mode:           null
       lxid:            '$catchall'
       concat:         false
@@ -138,7 +138,7 @@ get_base_types = ->
       mode:           'ilx_mode'
       lxid:            'ilx_lxid'
       concat:         'boolean'
-    default:
+    template:
       mode:           null
       lxid:            '$reserved'
       concat:         false
@@ -148,7 +148,7 @@ get_base_types = ->
       active:         'boolean'
       joiner:         'optional.text'
       eraser:         'optional.text'
-    default:
+    template:
       active:         true
       joiner:         null
       eraser:         null
@@ -157,10 +157,10 @@ get_base_types = ->
       # { eraser: 'x', } -> { eraser: 'x', }
       # { joiner: 'x', } -> { joiner: 'x', eraser: null, }
       # { joiner: 'x', eraser: 'y', } -> error
-      x        ?= { @registry.ilx_start_stop_preprocessor_cfg.default..., }
+      x        ?= { @registry.ilx_start_stop_preprocessor_cfg.template..., }
       return x unless @isa.object x
       R         = {}
-      R.active  = x.active ? @registry.ilx_start_stop_preprocessor_cfg.default.active
+      R.active  = x.active ? @registry.ilx_start_stop_preprocessor_cfg.template.active
       if x.joiner?
         if x.eraser?
           throw new Error "cannot set both `joiner` and `eraser`, got #{rpr x}"
@@ -175,7 +175,7 @@ get_base_types = ->
   #   fields:
   #     blank_line_count:   'positive0.integer'
   #     indent_module:      'positive1.integer'
-  #   default:
+  #   template:
   #     blank_line_count:   2
   #     ### NOTE number of spaces for one level of indentation ###
   #     indent_module:      2
@@ -184,7 +184,7 @@ get_base_types = ->
     fields:
       lnr1:           'optional.ilx_line_number'
       x1:             'optional.ilx_codeunit_idx'
-    default:
+    template:
       lnr1:           null
       x1:             null
   return base_types
