@@ -628,6 +628,10 @@ Collection of useful stuff
 * **[–]** allow for longest-first matches that, starting from the left end, always return the longest
   matching sequence, such that `list of integers` is split into `list of`, `integers` when matchers are
   `/list\b/`, `list\s+of\b`, `integers?\b` (and, indeed, `/of\s+integers?\b/`)
+  * alternatively, and simpler, require that all lexemes are bounded by a separator to the left and right as
+    motivated by [Regular-Expressions.info: *Alternation with The Vertical Bar or Pipe
+    Symbol*](https://www.regular-expressions.info/alternation.html)
+
 
 ## Is Done
 
