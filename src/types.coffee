@@ -19,6 +19,7 @@ GUY                       = require 'guy'
   echo
   log     }               = GUY.trm
 { Intertype }             = require 'intertype'
+{ Dataclass }             = require 'datom'
 base_types                = null
 misfit                    = Symbol 'misfit'
 # PATH                      = require 'node:path'
@@ -45,6 +46,7 @@ get_base_types = ->
   declare.ilx_reserved_list   'list.of.nonempty.text'
   declare.ilx_reserved_text   'nonempty.text'
   declare.ilx_lexeme_value    'function.or.text'
+  declare.ilx_token_value     'text'
   declare.ilx_splitmode       ( x ) -> x in [ 'lines', false, ]
   declare.ilx_statemode       ( x ) -> x in [ 'keep', 'reset', ]
   declare.ilx_line_number     'positive1.integer'
@@ -127,7 +129,7 @@ get_base_types = ->
   declare.ilx_add_catchall_lexeme_cfg
     fields:
       mode:           'ilx_mode'
-      lxid:            'ilx_lxid'
+      lxid:           'ilx_lxid'
       concat:         'boolean'
     template:
       mode:           null
@@ -136,7 +138,7 @@ get_base_types = ->
   declare.ilx_add_reserved_lexeme_cfg
     fields:
       mode:           'ilx_mode'
-      lxid:            'ilx_lxid'
+      lxid:           'ilx_lxid'
       concat:         'boolean'
     template:
       mode:           null
@@ -187,7 +189,45 @@ get_base_types = ->
     template:
       lnr1:           null
       x1:             null
+  #.........................................................................................................
+  declare.ilx_token_key ( x ) ->
+    return false unless @isa.text x
+    return ( x.indexOf ':' ) isnt -1
+  #=========================================================================================================
+  class Token extends Dataclass
+    @types: base_types
+    @declaration:
+      fields:
+        $key:   'ilx_token_key'
+        lnr1:   'ilx_line_number'
+        x1:     'ilx_codeunit_idx'
+        lnr2:   'ilx_line_number'
+        x2:     'ilx_codeunit_idx'
+        value:  'ilx_token_value'
+      template:
+        $key:   null
+        lnr1:   1
+        x1:     0
+        lnr2:   null
+        x2:     null
+        value:  ''
+      create: ( x ) ->
+        return x if x? and not @isa.object x
+        R       = { @registry.Token.template..., x..., }
+        R.lnr2 ?= R.lnr1
+        R.x2   ?= R.x1
+        if @isa.text R.$key ### NOTE safeguard against `$key` missing from user-supplied value ###
+          g       = ( R.$key.match /^(?<mode>[^:]+):(?<lxid>.+)$/ ).groups
+          R.mode  = g.mode
+          R.lxid  = g.lxid
+        return R
+    set_mode: ( mode ) ->
+      @__types.create[ @constructor.name ] { @..., $key: "#{mode}:#{@lxid}", }
+  ### TAINT use class method on type ###
+  new Token { $key: 'foo:bar', }
+  #.........................................................................................................
   return base_types
+
 
 
 #===========================================================================================================
