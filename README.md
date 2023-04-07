@@ -625,6 +625,9 @@ Collection of useful stuff
   `$border` tokens be emitted
 * **[–]** use `$meta` (or similar), `$outline` as mode names in preprocessors to avoid name clashes with
   userland modes
+* **[–]** allow for longest-first matches that, starting from the left end, always return the longest
+  matching sequence, such that `list of integers` is split into `list of`, `integers` when matchers are
+  `/list\b/`, `list\s+of\b`, `integers?\b` (and, indeed, `/of\s+integers?\b/`)
 
 ## Is Done
 
