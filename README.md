@@ -44,12 +44,12 @@
 * ATM adding lexemes one by one is supported by calling `lexer.add_lexeme()`
 * in the future, defining entire grammars in one go should become possible
 * `lexer.add_lexeme()` expects a `cfg` ('configuration') object with the following keys:
-  * `cfg.mode`: a valid JS identifier to identify the lexeing mode;
+  * `cfg.mode`: a valid JS identifier to identify the lexing mode;
     * if no base mode was passed on instantiation of the lexer, the mode named in the first call
       to `lexer.add_lexeme()` will become the base mode
     * lexing will start from the base mode, which thereby becomes the initial mode (but note that the base
       mode may be re-assumed later without it becoming the initial mode)
-  * `cfg.tid`: a valid JS identifier to identify the token / lexeme ID;
+  * `cfg.tid` (**T**oken **ID**): a valid JS identifier to identify the token / lexeme ID;
   * `cfg.pattern`: a string or a regular expression to describe a constant or variable pattern. Strings will
     be converted to regexes, using proper escaping for all characters that are special in regexes (like `*`,
     `(` and so on);
@@ -78,8 +78,10 @@ The `jump` property of a lexeme declaration indicates which new mode the lexer s
 it encounters a matching pattern. It is either a string or a function. Allowed strings take one of four forms
 (assuming we're in mode `plain` in the below):
 
-* **entry jumps** (jumps that mandate a jump to a new mode): say we're looking for left pointy brackets `<` and
-  want to switch to mode `tag`) have either a leading or a trailing `[` (left square bracket):
+* **entry jumps** (jumps that mandate a jump to a new mode): say we're looking for left pointy brackets `<`
+  and want to switch to mode `tag`. Depending on whether the *boundary itself* should belong to the current
+  or the upcoming mode, the value for `jump` should have either a leading or a trailing left square bracket
+  `[`:
   * `{ jump: '[tag', }`: an *inclusive entry jump*; the 'boundary post' (the token for the `<`) will belong
     to the *new* mode, `tag`). This is called 'inclusive' because the new mode already includes the upcoming
     token (although it is declared with `mode: 'plain'`). The jump target `tag` appears 'inside' the square
@@ -631,6 +633,8 @@ Collection of useful stuff
   * alternatively, and simpler, require that all lexemes are bounded by a separator to the left and right as
     motivated by [Regular-Expressions.info: *Alternation with The Vertical Bar or Pipe
     Symbol*](https://www.regular-expressions.info/alternation.html)
+* **[–]** use [`slevithan/regex`](https://github.com/slevithan/regex) internally to escape strings etc.;
+  export it for the benefit of the user
 
 
 ## Is Done
