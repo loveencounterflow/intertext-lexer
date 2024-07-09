@@ -128,7 +128,7 @@ as-is inside code spans:
 
 ```coffee
 { Interlex
-  compose  }        = require '../../../apps/intertext-lexer'
+  compose  }        = require 'intertext-lexer'
 first               = Symbol 'first'
 last                = Symbol 'last'
 #.........................................................................................................
@@ -186,7 +186,7 @@ result for a string of 'foreign' and 'reserved' characters with `concat: true` i
 
 
 ```coffee
-{ Interlex, } = require '../../../apps/intertext-lexer'
+{ Interlex, } = require 'intertext-lexer'
 ### NOTE these are the default settings, shown here for clarity ###
 lexer = new Interlex()
 #.........................................................................................................
@@ -484,7 +484,7 @@ Collection of useful stuff
 * initialize as
 
   ```coffee
-  { tools } = require '../../../apps/intertext-lexer'
+  { tools } = require 'intertext-lexer'
   prepro    = new tools.Start_stop_preprocessor { active: true, eraser: ' ', }
   ```
 
