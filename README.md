@@ -404,11 +404,11 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * no more struggling with [different end-of-line (EOL) standards](https://en.wikipedia.org/wiki/Newline)
   * lexeme definitions can simply assume `/^/` will match start-of-line and `/$/` will match end-of-line,
     forget about the 'dot match all' flag (`/.../s`)
-  * oftentimes—rather than handling the content of an entire (arbitrarily huge) file, or abitrary chunks of
-    a file derived from a running offsets + some byte lengths (which always risks cutting through a
-    multibyte UTF-8-encoded character and needs some sort of careful state-keeping)—'lines of text' will be
-    reasonably small and handy chunks of data to work with, as certified by the success of decades of
-    Posix-style line-oriented data processing
+  * oftentimes, 'lines of text' will be reasonably small and meaningful chunks of data to work with, as
+    certified by the success of decades of Posix-style line-oriented data processing; the alternative is
+    handling the content of an entire (arbitrarily huge) file, or abitrary chunks of a file derived from a
+    running offsets + some byte lengths (which always risks cutting through a multibyte UTF-8-encoded
+    character and needs some sort of careful state-keeping)
   * most of time, lexers will have no need to look at EOL characters; many languages do not care for
     newlines (outside of string literals) at all and those that do care only (at least at the lexing level)
     about whether something comes close to the start or the end of a given line, or that something like a
