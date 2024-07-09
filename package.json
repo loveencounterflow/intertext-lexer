@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "compose-regexp-commonjs": "^0.6.24",
-    "datom": "^12.1.1",
-    "guy": "^13.5.0",
-    "intertype": "^0.116.0",
+    "datom": "^12.3.0",
+    "guy": "^13.7.2",
+    "intertype": "^0.119.1",
     "ltsort": "^4.0.0",
-    "moonriver": "^4.8.2"
+    "moonriver": "^4.8.4"
   }
 }
