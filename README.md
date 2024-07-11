@@ -49,7 +49,7 @@
       to `lexer.add_lexeme()` will become the base mode
     * lexing will start from the base mode, which thereby becomes the initial mode (but note that the base
       mode may be re-assumed later without it becoming the initial mode)
-  * `cfg.tid` (**T**oken **ID**): a valid JS identifier to identify the token / lexeme ID;
+  * `cfg.lxid` (**L**e**x**eme **ID**): a valid JS identifier to identify the matched lexeme;
   * `cfg.pattern`: a string or a regular expression to describe a constant or variable pattern. Strings will
     be converted to regexes, using proper escaping for all characters that are special in regexes (like `*`,
     `(` and so on);
@@ -103,7 +103,7 @@ it encounters a matching pattern. It is either a string or a function. Allowed s
   whose mode is set to the jump target (here `foo`). For example, when declaring tokens and modes for
   typical `"string literals"`, it is possible to fast-track, as it were, the special case of an empty string
   literal, `""`, in plain mode, but still make that lexeme and token belong to the string literal mode (say,
-  `dqstr` for 'double quoted string'): `lexer.add_lexeme { mode: 'plain', tid: 'dq2', jump: '[dqstr]',
+  `dqstr` for 'double quoted string'): `lexer.add_lexeme { mode: 'plain', lxid: 'dq2', jump: '[dqstr]',
   pattern: /(?<!")""(?!")/u, reserved: '"', }`.
   * Singleton jumps will cause border tokens to be emitted just as with regular jumps (when the lexer is
     configured with `border_tokens: true`).
@@ -135,12 +135,14 @@ last                = Symbol 'last'
 new_toy_md_lexer = ( mode = 'plain' ) ->
   lexer   = new Interlex { dotall: false, }
   #.........................................................................................................
-  lexer.add_lexeme { mode: 'plain',   tid: 'escchr',    jump: null,       pattern:  /\\(?<chr>.)/u,     }
-  lexer.add_lexeme { mode: 'plain',   tid: 'star1',     jump: null,       pattern:  /(?<!\*)\*(?!\*)/u, }
-  lexer.add_lexeme { mode: 'plain',   tid: 'codespan',  jump: 'literal[', pattern:  /(?<!`)`(?!`)/u,    }
-  lexer.add_lexeme { mode: 'plain',   tid: 'other',     jump: null,       pattern:  /[^*`\\]+/u,        }
-  lexer.add_lexeme { mode: 'literal', tid: 'codespan',  jump: '.]',       pattern:  /(?<!`)`(?!`)/u,    }
-  lexer.add_lexeme { mode: 'literal', tid: 'text',      jump: null,       pattern:  /(?:\\`|[^`])+/u,   }
+  lexer.add_lexeme { mode: 'plain',   lxid: 'escchr',    jump: null,       pattern:  /\\(?<chr>.)/u,     }
+  lexer.add_lexeme { mode: 'plain',   lxid: 'star1',     jump: null,       pattern:  /(?<!\*)\*(?!\*)/u, }
+  lexer.add_lexeme { mode: 'plain',   lxid: 'codespan',  jump: 'literal[', pattern:  /(?<!`)`(?!`)/u,    }
+  lexer.add_lexeme { mode: 'plain',   lxid: 'other',     jump: null,       pattern:  /[^*`\\]+/u,        }
+  lexer.add_lexeme { mode: 'literal', lxid: 'codespan',  jump: '.]',       pattern:  /(?<!`)`(?!`)/u,    }
+  lexer.add_lexeme { mode: 'literal', lxid: 'text',      jump: null,       pattern:  /(?:\\`|[^`])+/u,   }
+  #.........................................................................................................
+  return lexer
 ```
 
 ## Topological Sorting
@@ -163,7 +165,7 @@ and character sequences that are 'triggers' for a given lexeme and, when the mod
 automatically construct two lexemes that will capture
 
 * all the remaining sequences of non-reserved characters; this is called a *catchall* lexeme (whose default
-  TID is set to `$catchall` unless overriden by a `tid` setting). The catchall lexeme's function lies in
+  TID is set to `$catchall` unless overriden by a `lxid` setting). The catchall lexeme's function lies in
   explicitly capturing any part of the input that has not been covered by any other lexemer higher up in the
   chain of patterns, thereby avoiding a more unhelpful `$error` token that would just say 'no match at
   position so-and-so' and terminate lexing.
@@ -191,13 +193,13 @@ result for a string of 'foreign' and 'reserved' characters with `concat: true` i
 lexer = new Interlex()
 #.........................................................................................................
 mode    = 'plain'
-lexer.add_lexeme { mode, tid: 'escchr',           pattern:  /\\(?<chr>.)/u, reserved: '\\', }
-lexer.add_lexeme { mode, tid: 'star2',            pattern: ( /(?<!\*)\*\*(?!\*)/u   ), reserved: '*', }
-lexer.add_lexeme { mode, tid: 'heading',          pattern: ( /^(?<hashes>#+)\s+/u ), reserved: '#', }
-lexer.add_lexeme { mode, tid: 'word',             pattern: ( /\p{Letter}+/u ), }
-lexer.add_lexeme { mode, tid: 'number_symbol',    pattern: ( /#(?=\p{Number})/u ), }
-lexer.add_lexeme { mode, tid: 'number',           pattern: ( /\p{Number}+/u ), }
-lexer.add_lexeme { mode, tid: 'ws',               pattern: ( /\s+/u ), }
+lexer.add_lexeme { mode, lxid: 'escchr',           pattern:  /\\(?<chr>.)/u, reserved: '\\', }
+lexer.add_lexeme { mode, lxid: 'star2',            pattern: ( /(?<!\*)\*\*(?!\*)/u   ), reserved: '*', }
+lexer.add_lexeme { mode, lxid: 'heading',          pattern: ( /^(?<hashes>#+)\s+/u ), reserved: '#', }
+lexer.add_lexeme { mode, lxid: 'word',             pattern: ( /\p{Letter}+/u ), }
+lexer.add_lexeme { mode, lxid: 'number_symbol',    pattern: ( /#(?=\p{Number})/u ), }
+lexer.add_lexeme { mode, lxid: 'number',           pattern: ( /\p{Number}+/u ), }
+lexer.add_lexeme { mode, lxid: 'ws',               pattern: ( /\s+/u ), }
 lexer.add_catchall_lexeme { mode, concat: false, }
 lexer.add_reserved_lexeme { mode, concat: false, }
 #.........................................................................................................
@@ -212,7 +214,7 @@ The lexer's `plain` mode now has a `$catchall` and a `reserved` lexeme:
 ```
  lexer
 ┌───────┬───────────────┬─────────────────────────────────────────┬──────┬──────────┬──────────────┐
-│mode   │tid            │pattern                                  │jump  │reserved  │type_of_jump  │
+│mode   │lxid           │pattern                                  │jump  │reserved  │type_of_jump  │
 ├───────┼───────────────┼─────────────────────────────────────────┼──────┼──────────┼──────────────┤
 │plain  │escchr         │/(?<𝔛escchr>\\(?<escchr𝔛chr>.))/u        │●     │\         │nojump        │
 │plain  │star2          │/(?<𝔛star2>(?<!\*)\*\*(?!\*))/u          │●     │*         │nojump        │
@@ -231,7 +233,7 @@ Results:
 ```
  'helo'
 ┌───────┬──────┬────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid   │mk          │jump  │value  │x1     │x2    │g   │$key    │
+│mode   │lxid  │mk          │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼──────┼────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │word  │plain:word  │●     │helo   │0      │4     │●   │^plain  │
 └───────┴──────┴────────────┴──────┴───────┴───────┴──────┴────┴────────┘
@@ -240,7 +242,7 @@ Results:
 ```
  'helo*x'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
+│mode   │lxid       │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │word       │plain:word       │●     │helo   │0      │4     │●   │^plain  │
 │plain  │$reserved  │plain:$reserved  │●     │*      │4      │5     │●   │^plain  │
@@ -251,7 +253,7 @@ Results:
 ```
  '*x'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
+│mode   │lxid       │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$reserved  │plain:$reserved  │●     │*      │0      │1     │●   │^plain  │
 │plain  │word       │plain:word       │●     │x      │1      │2     │●   │^plain  │
@@ -261,7 +263,7 @@ Results:
 ```
  '## question #1 and a hash: #'
 ┌───────┬───────────────┬─────────────────────┬──────┬──────────┬───────┬──────┬────────────────┬────────┐
-│mode   │tid            │mk                   │jump  │value     │x1     │x2    │g               │$key    │
+│mode   │lxid           │mk                   │jump  │value     │x1     │x2    │g               │$key    │
 ├───────┼───────────────┼─────────────────────┼──────┼──────────┼───────┼──────┼────────────────┼────────┤
 │plain  │heading        │plain:heading        │●     │##        │0      │3     │{ hashes: '##' }│^plain  │
 │plain  │word           │plain:word           │●     │question  │3      │11    │●               │^plain  │
@@ -282,7 +284,7 @@ Results:
 ```
  '## question #1 and a hash: \\#'
 ┌───────┬───────────────┬─────────────────────┬──────┬──────────┬───────┬──────┬────────────────┬────────┐
-│mode   │tid            │mk                   │jump  │value     │x1     │x2    │g               │$key    │
+│mode   │lxid           │mk                   │jump  │value     │x1     │x2    │g               │$key    │
 ├───────┼───────────────┼─────────────────────┼──────┼──────────┼───────┼──────┼────────────────┼────────┤
 │plain  │heading        │plain:heading        │●     │##        │0      │3     │{ hashes: '##' }│^plain  │
 │plain  │word           │plain:word           │●     │question  │3      │11    │●               │^plain  │
@@ -305,7 +307,7 @@ Result with `add_catchall_lexeme { mode, concat: false, }`, `add_reserved_lexeme
 ```
  ':.;*#'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
+│mode   │lxid       │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$catchall  │plain:$catchall  │●     │:      │0      │1     │●   │^plain  │
 │plain  │$catchall  │plain:$catchall  │●     │.      │1      │2     │●   │^plain  │
@@ -320,14 +322,14 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 ```
  ':.;*#'
 ┌───────┬───────────┬─────────────────┬──────┬───────┬───────┬──────┬────┬────────┐
-│mode   │tid        │mk               │jump  │value  │x1     │x2    │g   │$key    │
+│mode   │lxid       │mk               │jump  │value  │x1     │x2    │g   │$key    │
 ├───────┼───────────┼─────────────────┼──────┼───────┼───────┼──────┼────┼────────┤
 │plain  │$catchall  │plain:$catchall  │●     │:.;    │0      │3     │●   │^plain  │
 │plain  │$reserved  │plain:$reserved  │●     │*#     │3      │5     │●   │^plain  │
 └───────┴───────────┴─────────────────┴──────┴───────┴───────┴──────┴────┴────────┘
 ```
 
-* it is possible to give `$catchall` and `$reserved` lexemes a custom TID by settting the `tid` parameter
+* it is possible to give `$catchall` and `$reserved` lexemes a custom TID by settting the `lxid` parameter
   when calling `lexer.add_catchall_lexeme()` and `lexer.add_reserved_lexeme()`
 
 ## Linewise Lexing and State-Keeping
@@ -359,10 +361,10 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
     with no change in mode. Enable border tokens and now you get a sequence
 
       ```coffee
-      { mode: 'tag', tid: 'rightpointy',  value: '>', }
-      { mode: 'tag', tid: '$border',      value: '', atrs: { prv: 'tag',   nxt: 'plain', }, }
-      { mode: 'tag', tid: '$border',      value: '', atrs: { prv: 'plain', nxt: 'tag',   }, }
-      { mode: 'tag', tid: 'leftpointy',   value: '<', }`
+      { mode: 'tag', lxid: 'rightpointy',  value: '>', }
+      { mode: 'tag', lxid: '$border',      value: '', atrs: { prv: 'tag',   nxt: 'plain', }, }
+      { mode: 'tag', lxid: '$border',      value: '', atrs: { prv: 'plain', nxt: 'tag',   }, }
+      { mode: 'tag', lxid: 'leftpointy',   value: '<', }`
       ```
 
   * `value` of border tokens can be set with e.g. `cfg.border_value: '|'` (can then concatenate all `value`
@@ -417,7 +419,7 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
 * each time `lexer.feed()`, `lexer.walk()`, or `lexer.run()` is called, internal line counter is incremented
 * therefore, should call `lexer.feed()`, `lexer.walk()`, and `lexer.run()` only with a single line of text
 * observe that one can always call `lexer.walk { path, }`, then lexer will iterate over lines of the file
-* lexer will yield lexemes in the shape `{ mode, tid, mk, jump, value, lnr1, x1, lnr2, x2, g, source, }` as
+* lexer will yield lexemes in the shape `{ mode, lxid, mk, jump, value, lnr1, x1, lnr2, x2, g, source, }` as
   with non-linewise lexing, but with `source` representing the current line (not the entire lexed text),
   `lnr1` indicating the 1-based line number of the start of the match, `lnr2` the same for the end of the
   match, and `x1` and `x2` indexing into those lines in terms of exclusive 0-based [UTF-16 code unit
@@ -537,8 +539,8 @@ Collection of useful stuff
 * **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
   MarkDown star lexer
 * **[–]** clarify whether to use 'lexeme ID' or 'token ID'; whould really be the former because a lexeme is
-  the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `tid`
-  may repeat while there can only be at most one lexeme with a given `tid` in a given namespace / mode
+  the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `lxid`
+  may repeat while there can only be at most one lexeme with a given `lxid` in a given namespace / mode
 * **[–]** implement readable representation / RPR for lexers, maybe as table
 * **[–]** safeguard against undefined lexemes mentioned by `before`, `after`
 * **[–]** distinguish between
@@ -587,15 +589,15 @@ Collection of useful stuff
   a minor optimization
 * **[–]** how to mark borders when two inclusive jumps appear with no separation as in `<tag1><tag2>`?
 * **[–]** implement method to add standard lexemes:
-  * **[–]** for escaped characters, like `{ mode, tid: 'escchr', pattern:
+  * **[–]** for escaped characters, like `{ mode, lxid: 'escchr', pattern:
   /\\(?<chr>.)/u, reserved: '\\', }`
-  * **[–]** for line ends / newlines, like `{ mode, tid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
+  * **[–]** for line ends / newlines, like `{ mode, lxid: 'nl', jump: null, pattern: /$/u, value: '\n', }`
 * **[–]** add tests to ensure positive, negative lookbehinds, lookaheads are not recognized as capturing
   groups
 * **[–]** might want to have tokens that cause one or two border tokens to be emitted, notation:
-  * `jump: '].['`: emit one token `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
-  * `jump: ']..['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
-  * `jump: ']xyz['`: emit two tokens `{ tid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ tid:
+  * `jump: '].['`: emit one token `{ lxid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
+  * `jump: ']..['`: emit two tokens `{ lxid: '$border, data: { prv: 'plain', nxt: 'plain', }, }`
+  * `jump: ']xyz['`: emit two tokens `{ lxid: '$border, data: { prv: 'plain', nxt: 'xyz', }, }` and `{ lxid:
     '$border, data: { prv: 'xyz', nxt: 'plain', }, }`; the mode `xyz` introduced here need not be declared
 * **[–]** implement positioning API to ensure correct positioning of tokens obtained from a lexer that
   consumes output of a `Start_stop_preprocessor`:
