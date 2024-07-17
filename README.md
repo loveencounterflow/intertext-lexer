@@ -526,6 +526,17 @@ Collection of useful stuff
       intermittend start/stop marks, the relative ordering of active and inactive chunks is not guaranteed;
       only the ordering relative to other active (respectively inactive) tokens is preserved
 
+<!--
+## Practical Example: The Prompt Parser
+
+* Match anything except the sequence `p#` followed by a digit: (thx to [this top-rated SO answer](https://stackoverflow.com/a/977294/7568091))
+
+```coffee
+  lexer.add_lexeme { mode: 'marks', lxid: 'comment',    jump: null,     pattern:  /(?:(?!p#[0-9]|\]).)+/u,              }
+```
+
+ -->
+
 ## To Do
 
 * **[–]** documentation
