@@ -432,8 +432,8 @@ class Interlex
   #---------------------------------------------------------------------------------------------------------
   _call_jump_handler: ( lexeme, token, match ) ->
     unless ( divert = lexeme.jump { token, match, lexer: @, } )?
-      jump_cfg = GUY.props.pick_with_fallback lexeme, null, 'jump_action', 'jump_time', 'jump_target'
-      return { token, jump_cfg..., }
+      jump_cfg = GUY.props.pick_with_fallback lexeme, null, 'jump_time', 'jump_target'
+      return { token, jump_cfg..., jump_action: null, }
     #.......................................................................................................
     switch type = @types.type_of divert
       when 'text'
