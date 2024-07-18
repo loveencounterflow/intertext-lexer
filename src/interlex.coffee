@@ -193,6 +193,7 @@ class Interlex
   _start: ( source = null ) ->
     ### TAINT use `@types.create.ilx_state()` ###
     @_finalize() if @state? and not @state.finalized
+    call_reset                          = @state?
     @state                             ?= {}
     @state.finalized                   ?= false
     switch @cfg.state
@@ -218,7 +219,7 @@ class Interlex
     else
       @state.lnr1     = 0
     #.......................................................................................................
-    @reset()
+    @reset() if call_reset
     return null
 
   #---------------------------------------------------------------------------------------------------------
