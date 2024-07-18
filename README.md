@@ -370,8 +370,8 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   * `value` of border tokens can be set with e.g. `cfg.border_value: '|'` (can then concatenate all `value`
     properties of all tokens to visualize where lexer mode was changed)
 
-* Behavior of automatic `$start` and `$end` tokens:
-  * only when enabled at instantiation with `start_token: true` and / or `end_token: true`
+* Behavior of automatic `$eof` tokens:
+  * only when enabled at instantiation with `eof_token: true`
   * when start tokens are enabled, they will be sent
     * when `state` is `reset`: each time `lexer.walk()` is called
     * when `state` is `keep`: only when `lexer.walk()` is called for the first time after an implicit or
@@ -380,12 +380,9 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
       `lexer.end()`)
   * in any event, 'reset of lexer state' means that mode stack is emptied and the lexing mode is set to the
     base mode; however, the line number will not be reset to `1`
-  * when end tokens are enabled, they will be sent
+  * when EOF tokens are enabled, they will be sent
     * when `state` is `reset`: each time `lexer.walk()` is called and has exhausted the current source
-    * when `state` is `keep`: any time when `lexer.end()` is called (explicitly). After `lexer.end()` has
-      been called, the next time a source is being iterated over with `lexer.walk()`, that call will be
-      treated like the very first call to `lexer.walk()` and hence trigger a start token to be sent (in case
-      `start_token` is `true`)
+    * when `state` is `keep`: any time when `lexer.end()` is called (explicitly)
   * there's the edge case that a reset of the lexer state caused by an explicit call to `lexer.start()` from
     application code *within* a `for token from lexer.walk source` loop; this is a question that will have
     to be dealt with later

@@ -74,6 +74,7 @@ get_base_types = ->
   #.........................................................................................................
   declare.ilx_interlex_constructor_cfg
     fields:
+      eof_token:        'boolean'
       error_tokens:     'boolean'
       border_tokens:    'boolean'
       border_value:     'text'
@@ -91,6 +92,7 @@ get_base_types = ->
       # global ???
       # ignorecase  # ignoreCase
     template:
+      eof_token:        false
       error_tokens:     true
       border_tokens:    false
       border_value:     ''

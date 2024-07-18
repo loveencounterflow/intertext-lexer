@@ -402,7 +402,7 @@ class Interlex
     if @state.prv_last_idx >= @state.source.length
       ### reached end ###
       @state.finished     = true
-      token               = @_new_token '$eof', '', 0 if @cfg.end_token
+      token               = @_new_token '$eof', '', 0 if @cfg.eof_token
       return token
     #.......................................................................................................
     match = @state.source.match @state.pattern
