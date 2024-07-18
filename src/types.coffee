@@ -74,8 +74,6 @@ get_base_types = ->
   #.........................................................................................................
   declare.ilx_interlex_constructor_cfg
     fields:
-      start_token:      'boolean'
-      end_token:        'boolean'
       error_tokens:     'boolean'
       border_tokens:    'boolean'
       border_value:     'text'
@@ -86,11 +84,13 @@ get_base_types = ->
       trim:             'boolean'
       prepend:          'text'
       append:           'text'
+      first:            'anything'
+      last:             'anything'
+      start_of_line:    'anything'
+      end_of_line:      'anything'
       # global ???
       # ignorecase  # ignoreCase
     template:
-      start_token:      false
-      end_token:        false
       error_tokens:     true
       border_tokens:    false
       border_value:     ''
@@ -101,6 +101,16 @@ get_base_types = ->
       trim:             true
       prepend:          ''
       append:           ''
+      first:            null
+      last:             null
+      start_of_line:    null
+      end_of_line:      null
+    create: ( x ) ->
+      R = { @registry.ilx_interlex_constructor_cfg.template..., x..., }
+      for key in [ 'first', 'last', 'start_of_line', 'end_of_line', ]
+        continue unless @isa.function ( get = R[ key ] )
+        Object.defineProperty R, key, { get, }
+      return R
   #.........................................................................................................
   declare.ilx_walk_source_or_cfg
     fields:

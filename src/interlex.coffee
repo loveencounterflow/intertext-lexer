@@ -308,8 +308,11 @@ class Interlex
   walk: ( source_or_cfg ) ->
     cfg = @types.cast.ilx_walk_source_or_cfg source_or_cfg
     # @set_offset cfg
-    return @_walk_text        cfg if cfg.source?
-    return @_walk_file_lines  cfg
+    yield @cfg.first if @cfg.first?
+    if cfg.source? then yield from @_walk_text        cfg
+    else                yield from @_walk_file_lines  cfg
+    yield @cfg.last if @cfg.last?
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text: ( cfg ) ->
@@ -323,13 +326,18 @@ class Interlex
     loop
       break if @state.finished
       yield from @step()
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _walk_text_lines: ( cfg ) ->
+    #.......................................................................................................
     for { lnr: lnr1, line, eol, } from GUY.str.walk_lines_with_positions cfg.source, \
       { trim: @cfg.trim, prepend: @cfg.prepend, append: @cfg.append, }
+      yield @cfg.start_of_line if @cfg.start_of_line?
       yield from @_walk_text_whole { cfg..., lnr1, source: line, eol, }
+      yield @cfg.end_of_line if @cfg.end_of_line?
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
