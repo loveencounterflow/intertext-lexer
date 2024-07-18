@@ -16,6 +16,7 @@
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
   - [Linewise Lexing and State-Keeping](#linewise-lexing-and-state-keeping)
     - [CFG Settings `first`, `last`, `start_of_line`, `end_of_line`](#cfg-settings-first-last-start_of_line-end_of_line)
+    - [The `reset()` Method](#the-reset-method)
     - [Linewise Lexing](#linewise-lexing)
   - [Prepending and Appending to Chunks and Lines](#prepending-and-appending-to-chunks-and-lines)
   - [Comparing Token Positions](#comparing-token-positions)
@@ -67,7 +68,7 @@
   * `cfg.value` and `cfg.empty_value` allow to set the `value` property of a token; both can be either
     `null` (the default), a text or a function whose return value will become `token.value`.
     * when defined, `cfg.value` will always override the token value; `cfg.empty_value` will only be
-      considered then the token value would be an empty string
+      considered when the token value would be an empty string
     * when `cfg.value` or `cfg.empty_value` are functions, they will be called in the context of the lexer
       and with the token as only argument
     * `cfg.value` or `cfg.empty_value` will be considered immediately before `cfg.create()` is called (where
@@ -123,7 +124,7 @@ it encounters a matching pattern. It is either a string or a function. Allowed s
 
 ## Example
 
-Here is a minimal lexer that understands a tiny fraction of the MarkDown grammar, namely, single stars `*`
+Here is a minimal lexer that understands a tiny fraction of the Markdown grammar, namely, single stars `*`
 for emphasis and single backticks `` ` `` for code spans. The single star will be passed through
 as-is inside code spans:
 
@@ -174,7 +175,7 @@ automatically construct two lexemes that will capture
 * all the remaining *reserved* characters (default TID: `$reserved`); these could conceivably be used to
   produce a list of fishy parts in the source, and / or to highlight such places in the output, or, if one
   feels so inclined, terminate parsing with an error message. For example, when one wants to translate
-  MarkDown-like markup syntax to HTML, one could decide that double stars start and end bold type
+  Markdown-like markup syntax to HTML, one could decide that double stars start and end bold type
   (`<strong>...</strong>`), or, when a single asterisk is used at the start of a line, indicate unordered
   list items (`<ul>...<li>...</ul>`), and are considered illegal in any other position except inside code
   stretches and when escaped with a backslash. Such a mechanism can help to uncover problems with the source
@@ -405,6 +406,11 @@ send `null`, `undefined` or a function, use a function with that return value.
 * **`start_of_line`**: only when `split: 'lines'` is set: emitted before first token (if any) of each line
 * **`end_of_line`**: only when `split: 'lines'` is set: emitted after last token (if any) of each line
 
+### The `reset()` Method
+
+The `reset()` method of the Lexer will be called at the beginning of lexing and, additionally when `split:
+'lines'` is set, before each new line.
+
 ### Linewise Lexing
 
 ***TO BE UPDATED***
@@ -556,7 +562,7 @@ Collection of useful stuff
 * **[–]** allow to add lexemes w/out explicit mode, will provide default / add to base mode
 * **[–]** use [`datom`s](https://github.com/loveencounterflow/datom)
 * **[–]** provide collection of standard lexers for recurring tasks, including an abstracted version of
-  MarkDown star lexer
+  Markdown star lexer
 * **[–]** clarify whether to use 'lexeme ID' or 'token ID'; whould really be the former because a lexeme is
   the description ('class' or 'type' if you will) of its instances (the tokens); tokens with the same `lxid`
   may repeat while there can only be at most one lexeme with a given `lxid` in a given namespace / mode
