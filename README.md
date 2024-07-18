@@ -751,5 +751,6 @@ Collection of useful stuff
       preprocessor (for the current chunk or line at least) before regular lexing can start</del>
     * <del>this is essentially the behavior of `Interlex` itself, so one could implement preprocessing by
       instantiating a separate `Interlex` instance</del>
+* **[+]** tokens should never have the jump function as value for the `jump` property
 
 
