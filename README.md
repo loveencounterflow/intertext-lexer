@@ -15,6 +15,7 @@
   - [Topological Sorting](#topological-sorting)
   - [Reserved and Catchall Lexemes](#reserved-and-catchall-lexemes)
   - [Linewise Lexing and State-Keeping](#linewise-lexing-and-state-keeping)
+    - [CFG Settings `first`, `last`, `start_of_line`, `end_of_line`](#cfg-settings-first-last-start_of_line-end_of_line)
     - [Linewise Lexing](#linewise-lexing)
   - [Prepending and Appending to Chunks and Lines](#prepending-and-appending-to-chunks-and-lines)
   - [Comparing Token Positions](#comparing-token-positions)
@@ -392,7 +393,17 @@ Result with `add_catchall_lexeme { mode, concat: true, }`, `add_reserved_lexeme 
   erroneously forgotten closing quote will not affect the entire rest of the result; in other words, it
   makes lexing a little more robust.
 
+### CFG Settings `first`, `last`, `start_of_line`, `end_of_line`
 
+It is possible to include any kind of values when lexing starts or ends and also before and after each line;
+in each case, no value is sent if the respective setting is `null` or `undefined`; when the setting has been
+set to a function, that function is called without arguments; all other values are sent as-is. In order to
+send `null`, `undefined` or a function, use a function with that return value.
+
+* **`first`**: emitted as first token
+* **`last`**: emitted as last token when end of source has been reached
+* **`start_of_line`**: only when `split: 'lines'` is set: emitted before first token (if any) of each line
+* **`end_of_line`**: only when `split: 'lines'` is set: emitted after last token (if any) of each line
 
 ### Linewise Lexing
 
