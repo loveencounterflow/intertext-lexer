@@ -346,7 +346,9 @@ class Interlex
     ### TAINT derive `cfg` for line iterator (`trim`, `chunk_size`) ###
     for { line, } from GUY.fs.walk_lines_with_positions cfg.path, \
       { trim: @cfg.trim, prepend: @cfg.prepend, append: @cfg.append, }
+      yield @cfg.start_of_line if @cfg.start_of_line?
       yield from @_walk_text { cfg..., source: line, }
+      yield @cfg.end_of_line if @cfg.end_of_line?
     return null
 
 
