@@ -662,6 +662,9 @@ Collection of useful stuff
     Symbol*](https://www.regular-expressions.info/alternation.html)
 * **[–]** use [`slevithan/regex`](https://github.com/slevithan/regex) internally to escape strings etc.;
   export it for the benefit of the user
+* **[–]** what can be done to improve the story about line numbers, difficulties around which have been
+  cropped up with `promptparser`? Basically one should be able to send in a fragment of text together with a
+  `lnr` and then the lexer will count from there; how do line numbers interact with `state: 'reset'`?
 
 
 ## Is Done
