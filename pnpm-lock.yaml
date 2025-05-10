@@ -15,8 +15,8 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0(acorn-loose@8.3.0)(acorn-walk@8.2.0)(acorn@8.8.2)(astring@1.8.4)(chokidar@3.6.0)(dayjs@1.11.7)(tmp@0.2.1)
       guy:
-        specifier: ^13.7.2
-        version: 13.7.2(acorn-loose@8.3.0)(acorn-walk@8.2.0)(acorn@8.8.2)(astring@1.8.4)(chokidar@3.6.0)(dayjs@1.11.7)(tmp@0.2.1)
+        specifier: ^14.2.0
+        version: 14.2.0
       intertype:
         specifier: ^0.119.1
         version: 0.119.1(acorn-loose@8.3.0)(acorn-walk@8.2.0)(acorn@8.8.2)(astring@1.8.4)(tmp@0.2.1)
@@ -151,6 +151,9 @@ packages:
       chokidar: ^3.5.3
       dayjs: ^1.11.7
       tmp: ^0.2.1
+
+  guy@14.2.0:
+    resolution: {integrity: sha512-3b3TgmxfspcLULdJ4oOw8uD6hNnVJ4aFJnzoWSHigil+y1UGb3/otrrZcPDQaiL5LRzaJsRi/6AorNOf/F4VtA==}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -404,6 +407,10 @@ snapshots:
       intertype-legacy: 7.7.1
       letsfreezethat: 3.1.0
       tmp: 0.2.1
+
+  guy@14.2.0:
+    dependencies:
+      intertype-legacy: 7.7.1
 
   inflight@1.0.6:
     dependencies:

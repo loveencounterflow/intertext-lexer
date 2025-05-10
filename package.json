@@ -17,7 +17,7 @@
   "dependencies": {
     "compose-regexp-commonjs": "^0.6.24",
     "datom": "^12.3.0",
-    "guy": "^13.7.2",
+    "guy": "^14.2.0",
     "intertype": "^0.119.1",
     "ltsort": "^4.0.0",
     "moonriver": "^4.8.4"
