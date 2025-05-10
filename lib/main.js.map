@@ -6,8 +6,8 @@
     "../src/main.coffee"
   ],
   "names": [],
-  "mappings": "AAAA;AAAA,MAAA;;EAAA,KAAA,GAAkB,CAChB,GAAA,CAAE,OAAA,CAAQ,iCAAR,CAAF,CADgB,EAEhB,GAAA,CAAE,OAAA,CAAQ,8BAAR,CAAF,CAFgB;;EAGlB,MAAM,CAAC,OAAP,GAAkB,CAAE,GAAA,CAAE,OAAA,CAAQ,YAAR,CAAF,CAAF,EAA+B,GAAA,CAAE,OAAA,CAAQ,UAAR,CAAF,CAA/B,EAA0D,KAA1D;AAHlB",
+  "mappings": "AAAA;EAAA,MAAM,CAAC,OAAP,GAAkB,CAAE,GAAA,CAAE,OAAA,CAAQ,YAAR,CAAF,CAAF,EAA+B,GAAA,CAAE,OAAA,CAAQ,UAAR,CAAF,CAA/B;AAAlB",
   "sourcesContent": [
-    "tools           = {\n  ( require './tools/start-stop-preprocessor' )...,\n  ( require './tools/outline-preprocessor'    )..., }\nmodule.exports  = { ( require './interlex' )..., ( require './syntax' )..., tools, }"
+    "module.exports  = { ( require './interlex' )..., ( require './syntax' )..., }"
   ]
 }
